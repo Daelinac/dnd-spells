@@ -1,0 +1,73 @@
+{
+  "name": "Ядовитые брызги [Poison Spray]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы простираете руку к существу, видимому в пределах дистанции, и выпускаете из ладони клубы токсичного газа. Это существо должно преуспеть в <b>спасброске Телосложения</b>, иначе оно получит <b>1к12 урона ядом</b>.\n\nУрон этого заклинания увеличивается на 1к12, когда вы достигаете 5-го уровня (2к12), 11-го уровня (3к12) и 17-го уровня (4к12)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "10 футов",
+    "save_display": "Спасбросок Телосложения",
+    "damage_display": "1к12 (Яд)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 10,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "save",
+    "damage": {
+      "parts": [
+        [
+          "1d12",
+          "poison"
+        ]
+      ]
+    },
+    "save": {
+      "ability": "con"
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d12"
+    }
+  },
+  "classes": [
+    "wizard",
+    "druid",
+    "artificer",
+    "warlock",
+    "sorcerer"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "name": "Свет [Light]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы касаетесь одного предмета, длина которого ни по одному из измерений не превышает 10 футов. Пока заклинание активно, предмет испускает яркий свет в радиусе 20 футов и тусклый свет в пределах ещё 20 футов. Свет может быть любого выбранного вами цвета. Полное покрытие предмета чем-то непрозрачным блокирует свет. Заклинание оканчивается, если вы наложите его ещё раз или окончите действием.\n\nЕсли вы нацелились на предмет, несомый или носимый враждебным существом, это существо должно преуспеть в <b>спасброске Ловкости</b>, чтобы увернуться от заклинания."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "1 час",
+    "range_display": "Касание",
+    "save_display": null,
+    "damage_display": null,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "hour"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "touch"
+    },
+    "actionType": "utility",
+    "damage": {
+      "parts": []
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": false,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "светлячок или фосфоресцирующий мох"
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "classes": [
+    "bard",
+    "wizard",
+    "cleric",
+    "artificer",
+    "sorcerer",
+    "warlock"
+  ]
+}

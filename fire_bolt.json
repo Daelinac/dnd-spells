@@ -1,0 +1,71 @@
+{
+  "name": "Огненный снаряд [Fire Bolt]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы кидаете сгусток огня в существо или предмет в пределах дистанции. Совершите по цели дальнобойную атаку заклинанием. При попадании цель получает <b>1к10 урона огнём</b>. Горючие предметы, по которым попало это заклинание, воспламеняются, если их никто не несет и не носит.\n\nУрон этого заклинания увеличивается на 1к10, когда вы достигаете 5-го уровня (2к10), 11-го уровня (3к10), 17-го уровня (4к10)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "120 футов",
+    "save_display": null,
+    "damage_display": "1к10 (Огонь)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 120,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "attack",
+    "damage": {
+      "parts": [
+        [
+          "1d10",
+          "fire"
+        ]
+      ]
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d10"
+    }
+  },
+  "classes": [
+    "wizard",
+    "artificer",
+    "sorcerer"
+  ]
+}

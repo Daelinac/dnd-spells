@@ -1,0 +1,69 @@
+{
+  "name": "Сотворение пламени [Produce Flame]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "В вашей ладони появляется мерцающее пламя. Оно остаётся там, пока заклинание активно, и не вредит ни вам, ни вашему снаряжению. Огонь испускает яркий свет в радиусе 10 футов и тусклый свет в пределах ещё 10 футов. Заклинание оканчивается, если вы оканчиваете его действием или накладываете ещё раз.\n\nВы можете атаковать этим пламенем, но это тоже оканчивает заклинание. Когда вы накладываете это заклинание, или другим действием в одном из последующих ходов вы можете метнуть пламя в существо, находящееся в пределах 30 футов от вас. Совершите дальнобойную атаку заклинанием. При попадании цель получает <b>1к8 урона огнём</b>.\n\nУрон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 действие",
+    "duration_display": "10 минут",
+    "range_display": "На себя",
+    "save_display": null,
+    "damage_display": "1к8 (Огонь)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 10,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "actionType": "attack",
+    "damage": {
+      "parts": [
+        [
+          "1d8",
+          "fire"
+        ]
+      ]
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d8"
+    }
+  },
+  "classes": [
+    "druid"
+  ]
+}

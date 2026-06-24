@@ -1,0 +1,72 @@
+{
+  "name": "Леденящее прикосновение [Chill Touch]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы создаете призрачную руку скелета в пространстве существа, находящегося в пределах дистанции. Совершите дальнобойную атаку заклинанием по существу, чтобы окутать его могильным холодом. При попадании цель получает <b>1к8 урона некротической энергией</b> и не может восстанавливать хиты до начала вашего следующего хода. Все это время рука держится за цель.\n\nЕсли вы попадаете по Нежити, то она также совершает по вам броски атаки с <b>помехой</b> до конца вашего следующего хода.\n\nУрон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "nec",
+    "school_name": "Некромантия",
+    "school_color": "#7f8c8d",
+    "activation_display": "1 действие",
+    "duration_display": "1 раунд",
+    "range_display": "120 футов",
+    "save_display": null,
+    "damage_display": "1к8 (Некротический)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "round"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 120,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "attack",
+    "damage": {
+      "parts": [
+        [
+          "1d8",
+          "necrotic"
+        ]
+      ]
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d8"
+    }
+  },
+  "classes": [
+    "wizard",
+    "warlock",
+    "sorcerer",
+    "druid"
+  ]
+}
