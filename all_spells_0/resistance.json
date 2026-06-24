@@ -1,0 +1,66 @@
+{
+  "name": "Сопротивление [Resistance]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы касаетесь одного согласного существа. Пока заклинание активно, цель может один раз бросить к4 и добавить выпавшее число к одному спасброску на свой выбор. Кость можно кидать до или после спасброска. После этого заклинание оканчивается."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "abj",
+    "school_name": "Ограждение",
+    "school_color": "#2980b9",
+    "activation_display": "1 действие",
+    "duration_display": "1 минута, концентрация",
+    "range_display": "Касание",
+    "save_display": null,
+    "damage_display": null,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "touch"
+    },
+    "actionType": "utility",
+    "damage": {
+      "parts": []
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "крошечный плащ"
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "classes": [
+    "druid",
+    "cleric",
+    "artificer"
+  ]
+}

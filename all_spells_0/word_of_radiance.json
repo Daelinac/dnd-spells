@@ -1,0 +1,69 @@
+{
+  "name": "Слово сияния [Word of Radiance]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы произносите божественное слово и исторгаете из себя обжигающее сияние. Каждое существо по вашему выбору, которое вы можете видеть в пределах дистанции, должно преуспеть в <b>спасброске Телосложения</b>, иначе получит <b>1к6 урона излучением</b>.\n\nУрон заклинания увеличивается на 1к6, когда вы достигаете 5-го уровня (2к6), 11-го уровня (3к6), и 17-го уровня (4к6)."
+    },
+    "source": {
+      "book": "XGtE"
+    },
+    "level": 0,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "5 футов (сфера 5 фт)",
+    "save_display": "Спасбросок Телосложения",
+    "damage_display": "1к6 (Излучение)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": 5,
+      "units": "ft",
+      "type": "sphere"
+    },
+    "range": {
+      "value": 5,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "save",
+    "damage": {
+      "parts": [
+        [
+          "1d6",
+          "radiant"
+        ]
+      ]
+    },
+    "save": {
+      "ability": "con"
+    },
+    "components": {
+      "vocal": true,
+      "somatic": false,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "священный символ"
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d6"
+    }
+  },
+  "classes": [
+    "cleric"
+  ]
+}

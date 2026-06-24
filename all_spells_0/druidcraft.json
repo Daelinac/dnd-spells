@@ -1,0 +1,64 @@
+{
+  "name": "Искусство друидов [Druidcraft]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Пошептавшись с духами природы, вы создаёте один из следующих эффектов в пределах дистанции:\n\nВы создаёте крохотный безвредный ощутимый эффект, предсказывающий погоду в текущем месте в течение следующих 24 часов. Это может быть золотистый шарик, означающий ясную погоду, облачко, означающее дождь, снежинка, и так далее. Эффект длится 1 раунд.\nВы мгновенно заставляете цветок распуститься, семечко прорасти, или почку раскрыться.\nВы создаёте мгновенный безвредный ощутимый эффект, такой как падающие листья, порыв ветра, звук маленького животного, или слабый запах скунса. Эффект должен находиться в кубе с длиной ребра 5 футов.\nВы мгновенно зажигаете или тушите свечу, факел или небольшой костёр."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "trs",
+    "school_name": "Преобразование",
+    "school_color": "#9b59b6",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "30 футов",
+    "save_display": null,
+    "damage_display": null,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "utility",
+    "damage": {
+      "parts": []
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "classes": [
+    "druid"
+  ]
+}

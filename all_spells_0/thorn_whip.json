@@ -1,0 +1,70 @@
+{
+  "name": "Терновый кнут [Thorn Whip]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы создаёте длинный, похожий на лозу кнут, покрытый шипами, бьющий по вашей команде существо, находящееся в пределах дистанции. Совершите рукопашную атаку заклинанием по цели. Если атака попадает, существо получает <b>1к6 урона колющим</b>, и, если размер существа не больше Большого, вы подтягиваете существо на расстояние до 10 футов к себе.\n\nУрон этого заклинания увеличивается на 1к6, когда вы достигаете 5 уровня (2к6), 11 уровня (3к6) и 17 уровня (4к6)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "trs",
+    "school_name": "Преобразование",
+    "school_color": "#9b59b6",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "30 футов",
+    "save_display": null,
+    "damage_display": "1к6 (Колющий)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "attack",
+    "damage": {
+      "parts": [
+        [
+          "1d6",
+          "piercing"
+        ]
+      ]
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "стебель растения с шипами"
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d6"
+    }
+  },
+  "classes": [
+    "druid",
+    "artificer"
+  ]
+}

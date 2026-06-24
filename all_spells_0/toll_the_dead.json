@@ -1,0 +1,71 @@
+{
+  "name": "Погребальный звон [Toll the Dead]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы указываете на одно существо, которое можете видеть в пределах дистанции, и воздух вокруг него на мгновение наполняется скорбным звучанием колокола. Цель должна преуспеть в <b>спасброске Мудрости</b>, иначе получит <b>1к8 урона некротической энергией</b>. Если хиты цели были не полные, то вместо 1к8 она получает <b>1к12 урона некротической энергией</b>.\n\nУрон заклинания увеличивается на одну кость, когда вы достигаете 5-го уровня (2к8 или 2к12), 11-го уровня (3к8 или 3к12) и 17-го уровня (4к8 или 4к12)."
+    },
+    "source": {
+      "book": "XGtE"
+    },
+    "level": 0,
+    "school": "nec",
+    "school_name": "Некромантия",
+    "school_color": "#7f8c8d",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "60 футов",
+    "save_display": "Спасбросок Мудрости",
+    "damage_display": "1к8 / 1к12 (Некротический)",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "save",
+    "damage": {
+      "parts": [
+        [
+          "1d8",
+          "necrotic"
+        ]
+      ]
+    },
+    "save": {
+      "ability": "wis"
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d8"
+    }
+  },
+  "classes": [
+    "wizard",
+    "cleric",
+    "warlock"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "Волшебная рука [Mage Hand]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "В точке, выбранной вами в пределах дистанции, появляется призрачная парящая рука. Рука существует, пока заклинание активно или пока вы не отпустите её действием. Рука исчезает, если окажется более чем в 30 футах от вас или если вы повторно наложите это заклинание.\n\nВы можете действием контролировать руку. С её помощью вы можете манипулировать предметами, открывать незапертые двери и контейнеры, убирать предметы в открытые контейнеры и доставать их оттуда или выливать содержимое флаконов. При каждом использовании руки вы можете переместить её на 30 футов.\n\nРука не может совершать атаки, активировать магические предметы и переносить более 10 фунтов (4,5 кг)."
+    },
+    "source": {
+      "book": "PHB"
+    },
+    "level": 0,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 действие",
+    "duration_display": "1 минута",
+    "range_display": "30 футов",
+    "save_display": null,
+    "damage_display": null,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "units": null,
+      "type": null
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "actionType": "utility",
+    "damage": {
+      "parts": []
+    },
+    "save": {
+      "ability": null
+    },
+    "components": {
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": ""
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "classes": [
+    "bard",
+    "wizard",
+    "artificer",
+    "warlock",
+    "sorcerer"
+  ]
+}
