@@ -1,0 +1,30 @@
+{
+    "name": "Брызги кислоты [Acid Splash]",
+    "type": "spell",
+    "system": {
+      "description": {
+        "value": "Вы кидаете кислотный шарик. Выберите одно существо, которое вы видите в пределах дистанции, или два существа, которых вы видите в пределах дистанции, находящихся в пределах 5 футов друг от друга. Цель должна преуспеть в <b>спасброске Ловкости</b>, иначе получит <b>1к6 урона кислотой</b>.\n\nУрон этого заклинания увеличивается на 1к6, когда вы достигаете 5-го уровня (2к6), 11-го уровня (3к6) и 17-го уровня (4к6)."
+      },
+      "source": { "book": "PHB" },
+      "level": 0,
+      "school": "con",
+      "school_name": "Вызов",
+      "school_color": "#e67e22",
+      "activation_display": "1 действие",
+      "duration_display": "Мгновенная",
+      "range_display": "60 футов",
+      "save_display": "Спасбросок Ловкости",
+      "damage_display": "1к6 (Кислота)",
+      "activation": { "type": "action", "cost": 1, "condition": "" },
+      "duration": { "value": null, "units": "inst" },
+      "target": { "value": null, "units": null, "type": null },
+      "range": { "value": 60, "long": null, "units": "ft" },
+      "actionType": "save",
+      "damage": { "parts": [["1d6", "acid"]] },
+      "save": { "ability": "dex" },
+      "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
+      "materials": { "value": "" },
+      "scaling": { "mode": "level", "formula": "1d6" }
+    },
+    "classes": ["wizard", "artificer", "sorcerer"]
+  }
