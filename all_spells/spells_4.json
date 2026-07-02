@@ -1499,7 +1499,6 @@
     },
     "classes": ["wizard", "druid", "warlock", "sorcerer", "cleric", "artificer", "paladin"]
   },
-  [
   {
     "name": "Центр притяжения [Gravity sinkhole]",
     "type": "spell",
