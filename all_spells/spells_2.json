@@ -415,7 +415,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "лист сумаха" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "formula": "1d6", "step": 2}
     },
     "classes": [ "druid", "sorcerer" ]
   },
@@ -2245,7 +2245,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "level", "formula": "" }
+    "scaling": { "mode": "level", "formula": "1d8", "curve": [1, 1, 2, 2, 3, 3, 3] }
     },
     "classes": [ "wizard", "warlock", "sorcerer" ]
   },
