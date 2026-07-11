@@ -2095,7 +2095,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "level", "formula": "1d4", "curve": [0, 1, 1, 2, 2, 2, 2]}
     },
     "classes": ["druid", "artificer", "paladin", "ranger"]
   },
