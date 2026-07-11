@@ -85,7 +85,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "formula": "1d8", "step": 2}
     },
     "classes": [ "cleric", "paladin" ]
   },
