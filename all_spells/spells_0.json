@@ -801,7 +801,7 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": 60, "long": null, "units": "ft" },
       "actionType": "save",
-      "damage": { "parts": [["1d8", "necrotic"]] },
+      "damage": { "parts": [["1d8", "necrotic"]], "variants": [ {"label": "Цель невредима", "formula": "1d8", "type": "necrotic"}, { "label": "Хиты цели не полные", "formula": "1d12", "type": "necrotic"}]},
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
