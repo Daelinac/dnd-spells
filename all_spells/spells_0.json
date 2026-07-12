@@ -381,7 +381,7 @@
       "target": { "value": 5, "units": "ft", "type": "sphere" },
       "range": { "value": null, "long": null, "units": "self" },
       "actionType": "attack",
-      "damage": { "parts": [["@mod", "fire"]] },
+      "damage": { "parts": [], "variants": [ { "label": "Второе существо (прыжок пламени)", "formula": "0d8", "type": "fire", "modifier": "spellcasting" }, { "label": "Основная цель (доп. урон атаки)", "formula": "0d8", "type": "fire"} ] },
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "рукопашное оружие стоимостью не менее 1 см" },
