@@ -367,7 +367,7 @@
         "value": "Вы взмахиваете оружием, выбранным в качестве материального компонента, и совершаете им рукопашную атаку оружием против одного существа в пределах 5 футов от вас. При попадании цель подвергается обычному эффекту атаки этим оружием, и вы можете заставить зелёный огонь перекинуться от цели к другому существу по вашему выбору, которое вы можете видеть в пределах 5 футов от цели. Второе существо получает урон огнём, равный вашему модификатору базовой характеристики.\n\nУрон этого заклинания увеличивается, когда вы достигаете определенных уровней. На 5-м уровне рукопашная атака наносит дополнительно <b>1к8 урона огнём</b>, а урон, получаемый вторым существом, увеличивается до 1к8 + ваш модификатор базовой характеристики. Оба этих урона увеличиваются на 1к8 на 11-м уровне (2к8 и 2к8) и 17-м уровне (3к8 и 3к8)."
       },
       "source": { "book": "SCAG" },
-      "level": 0,
+  "level": 0,
       "school": "evo",
       "school_name": "Воплощение",
       "school_color": "#e74c3c",
@@ -381,11 +381,11 @@
       "target": { "value": 5, "units": "ft", "type": "sphere" },
       "range": { "value": null, "long": null, "units": "self" },
       "actionType": "attack",
-      "damage": { "parts": [], "variants": [ { "label": "Второе существо (прыжок пламени)", "formula": "0d8", "type": "fire", "modifier": "spellcasting" }, { "label": "Основная цель (доп. урон атаки)", "formula": "0d8", "type": "fire"} ] },
+      "damage": { "parts": [ [ "0d8", "fire", "primary" ], [ "0d8", "fire", "secondary", "spellcasting" ] ] },
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "рукопашное оружие стоимостью не менее 1 см" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": ["wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -505,7 +505,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["wizard", "druid", "sorcerer"]
   },
@@ -565,7 +565,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "кусок овечьей шерсти" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "warlock", "sorcerer"]
   },
@@ -595,39 +595,40 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "warlock", "sorcerer"]
   },
-  {
-    "name": "Мистический заряд [Eldritch Blast]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "К существу, находящемуся в пределах дистанции, устремляется луч потрескивающей энергии. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает <b>1к10 урона силовым полем</b>.\n\nЗаклинание создаёт ещё один луч, когда вы достигаете больших уровней: два луча на 5-м уровне, три луча на 11-м уровне и четыре луча на 17-м уровне.\n\nВы можете направить лучи в одну цель или в разные. Для каждого луча совершите свой бросок атаки."
-      },
-      "source": { "book": "PHB" },
-      "level": 0,
-      "school": "evo",
-      "school_name": "Воплощение",
-      "school_color": "#e74c3c",
-      "activation_display": "1 действие",
-      "duration_display": "Мгновенная",
-      "range_display": "120 футов",
-      "save_display": null,
-      "damage_display": "1к10 (Силовое поле)",
-      "activation": { "type": "action", "cost": 1, "condition": "" },
-      "duration": { "value": null, "units": "inst" },
-      "target": { "value": null, "units": null, "type": null },
-      "range": { "value": 120, "long": null, "units": "ft" },
-      "actionType": "attack",
-      "damage": { "parts": [["1d10", "force"]] },
-      "save": { "ability": null },
-      "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
-      "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+{
+  "name": "Мистический заряд [Eldritch Blast]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "К существу, находящемуся в пределах дистанции, устремляется луч потрескивающей энергии. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает <b>1к10 урона силовым полем</b>.\n\nЗаклинание создаёт ещё один луч, когда вы достигаете больших уровней: два луча на 5-м уровне, три луча на 11-м уровне и четыре луча на 17-м уровне.\n\nВы можете направить лучи в одну цель или в разные. Для каждого луча совершите свой бросок атаки."
     },
-    "classes": ["warlock"]
+    "source": { "book": "PHB" },
+    "level": 0,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "120 футов",
+    "save_display": null,
+    "damage_display": "1к10 (Силовое поле)",
+    "activation": { "type": "action", "cost": 1, "condition": "" },
+    "duration": { "value": null, "units": "inst" },
+    "target": { "value": null, "units": null, "type": null },
+    "range": { "value": 120, "long": null, "units": "ft" },
+    "actionType": "attack",
+    "damage": { "parts": [["1d10", "force"]] },
+    "save": { "ability": null },
+    "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
+    "materials": { "value": "" },
+    "quantity": 1,
+    "scaling": { "mode": "level", "target": "quantity", "formula": "1" }
+  },
+  "classes": ["warlock"]
   },
   {
     "name": "Нашествие [Infestation]",
@@ -775,7 +776,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "кусочек фосфора, гнилушка или светлячок" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "artificer", "sorcerer"]
   },
@@ -835,7 +836,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "два магнетита" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "druid", "cleric", "artificer", "sorcerer"]
   },
@@ -925,7 +926,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "светлячок или фосфоресцирующий мох" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "cleric", "artificer", "sorcerer", "warlock"]
   },
@@ -1015,7 +1016,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "кусочек медной проволоки" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "artificer", "sorcerer"]
   },
@@ -1045,40 +1046,40 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "крошечный плащ" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["druid", "cleric", "artificer"]
   },
   {
-    "name": "Сотворение костра [Create Bonfire]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "Вы создаёте огонь на поверхности земли в точке, которую можете видеть в пределах дистанции. Пока заклинание действует, огонь занимает область в кубе с длиной ребра 5 футов. Все существа, оказавшиеся в этом пространстве в момент накладывания заклинания, должны преуспеть в <b>спасброске Ловкости</b>, иначе получат <b>1к8 урона огнём</b>. Существо также должно совершать спасбросок, когда впервые за ход перемещается в область действия заклинания или заканчивает свой ход в ней. Пламя поджигает все никем не носимые и не переносимые горючие предметы.\n\nУрон заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)."
-      },
-      "source": { "book": "XGtE" },
-      "level": 0,
-      "school": "con",
-      "school_name": "Вызов",
-      "school_color": "#e67e22",
-      "activation_display": "1 действие",
-      "duration_display": "1 минута, концентрация",
-      "range_display": "60 футов",
-      "save_display": "Спасбросок Ловкости",
-      "damage_display": "1к8 (Огонь)",
-      "activation": { "type": "action", "cost": 1, "condition": "" },
-      "duration": { "value": 1, "units": "minute" },
-      "target": { "value": 5, "units": "ft", "type": "cube" },
-      "range": { "value": 60, "long": null, "units": "ft" },
-      "actionType": "save",
-      "damage": { "parts": [["1d8", "fire"]] },
-      "save": { "ability": "dex" },
-      "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
-      "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+  "name": "Сотворение костра [Create Bonfire]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы создаёте огонь на поверхности земли в точке, которую можете видеть в пределах дистанции. Пока заклинание действует, огонь занимает область в кубе с длиной ребра 5 футов. Все существа, оказавшиеся в этом пространстве в момент накладывания заклинания, должны преуспеть в <b>спасброске Ловкости</b>, иначе получат <b>1к8 урона огнём</b>. Существо также должно совершать спасбросок, когда впервые за ход перемещается в область действия заклинания или заканчивает свой ход в ней. Пламя поджигает все никем не носимые и не переносимые горючие предметы.\n\nУрон заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8)."
     },
-    "classes": ["wizard", "druid", "artificer", "warlock", "sorcerer"]
+    "source": { "book": "XGtE" },
+    "level": 0,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 действие",
+    "duration_display": "1 минута, концентрация",
+    "range_display": "60 футов",
+    "save_display": "Спасбросок Ловкости",
+    "damage_display": "1к8 (Огонь)",
+    "activation": { "type": "action", "cost": 1, "condition": "" },
+    "duration": { "value": 1, "units": "minute" },
+    "target": { "value": 5, "units": "ft", "type": "cube" },
+    "range": { "value": 60, "long": null, "units": "ft" },
+    "actionType": "save",
+    "damage": { "parts": [ ["1d8", "fire", "primary"], ["1d8", "fire", "secondary"] ] },
+    "save": { "ability": "dex" },
+    "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
+    "materials": { "value": "" },
+    "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
   },
+  "classes": ["wizard", "druid", "artificer", "warlock", "sorcerer"]
+},
   {
     "name": "Сотворение пламени [Produce Flame]",
     "type": "spell",
@@ -1165,7 +1166,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["druid", "cleric", "artificer", "bard"]
   },
@@ -1195,7 +1196,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["cleric", "artificer", "warlock"]
   },
@@ -1225,7 +1226,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -1255,7 +1256,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["wizard", "druid", "sorcerer"]
   },
@@ -1285,7 +1286,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["cleric", "ranger"]
   },
@@ -1315,7 +1316,7 @@
       "save": { "ability": "str" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["wizard", "druid", "sorcerer"]
   },
