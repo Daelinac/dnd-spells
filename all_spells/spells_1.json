@@ -865,21 +865,23 @@
     "target": { "value": null, "units": null, "type": null },
     "range": { "value": 60, "long": null, "units": "ft" },
     "actionType": "attack",
+    "secondaryActionType": "save",
     "damage": { 
       "parts": [
-        ["1d10", "piercing", "primary"],
-        ["2d6", "cold", "secondary"]
+        ["1d10", "piercing"],
+        ["2d6", "cold"]
       ] 
     },
     "save": { "ability": "dex" },
     "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "капля воды или кусочек льда" },
     "scaling": { 
-      "mode": "level", 
+      "mode": "level",
       "target": "secondary", 
-      "formula": "1d6" 
+      "formula": "1d6",
+      "index": 2
     }
-  },
+},
   "classes": ["wizard", "druid", "sorcerer"]
 },
   {
@@ -913,35 +915,47 @@
     "classes": ["wizard"]
   },
   {
-    "name": "Лечащее слово [Healing Word]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "Существо на ваш выбор, видимое в пределах дистанции, восстанавливает количество хитов, равное 1к4 + ваш модификатор базовой характеристики. Это заклинание не оказывает никакого эффекта на Нежить и Конструктов.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, количество восстанавливаемых хитов увеличивается на 1к4 за каждый уровень ячейки выше первого."
-      },
-      "source": { "book": "PHB" },
-      "level": 1,
-      "school": "evo",
-      "school_name": "Воплощение",
-      "school_color": "#e74c3c",
-      "activation_display": "1 бонусное действие",
-      "duration_display": "Мгновенная",
-      "range_display": "60 футов",
-      "save_display": null,
-      "damage_display": null,
-      "activation": { "type": "bonus", "cost": 1, "condition": "" },
-      "duration": { "value": null, "units": "inst" },
-      "target": { "value": null, "units": null, "type": null },
-      "range": { "value": 60, "long": null, "units": "ft" },
-      "actionType": "heal",
-      "damage": { "parts": [] },
-      "save": { "ability": null },
-      "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
-      "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d4" }
+  "name": "Лечащее слово [Healing Word]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Существо на ваш выбор, видимое в пределах дистанции, восстанавливает количество хитов, равное 1к4 + ваш модификатор базовой характеристики. Это заклинание не оказывает никакого эффекта на Нежить и Конструктов.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, количество восстанавливаемых хитов увеличивается на 1к4 за каждый уровень ячейки выше первого."
     },
-    "classes": ["bard", "druid", "cleric"]
+    "source": { "book": "PHB" },
+    "level": 1,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 бонусное действие",
+    "duration_display": "Мгновенная",
+    "range_display": "60 футов",
+    "save_display": null,
+    "damage_display": "1к4 + Мод. (Лечение)",
+    "activation": { "type": "bonus", "cost": 1, "condition": "" },
+    "duration": { "value": null, "units": "inst" },
+    "target": { "value": null, "units": null, "type": null },
+    "range": { "value": 60, "long": null, "units": "ft" },
+    
+    "actionType": "heal",
+    "damage": { 
+      "parts": [
+        ["1d4", "healing", "primary"]
+      ],
+      "modifier": "spellcasting"
+    },
+    
+    "save": { "ability": null },
+    "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
+    "materials": { "value": "" },
+    
+    "scaling": { 
+      "mode": "level", 
+      "target": "primary", 
+      "formula": "1d4" 
+    }
   },
+  "classes": ["bard", "druid", "cleric"]
+},
   {
     "name": "Лечение ран [Cure Wounds]",
     "type": "spell",
