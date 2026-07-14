@@ -111,7 +111,7 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": null, "long": null, "units": "touch" },
       "actionType": "attack",
-      "damage": { "parts": [["1d6", "bludgeoning"]], "modifier": "spellcasting" },
+      "damage": { "parts": [["1d6", "bludgeoning", "secondary"]], "modifier": "spellcasting" },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
@@ -478,8 +478,7 @@
       "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": ["wizard", "warlock", "sorcerer", "druid"]
-  }
-],
+  },
   {
     "name": "Лепка земли [Mold Earth]",
     "type": "spell",
