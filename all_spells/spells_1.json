@@ -179,36 +179,41 @@
     },
     "classes": ["bard", "wizard", "druid", "sorcerer"]
   },
-  {
-    "name": "Волшебная стрела [Magic Missile]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "Вы создаете три светящихся дротика из магической силы. Каждый дротик попадает в существо на ваш выбор, видимое в пределах дистанции. Каждый дротик причиняет <b>1к4 + 1 урона силовым полем</b>. Все дротики поражают одновременно, и вы можете направить их как в одно существо, так и в разных.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, заклинание создает по одному дополнительному дротику за каждый уровень ячейки выше первого."
-      },
-      "source": { "book": "PHB" },
-      "level": 1,
-      "school": "evo",
-      "school_name": "Воплощение",
-      "school_color": "#e74c3c",
-      "activation_display": "1 действие",
-      "duration_display": "Мгновенная",
-      "range_display": "120 футов",
-      "save_display": null,
-      "damage_display": "1к4+1 (Силовое поле)",
-      "activation": { "type": "action", "cost": 1, "condition": "" },
-      "duration": { "value": null, "units": "inst" },
-      "target": { "value": null, "units": null, "type": null },
-      "range": { "value": 120, "long": null, "units": "ft" },
-      "actionType": "damage",
-      "damage": { "parts": [["1d4+1", "force"]] },
-      "save": { "ability": null },
-      "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
-      "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d4+1" }
+{
+  "name": "Волшебная стрела [Magic Missile]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы создаете три светящихся дротика из магической силы. Каждый дротик попадает в существо на ваш выбор, видимое в пределах дистанции. Каждый дротик причиняет <b>1к4 + 1 урона силовым полем</b>. Все дротики поражают одновременно, и вы можете направить их как в одно существо, так и в разных.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, заклинание создает по одному дополнительному дротику за каждый уровень ячейки выше первого."
     },
-    "classes": ["wizard", "sorcerer", "cleric"]
+    "source": { "book": "PHB" },
+    "level": 1,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "120 футов",
+    "save_display": null,
+    "damage_display": "1к4+1 (Силовое поле)",
+    "activation": { "type": "action", "cost": 1, "condition": "" },
+    "duration": { "value": null, "units": "inst" },
+    "target": { "value": null, "units": null, "type": null },
+    "range": { "value": 120, "long": null, "units": "ft" },
+    "actionType": "damage",
+    "damage": { "parts": [["1d4+1", "force"]] },
+    "save": { "ability": null },
+    "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
+    "materials": { "value": "" },
+    "quantity": 3,
+    "scaling": {
+      "mode": "level",
+      "target": "quantity",
+      "formula": "1"
+    }
   },
+  "classes": ["wizard", "sorcerer", "cleric"]
+},
   {
     "name": "Волшебная стрела Джима [Jim's Magic Missile]",
     "type": "spell",
