@@ -375,35 +375,39 @@
     "classes": ["paladin"]
   },
   {
-    "name": "Град шипов [Hail of Thorns]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "В следующий раз, когда вы попадёте по существу дальнобойной атакой оружием, пока активно это заклинание, из дальнобойного оружия или боеприпаса вылетит град шипов. В дополнение к обычному эффекту атаки, цель и все существа в пределах 5 футов от неё, должны совершить <b>спасбросок Ловкости</b>. При провале существо получает <b>колющий урон 1к10</b>, или половину этого урона при успехе.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, урон увеличивается на 1к10 за каждый уровень ячейки выше первого (до максимума 6к10)."
-      },
-      "source": { "book": "PHB" },
-      "level": 1,
-      "school": "con",
-      "school_name": "Вызов",
-      "school_color": "#e67e22",
-      "activation_display": "1 бонусное действие",
-      "duration_display": "1 минута, концентрация",
-      "range_display": "На себя",
-      "save_display": "Спасбросок Ловкости",
-      "damage_display": "1к10 (Колющий)",
-      "activation": { "type": "bonus", "cost": 1, "condition": "" },
-      "duration": { "value": 1, "units": "minute" },
-      "target": { "value": null, "units": null, "type": null },
-      "range": { "value": null, "long": null, "units": "self" },
-      "actionType": "save",
-      "damage": { "parts": [["1d10", "piercing"]] },
-      "save": { "ability": "dex" },
-      "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
-      "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d10" }
+  "name": "Град шипов [Hail of Thorns]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "В следующий раз, когда вы попадёте по существу дальнобойной атакой оружием, пока активно это заклинание, из дальнобойного оружия или боеприпаса вылетит град шипов. В дополнение к обычному эффекту атаки, цель и все существа в пределах 5 футов от неё, должны совершить <b>спасбросок Ловкости</b>. При провале существо получает <b>колющий урон 1к10</b>, или половину этого урона при успехе.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, урон увеличивается на 1к10 за каждый уровень ячейки выше первого (до максимума 6к10)."
     },
-    "classes": ["ranger"]
+    "source": { "book": "PHB" },
+    "level": 1,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 бонусное действие",
+    "duration_display": "1 минута, концентрация",
+    "range_display": "На себя",
+    "save_display": "Спасбросок Ловкости",
+    "damage_display": "1к10 (Колющий)",
+    "activation": { "type": "bonus", "cost": 1, "condition": "" },
+    "duration": { "value": 1, "units": "minute" },
+    "target": { "value": null, "units": null, "type": null },
+    "range": { "value": null, "long": null, "units": "self" },
+    "actionType": "save",
+    "damage": { "parts": [["1d10", "piercing"]] },
+    "save": { "ability": "dex" },
+    "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
+    "materials": { "value": "" },
+    "scaling": { 
+      "mode": "level", 
+      "formula": "1d10",
+      "curve": [1, 2, 3, 4, 5, 5, 5, 5]
+    }
   },
+  "classes": ["ranger"]
+},
   {
     "name": "Громовая кара [Thunderous Smite]",
     "type": "spell",
@@ -614,36 +618,46 @@
     },
     "classes": ["bard", "druid", "ranger"]
   },
-  {
-    "name": "Едкое варево Таши [Tasha's Caustic Brew]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "Вы испускаете струю кислоты вдоль линии длиной 30 футов и шириной 5 футов в выбранном вами направлении. Каждое существо, находящееся на этой линии должно преуспеть в <b>спасброске Ловкости</b>, иначе станет покрыто кислотой на время действия заклинания или до тех пор, пока кто-то действием не соскребёт или смоет кислоту с себя или другого существа. Существо, покрытое кислотой, получает <b>2к4 урона кислотой</b> в начале каждого своего хода.\n\nНа больших уровнях. Когда вы накладываете это заклинание, используя ячейку 2-го уровня или выше, урон увеличивается на 2к4 за каждый уровень ячейки выше первого."
-      },
-      "source": { "book": "TCoE" },
-      "level": 1,
-      "school": "evo",
-      "school_name": "Воплощение",
-      "school_color": "#e74c3c",
-      "activation_display": "1 действие",
-      "duration_display": "1 минута, концентрация",
-      "range_display": "На себя (линия 30 фт)",
-      "save_display": "Спасбросок Ловкости",
-      "damage_display": "2к4 (Кислота)",
-      "activation": { "type": "action", "cost": 1, "condition": "" },
-      "duration": { "value": 1, "units": "minute" },
-      "target": { "value": 30, "units": "ft", "type": "line" },
-      "range": { "value": null, "long": null, "units": "self" },
-      "actionType": "save",
-      "damage": { "parts": [["2d4", "acid"]] },
-      "save": { "ability": "dex" },
-      "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
-      "materials": { "value": "немного тухлой пищи" },
-      "scaling": { "mode": "level", "formula": "2d4" }
+{
+  "name": "Едкое варево Таши [Tasha's Caustic Brew]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы испускаете струю кислоты вдоль линии длиной 30 футов и шириной 5 футов в выбранном вами направлении. Каждое существо, находящееся на этой линии должно преуспеть в <b>спасброске Ловкости</b>, иначе станет покрыто кислотой на время действия заклинания или до тех пор, пока кто-то действием не соскребёт или смоет кислоту с себя или другого существа. Существо, покрытое кислотой, получает <b>2к4 урона кислотой</b> в начале каждого своего хода.\n\nНа больших уровнях. Когда вы накладываете это заклинание, используя ячейку 2-го уровня или выше, урон увеличивается на 2к4 за каждый уровень ячейки выше первого."
     },
-    "classes": ["wizard", "artificer", "sorcerer"]
+    "source": { "book": "TCoE" },
+    "level": 1,
+    "school": "evo",
+    "school_name": "Воплощение",
+    "school_color": "#e74c3c",
+    "activation_display": "1 действие",
+    "duration_display": "1 минута, концентрация",
+    "range_display": "На себя (линия 30 фт)",
+    "save_display": "Спасбросок Ловкости",
+    "damage_display": "2к4 (Кислота)",
+    "activation": { "type": "action", "cost": 1, "condition": "" },
+    "duration": { "value": 1, "units": "minute" },
+    "target": { "value": 30, "units": "ft", "type": "line" },
+    "range": { "value": null, "long": null, "units": "self" },
+    "actionType": "save",
+    
+    "damage": { 
+      "parts": [
+        ["2d4", "acid", "secondary"]
+      ] 
+    },
+    "save": { "ability": "dex" },
+    "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
+    "materials": { "value": "немного тухлой пищи" },
+    
+    "scaling": { 
+      "mode": "level", 
+      "target": "damage", 
+      "formula": "2d4" 
+    }
   },
+  "classes": ["wizard", "artificer", "sorcerer"]
+},
   {
     "name": "Жуткий смех Таши [Tasha's Hideous Laughter]",
     "type": "spell",
