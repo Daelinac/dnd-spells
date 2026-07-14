@@ -396,12 +396,17 @@
     "target": { "value": null, "units": null, "type": null },
     "range": { "value": null, "long": null, "units": "self" },
     "actionType": "save",
-    "damage": { "parts": [["1d10", "piercing"]] },
+    "damage": { 
+      "parts": [
+        ["1d10", "piercing", "secondary"]
+      ] 
+    },
     "save": { "ability": "dex" },
     "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
     "scaling": { 
       "mode": "level", 
+      "target": "damage",
       "formula": "1d10",
       "curve": [1, 2, 3, 4, 5, 5, 5, 5]
     }
