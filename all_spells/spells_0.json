@@ -25,7 +25,7 @@
       "save": { "ability": "dex" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d6" }
     },
     "classes": ["wizard", "artificer", "sorcerer"]
   },
@@ -55,7 +55,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["wizard", "druid", "sorcerer"]
   },
@@ -85,7 +85,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -115,7 +115,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["druid", "artificer", "warlock"]
   },
@@ -145,7 +145,7 @@
       "save": { "ability": "dex" },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d6" }
     },
     "classes": ["wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -171,11 +171,11 @@
       "target": { "value": 5, "units": "ft", "type": "sphere" },
       "range": { "value": null, "long": null, "units": "self" },
       "actionType": "attack",
-      "damage": { "parts": [["1d8", "thunder"]] },
+      "damage": { "parts": [["0d8", "thunder", "primary"], ["1d8", "thunder", "secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "рукопашное оружие стоимостью не менее 1 см" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": ["wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -205,7 +205,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "небольшое количество грима, наносимое на лицо при накладывании этого заклинания" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "warlock", "sorcerer"]
   },
@@ -214,7 +214,7 @@
     "type": "spell",
     "system": {
       "description": {
-        "value": "Дерево дубинки или боевого посоха, который вы держите, наполняется силой природы. Пока заклинание активно, вы можете использовать свою базовую заклинательную характеристику вместо Силы для бросков рукопашной атаки и урона при использовании этого оружия, и кость урона становится равной к8. Если оружие не было магическим, оно становится им. Заклинание оканчивается, если вы наложите его ещё раз или выпустите оружие из рук."
+        "value": "Дерево дубинки или боевого посоха, который вы держите, наполняется силой природы. Пока заклинание активно, вы можете использовать свою базовую заклинательную характеристику вместо Силы для бросков рукопашной атаки и урона при использовании этого оружия, и кость урона становится равной к8. Если оружие не было магическим, оно становится им. Заклинание оканчивается, если вы накладываете его ещё раз или выпускаете оружие из рук."
       },
       "source": { "book": "PHB" },
       "level": 0,
@@ -235,7 +235,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "омела, лист клевера и дубинка или боевой посох" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["druid"]
   },
@@ -265,7 +265,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["bard", "wizard", "warlock", "sorcerer"]
   },
@@ -295,7 +295,7 @@
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d4" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d4" }
     },
     "classes": ["bard"]
   },
@@ -325,7 +325,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": ["druid"]
   },
@@ -355,7 +355,7 @@
       "save": { "ability": "con" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d4" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d4" }
     },
     "classes": ["wizard"]
   },
@@ -415,7 +415,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": []
   },
@@ -445,7 +445,7 @@
       "save": { "ability": "str" },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": ["wizard", "artificer", "warlock", "sorcerer"]
   },
@@ -475,10 +475,11 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": ["wizard", "warlock", "sorcerer", "druid"]
-  },
+  }
+],
   {
     "name": "Лепка земли [Mold Earth]",
     "type": "spell",
