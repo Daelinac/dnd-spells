@@ -843,36 +843,45 @@
     },
     "classes": ["wizard", "artificer", "sorcerer"]
   },
-  {
-    "name": "Ледяной кинжал [Ice Knife]",
-    "type": "spell",
-    "system": {
-      "description": {
-        "value": "Вы создаёте осколок льда и метаете его в одно существо, находящееся в пределах дистанции. Совершите по цели дальнобойную атаку заклинанием. При попадании цель получает <b>1к10 колющего урона</b>. После этого, вне зависимости от попадания или промаха, осколок взрывается. Цель и все существа в пределах 5 футов от места взрыва осколка должны преуспеть в <b>спасброске Ловкости</b>, иначе получат <b>2к6 урона холодом</b>.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, то урон холодом увеличивается на 1к6 за каждый уровень ячейки выше 1."
-      },
-      "source": { "book": "XGtE" },
-      "level": 1,
-      "school": "con",
-      "school_name": "Вызов",
-      "school_color": "#e67e22",
-      "activation_display": "1 действие",
-      "duration_display": "Мгновенная",
-      "range_display": "60 футов",
-      "save_display": "Спасбросок Ловкости",
-      "damage_display": "1к10 (Колющий) + 2к6 (Холод)",
-      "activation": { "type": "action", "cost": 1, "condition": "" },
-      "duration": { "value": null, "units": "inst" },
-      "target": { "value": null, "units": null, "type": null },
-      "range": { "value": 60, "long": null, "units": "ft" },
-      "actionType": "save",
-      "damage": { "parts": [["1d10", "piercing"], ["2d6", "cold"]] },
-      "save": { "ability": "dex" },
-      "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
-      "materials": { "value": "капля воды или кусочек льда" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+{
+  "name": "Ледяной кинжал [Ice Knife]",
+  "type": "spell",
+  "system": {
+    "description": {
+      "value": "Вы создаёте осколок льда и метаете его в одно существо, находящееся в пределах дистанции. Совершите по цели дальнобойную атаку заклинанием. При попадании цель получает <b>1к10 колющего урона</b>. После этого, вне зависимости от попадания или промаха, осколок взрывается. Цель и все существа в пределах 5 футов от места взрыва осколка должны преуспеть в <b>спасброске Ловкости</b>, иначе получат <b>2к6 урона холодом</b>.\n\nНа больших уровнях. Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, то урон холодом увеличивается на 1к6 за каждый уровень ячейки выше 1."
     },
-    "classes": ["wizard", "druid", "sorcerer"]
+    "source": { "book": "XGtE" },
+    "level": 1,
+    "school": "con",
+    "school_name": "Вызов",
+    "school_color": "#e67e22",
+    "activation_display": "1 действие",
+    "duration_display": "Мгновенная",
+    "range_display": "60 футов",
+    "save_display": "Спасбросок Ловкости",
+    "damage_display": "1к10 (Колющий) + 2к6 (Холод)",
+    "activation": { "type": "action", "cost": 1, "condition": "" },
+    "duration": { "value": null, "units": "inst" },
+    "target": { "value": null, "units": null, "type": null },
+    "range": { "value": 60, "long": null, "units": "ft" },
+    "actionType": "attack",
+    "damage": { 
+      "parts": [
+        ["1d10", "piercing", "primary"],
+        ["2d6", "cold", "secondary"]
+      ] 
+    },
+    "save": { "ability": "dex" },
+    "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
+    "materials": { "value": "капля воды или кусочек льда" },
+    "scaling": { 
+      "mode": "level", 
+      "target": "secondary", 
+      "formula": "1d6" 
+    }
   },
+  "classes": ["wizard", "druid", "sorcerer"]
+},
   {
     "name": "Ледяные пальцы [Frost Fingers]",
     "type": "spell",
