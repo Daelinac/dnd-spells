@@ -25,7 +25,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "пепел от сожжённого листа омелы и еловая ветка" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "ranger", "cleric" ]
   },
@@ -81,11 +81,11 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": 60, "long": null, "units": "ft" },
       "actionType": "attack",
-      "damage": { "parts": [ [ "1d8 + @mod", "force" ] ] },
+      "damage": { "parts": [["1d8 + @mod","force","primary"],["1d8 + @mod","force","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8", "step": 2}
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d8", "step": 2 }
     },
     "classes": [ "cleric", "paladin" ]
   },
@@ -115,7 +115,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "порошок рубина на 50 зм, расходуемый заклинанием" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "druid", "cleric", "artificer" ]
   },
@@ -145,7 +145,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "щепотка талька и толченого серебра" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "artificer", "sorcerer", "cleric", "paladin" ]
   },
@@ -205,7 +205,7 @@
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": false, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "язык змеи и либо кусочек медовых сот, либо капля сладкого масла" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "warlock", "sorcerer", "cleric" ]
   },
@@ -265,7 +265,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": true, "concentration": false },
       "materials": { "value": "кусочек медовых сот и порошок нефрита, стоящий как минимум 10 зм, расходуемые заклинанием" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "artificer" ]
   },
@@ -295,7 +295,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "золотая пыль, стоящая как минимум 25 зм, расходуемая заклинанием" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer" ]
   },
@@ -325,7 +325,7 @@
       "save": { "ability": "int" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "кусок овечьей шерсти" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "sorcerer", "warlock" ]
   },
@@ -355,7 +355,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": true, "concentration": false },
       "materials": { "value": "особые палочки, костяшки или фигурки с отметинами, стоящие как минимум 25 зм" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "druid", "cleric" ]
   },
@@ -411,11 +411,11 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": null, "long": null, "units": "self" },
       "actionType": "attack",
-      "damage": { "parts": [ [ "3d6", "fire" ] ] },
+      "damage": { "parts": [["3d6","fire","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "лист сумаха" },
-      "scaling": { "mode": "level", "formula": "1d6", "step": 2}
+      "scaling": { "mode": "level", "target": "secondary", "formula": "1d6", "step": 2 }
     },
     "classes": [ "druid", "sorcerer" ]
   },
@@ -475,7 +475,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "пригоршня дубовой коры" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "ranger", "cleric" ]
   },
@@ -535,7 +535,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": true, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "ranger" ]
   },
@@ -565,7 +565,7 @@
       "save": { "ability": "dex" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "как минимум четыре стрелы или арбалетных болта" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "ranger" ]
   },
@@ -595,7 +595,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "книга стоимостью не менее 25 зм" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "cleric", "warlock" ]
   },
@@ -625,7 +625,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "cleric", "artificer", "paladin", "ranger" ]
   },
@@ -655,7 +655,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "druid", "sorcerer" ]
   },
@@ -685,7 +685,7 @@
       "save": { "ability": "str" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "миниатюрная рука из глины" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "sorcerer" ]
   },
@@ -711,11 +711,11 @@
       "target": { "value": 5, "units": "ft", "type": "cube" },
       "range": { "value": 60, "long": null, "units": "ft" },
       "actionType": "heal",
-      "damage": { "parts": [ [ "1d6", "healing" ] ] },
+      "damage": { "parts": [["1d6","healing","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "target": "secondary", "formula": "1d6" }
     },
     "classes": [ "druid", "ranger" ]
   },
@@ -745,7 +745,7 @@
       "save": { "ability": null },
       "components": { "vocal": false, "somatic": true, "material": false, "ritual": true, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard" ]
   },
@@ -771,11 +771,11 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": null, "long": null, "units": "self" },
       "actionType": "damage",
-      "damage": { "parts": [ [ "2d6", "radiant" ] ] },
+      "damage": { "parts": [["2d6","radiant","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "target": "secondary", "formula": "1d6" }
     },
     "classes": [ "paladin", "artificer", "warlock" ]
   },
@@ -805,7 +805,7 @@
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "warlock", "sorcerer", "paladin" ]
   },
@@ -835,7 +835,7 @@
       "save": { "ability": "con" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "либо маленькая кожаная петля, либо кусочек золотой проволоки, согнутый в форме кубка с длинной ножкой" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "sorcerer" ]
   },
@@ -895,7 +895,7 @@
       "save": { "ability": "con" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "warlock", "cleric" ]
   },
@@ -925,7 +925,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "paladin", "ranger", "sorcerer", "cleric" ]
   },
@@ -955,7 +955,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "druid", "cleric", "artificer", "paladin", "ranger", "warlock", "sorcerer" ]
   },
@@ -981,11 +981,11 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": 90, "long": null, "units": "ft" },
       "actionType": "attack",
-      "damage": { "parts": [ [ "4d4", "acid" ] ] },
+      "damage": { "parts": [["4d4","acid","primary"],["2d4","acid","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "порошок из листьев ревеня и желудок гадюки" },
-      "scaling": { "mode": "level", "formula": "1d4" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d4" }
     },
     "classes": [ "wizard", "druid", "artificer" ]
   },
@@ -1011,11 +1011,12 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": 30, "long": null, "units": "ft" },
       "actionType": "heal",
-      "damage": { "parts": [ [ "2d8", "healing" ] ] },
+      "damage": { "parts": [["2d8","healing","primary"]], "modifier": "spellcasting" },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "quantity": 3,
+      "scaling": { "mode": "level", "target": "quantity", "formula": "1" }
     },
     "classes": [ "cleric", "paladin" ]
   },
@@ -1045,7 +1046,7 @@
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": false, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "кусочек корочки яблочного пирога" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "sorcerer" ]
   },
@@ -1075,7 +1076,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": true, "concentration": true },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "druid", "artificer" ]
   },
@@ -1165,7 +1166,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": true, "concentration": false },
       "materials": { "value": "щепотка соли и по одной медной монетке на каждый глаз трупа, которые должны оставаться там все время, пока активно заклинание" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "cleric", "paladin", "druid" ]
   },
@@ -1195,7 +1196,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "небольшой лоскут шелка" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "cleric" ]
   },
@@ -1255,7 +1256,7 @@
       "save": { "ability": "cha" },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "cleric", "paladin", "ranger" ]
   },
@@ -1285,7 +1286,7 @@
       "save": { "ability": "wis" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "медная монетка" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "sorcerer", "warlock" ]
   },
@@ -1315,7 +1316,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "sorcerer" ]
   },
@@ -1345,7 +1346,7 @@
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "none", "formula": "" }
+      "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "warlock", "sorcerer", "druid", "cleric", "artificer" ]
   },
@@ -1375,7 +1376,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "пара платиновых колец, каждое из которых стоит как минимум 50 зм, которые вы с целью должны носить всю длительность заклинания" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "cleric", "paladin", "artificer" ]
   },
@@ -1435,7 +1436,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "капля битума и паук" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "warlock", "sorcerer", "druid" ]
   },
@@ -1465,7 +1466,7 @@
     "save": { "ability": "dex" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "кусочек паутины" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "sorcerer", "druid", "ranger" ]
   },
@@ -1525,7 +1526,7 @@
     "save": { "ability": "con" },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "artificer", "sorcerer" ]
   },
@@ -1555,7 +1556,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "А 2 зм" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard" ]
   },
@@ -1615,7 +1616,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": true, "concentration": false },
     "materials": { "value": "кусочек меха ищейки" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "druid", "ranger" ]
   },
@@ -1645,7 +1646,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "cleric", "ranger" ]
   },
@@ -1675,7 +1676,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "раздвоенная веточка" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "druid", "cleric", "paladin", "ranger" ]
   },
@@ -1705,7 +1706,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "paladin" ]
   },
@@ -1735,7 +1736,7 @@
     "save": { "ability": "str" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "семя гороха" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "druid", "ranger", "sorcerer", "cleric", "warlock", "monk" ]
   },
@@ -1855,7 +1856,8 @@
     "save": { "ability": "int" },
     "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "level", "formula": "" }
+    "quantity": 1,
+    "scaling": { "mode": "level", "target": "quantity", "formula": "1" }
     },
     "classes": [ "wizard", "sorcerer" ]
   },
@@ -1975,7 +1977,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "sorcerer", "druid", "warlock" ]
   },
@@ -2001,11 +2003,11 @@
     "target": { "value": null, "units": null, "type": null },
     "range": { "value": 60, "long": null, "units": "ft" },
     "actionType": "save",
-    "damage": { "parts": [ [ "2d8", "fire" ] ] },
+    "damage": { "parts": [["2d8","fire","primary"],["2d8","fire","secondary"]] },
     "save": { "ability": "con" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "кусок железа и пламя" },
-    "scaling": { "mode": "level", "formula": "1d8" }
+    "scaling": { "mode": "level", "target": "damage", "formula": "1d8" }
     },
     "classes": [ "bard", "druid", "artificer", "cleric" ]
   },
@@ -2035,7 +2037,7 @@
     "save": { "ability": "wis" },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "warlock" ]
   },
@@ -2065,7 +2067,7 @@
     "save": { "ability": "wis" },
     "components": { "vocal": false, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "монетка, А 2 зм" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard" ]
   },
@@ -2125,7 +2127,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "sorcerer" ]
   },
@@ -2215,7 +2217,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "щепотка сушеной морковки или агат" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "druid", "artificer", "ranger", "sorcerer", "monk" ]
   },
@@ -2275,7 +2277,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": true, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "cleric", "ranger", "druid", "warlock", "monk" ]
   },
@@ -2305,7 +2307,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
     "materials": { "value": "экстракт зерна и петля из пергамента" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "artificer", "ranger" ]
   },
@@ -2335,7 +2337,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": false },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "warlock", "sorcerer", "druid", "paladin", "ranger" ]
   },
@@ -2365,7 +2367,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": false, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "мех летучей мыши и либо капля дегтя, либо кусочек угля" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "warlock", "sorcerer", "druid", "monk", "paladin" ]
   },
@@ -2395,7 +2397,7 @@
     "save": { "ability": "con" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "щепотка толченого железа" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "druid", "artificer", "sorcerer" ]
   },
@@ -2425,7 +2427,7 @@
     "save": { "ability": null },
     "components": { "vocal": false, "somatic": true, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "wizard", "artificer", "sorcerer" ]
   },
@@ -2515,7 +2517,7 @@
     "save": { "ability": "str" },
     "components": { "vocal": true, "somatic": false, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "druid", "warlock", "sorcerer" ]
   },
@@ -2575,7 +2577,7 @@
     "save": { "ability": "cha" },
     "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": true },
     "materials": { "value": "" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "bard", "cleric", "warlock", "paladin", "sorcerer" ]
   },
@@ -2605,7 +2607,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "лист бритвенной лозы" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "wizard", "warlock", "sorcerer" ]
   },
@@ -2635,7 +2637,7 @@
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "семь острых шипов или семь заострённых веточек" },
-    "scaling": { "mode": "none", "formula": "" }
+    "scaling": { "mode": "none" }
     },
     "classes": [ "druid", "ranger", "cleric", "warlock" ]
     }
