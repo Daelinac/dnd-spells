@@ -918,7 +918,7 @@
       "duration_display": "Мгновенная",
       "range_display": "Касание",
       "save_display": null,
-      "damage_display": null,
+      "damage_display": "1к8 + Мод. (Лечение)",
       "activation": { "type": "action", "cost": 1, "condition": "" },
       "duration": { "value": null, "units": "inst" },
       "target": { "value": null, "units": null, "type": null },
