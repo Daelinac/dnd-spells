@@ -861,11 +861,11 @@
       "target": { "value": 5, "units": "ft", "type": "cylinder" },
       "range": { "value": 120, "long": null, "units": "ft" },
       "actionType": "save",
-      "damage": { "parts": [ [ "2d10", "radiant" ] ] },
+      "damage": { "parts": [["2d10","radiant","secondary"]] },
       "save": { "ability": "con" },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "несколько семечек лунносемянника и кусочек опалесцирующего полевого шпата" },
-      "scaling": { "mode": "level", "formula": "1d10" }
+      "scaling": { "mode": "level", "target": "secondary", "formula": "1d10" }
     },
     "classes": [ "druid", "cleric", "paladin" ]
   },
@@ -1222,11 +1222,11 @@
       "target": { "value": 5, "units": "ft", "type": "cube" },
       "range": { "value": 60, "long": null, "units": "ft" },
       "actionType": "damage",
-      "damage": { "parts": [ [ "4d4", "slashing" ] ] },
+      "damage": { "parts": [["4d4","slashing","secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
       "materials": { "value": "осколок стекла" },
-      "scaling": { "mode": "level", "formula": "2d4" }
+      "scaling": { "mode": "level", "target": "secondary", "formula": "2d4" }
     },
     "classes": [ "bard", "wizard", "warlock", "sorcerer" ]
   },
@@ -1883,11 +1883,11 @@
     "target": { "value": 5, "units": "ft", "type": "sphere" },
     "range": { "value": 60, "long": null, "units": "ft" },
     "actionType": "save",
-    "damage": { "parts": [ [ "2d6", "fire" ] ] },
+    "damage": { "parts": [["2d6","fire","secondary"]] },
     "save": { "ability": "dex" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "кусок сала, щепотка серы и толченого железа" },
-    "scaling": { "mode": "level", "formula": "1d6" }
+    "scaling": { "mode": "level", "target": "secondary", "formula": "1d6" }
     },
     "classes": [ "wizard", "druid", "sorcerer", "cleric", "artificer", "warlock" ]
   },
@@ -1913,11 +1913,11 @@
     "target": { "value": 5, "units": "ft", "type": "cube" },
     "range": { "value": 60, "long": null, "units": "ft" },
     "actionType": "save",
-    "damage": { "parts": [ [ "1d8", "bludgeoning" ] ] },
+    "damage": { "parts": [["1d8","bludgeoning","secondary"]] },
     "save": { "ability": "str" },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "щепотка пыли" },
-    "scaling": { "mode": "level", "formula": "1d8" }
+    "scaling": { "mode": "level", "target": "secondary", "formula": "1d8" }
     },
     "classes": [ "wizard", "druid", "sorcerer" ]
   },
@@ -2633,7 +2633,7 @@
     "target": { "value": 20, "units": "ft", "type": "sphere" },
     "range": { "value": 150, "long": null, "units": "ft" },
     "actionType": "damage",
-    "damage": { "parts": [ [ "2d4", "piercing" ] ] },
+    "damage": { "parts": [["2d4","piercing","secondary"]] },
     "save": { "ability": null },
     "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": true },
     "materials": { "value": "семь острых шипов или семь заострённых веточек" },
