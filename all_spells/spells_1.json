@@ -662,7 +662,7 @@
     "classes": ["bard", "wizard"]
   },
   {
-    "name": "Защита от зла и добра [Protection from Evil and Good]",
+    "name": "Защита от добра и зла [Protection from Evil and Good]",
     "type": "spell",
     "system": {
       "description": {
@@ -924,11 +924,11 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": null, "long": null, "units": "touch" },
       "actionType": "heal",
-      "damage": { "parts": [] },
+      "damage": { "parts": [["1d8", "healing", "primary"]], "modifier": "spellcasting" },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d8" }
+      "scaling": { "mode": "level", "target": "primary", "formula": "1d8" }
     },
     "classes": ["bard", "druid", "cleric", "artificer", "paladin", "ranger"]
   },
@@ -2034,11 +2034,11 @@
       "target": { "value": 1, "units": null, "type": null },
       "range": { "value": 120, "long": null, "units": "ft" },
       "actionType": "attack",
-      "damage": { "parts": [["2d8+1d6", "thunder"]] },
+      "damage": { "parts": [["2d8+1d6", "variable", "primary"], ["2d8+1d6", "variable", "secondary"]], "variants": [ { "label": "1 — Звук", "type": "thunder" }, { "label": "2 — Кислота", "type": "acid" }, { "label": "3 — Огонь", "type": "fire" }, { "label": "4 — Психическая энергия", "type": "psychic" }, { "label": "5 — Силовое поле", "type": "force" }, { "label": "6 — Холод", "type": "cold" }, { "label": "7 — Электричество", "type": "lightning" }, { "label": "8 — Яд", "type": "poison" } ] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": false, "ritual": false, "concentration": false },
       "materials": { "value": "" },
-      "scaling": { "mode": "level", "formula": "1d6" }
+      "scaling": { "mode": "level", "target": "damage", "formula": "1d6" }
     },
     "classes": ["sorcerer"]
   },
@@ -2304,7 +2304,7 @@
       "target": { "value": null, "units": null, "type": null },
       "range": { "value": null, "long": null, "units": "touch" },
       "actionType": "heal",
-      "damage": { "parts": [] },
+      "damage": { "parts": [["1", "healing", "secondary"]] },
       "save": { "ability": null },
       "components": { "vocal": true, "somatic": true, "material": true, "ritual": false, "concentration": false },
       "materials": { "value": "ветка омелы" },
