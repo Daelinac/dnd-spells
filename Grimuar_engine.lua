@@ -327,3 +327,91 @@ function cleanDescription(params)
     d = string.gsub(d, "</ol>", "")
     return d
 end
+
+-- =============================================================================
+-- ФАЗА 2 (продолжение) — ОСТАЛЬНЫЕ ПРЕЗЕНТАЦИОННЫЕ ХЕЛПЕРЫ
+-- =============================================================================
+-- getSpellEffects НЕ переносится: это тривиальный однострочник
+-- (spell.system.effects or {}), который используют ВНУТРИ СЕБЯ почти все
+-- функции ниже — если бы getSpellEffects тоже была .call()-обёрткой,
+-- каждый клик по карточке заклинания стал бы делать 5-8 лишних сетевых
+-- прыжков только ради этой мелочи (спрятанных внутри других вызовов).
+-- Поэтому функции ниже сами берут spell.system.effects напрямую.
+-- =============================================================================
+
+local function engineGetSpellEffects(spell)
+    local sys = spell and spell.system or {}
+    return sys.effects or {}
+end
+
+function getEffectLabel(params)
+    local effect = params.effect
+    return effect.label or EFFECT_LABELS_RU_FALLBACK[effect.id] or effect.id or "Эффект"
+end
+
+function spellHasAnyScaling(params)
+    local spell = params.spell
+    for _, e in ipairs(engineGetSpellEffects(spell)) do
+        if e.scaling and e.scaling.mode and e.scaling.mode ~= "none" then return true end
+    end
+    return false
+end
+
+function getSpellSharedVariants(params)
+    local spell = params.spell
+    for _, e in ipairs(engineGetSpellEffects(spell)) do
+        if e.damage then
+            for _, dmg in ipairs(e.damage) do
+                if dmg.variants and #dmg.variants > 0 then return dmg.variants end
+            end
+        end
+    end
+    return nil
+end
+
+function spellHasAnyDamage(params)
+    local spell = params.spell
+    for _, e in ipairs(engineGetSpellEffects(spell)) do
+        if e.damage and #e.damage > 0 then return true end
+    end
+    return false
+end
+
+-- Локальный хелпер склонения числительных ("1 Минута"/"10 Минут") — нужен
+-- только здесь, поэтому не выносится отдельной .call()-функцией.
+local function engineDeclOfNum(n, forms)
+    local mod100 = math.abs(n) % 100
+    local mod10 = mod100 % 10
+    if mod100 > 10 and mod100 < 20 then return forms[3] end
+    if mod10 > 1 and mod10 < 5 then return forms[2] end
+    if mod10 == 1 then return forms[1] end
+    return forms[3]
+end
+
+function getActivationText(params)
+    local sys = params.sys
+    local act = sys.activation or {}
+    local forms = ACTIVATION_UNIT_FORMS_RU[act.type]
+    if forms then
+        local cost = act.cost or 1
+        if cost == 1 then return forms[1] end
+        return cost .. " " .. engineDeclOfNum(cost, forms)
+    end
+    if ACTIVATION_TYPE_LABELS_RU[act.type] then
+        return ACTIVATION_TYPE_LABELS_RU[act.type]
+    end
+    if sys.display and sys.display.activation and sys.display.activation ~= "" then
+        return sys.display.activation
+    end
+    return "—"
+end
+
+function buildAttackModifierSuffix(params)
+    local effect = params.effect
+    if not effect.attackModifiers or #effect.attackModifiers == 0 then return "" end
+    local names = {}
+    for _, m in ipairs(effect.attackModifiers) do
+        table.insert(names, MODIFIERS_RU[string.lower(m)] or m)
+    end
+    return " + " .. table.concat(names, " + ")
+end
