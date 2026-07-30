@@ -118,3 +118,180 @@ ACTIVATION_TYPE_LABELS_RU = {
     reaction = "Реакция",
     special  = "Особое"
 }
+
+-- =============================================================================
+-- ФАЗА 1 — ЧТЕНИЕ ЛИСТА ПЕРСОНАЖА
+-- =============================================================================
+-- В отличие от словарей выше, это ФУНКЦИИ, а не данные — их не подмешать
+-- поверх локальной таблицы книги. Книга вызывает их через
+-- db.call("имяФункции", { ...параметры... }) — TTS передаёт функции РОВНО
+-- ОДИН параметр, поэтому КАЖДАЯ функция здесь принимает единственную
+-- таблицу params и сама достаёт из неё нужные поля (см. ниже).
+--
+-- Эти функции работают с УЖЕ ГОТОВЫМИ данными листа (sheetData —
+-- результат sheet.call("getButtonData"), книга получает его сама и просто
+-- передаёт сюда как параметр) — здесь нет ни одного обращения к GUID,
+-- к листу напрямую, к self книги и т.п. Чистые функции: одинаковые входные
+-- данные -> одинаковый результат, ничего не хранят между вызовами.
+--
+-- В книге у каждой из них оставлена ЛОКАЛЬНАЯ КОПИЯ этой же логики как
+-- ФОЛЛБЭК — если Master DB не собрана с движком (старая сборка / сеть
+-- подвела при сборке) или объект не найден на столе, книга просто считает
+-- сама, как и раньше. Правки логики отсюда пересборкой библиотеки
+-- подхватят все книги; фоллбэк-копии в книге при этом трогать не нужно.
+-- =============================================================================
+
+-- Ключи для чтения ГОТОВЫХ (уже посчитанных листом) итоговых значений —
+-- см. комментарии в самой книге (ЗАКЛИНАТОР) для подробностей по каждому.
+local CHARACTER_SHEET_ABILITY_KEYS = {
+    STR = "display_STR", DEX = "display_DEX", CON = "display_CON",
+    INT = "display_INT", WIS = "display_WIS", CHA = "display_CHA",
+}
+local CHARACTER_SHEET_SAVE_KEYS = {
+    STR = "display_STR_savethrow", DEX = "display_DEX_savethrow", CON = "display_CON_savethrow",
+    INT = "display_INT_savethrow", WIS = "display_WIS_savethrow", CHA = "display_CHA_savethrow",
+}
+local CHARACTER_SHEET_SKILL_KEYS = {
+    Athletics = "display_Athletics",
+    Acrobatics = "display_Acrobatics",
+    Stealth = "display_Stealth",
+    SleightOfHand = "display_Sleight_of_hand",
+    Arcana = "display_Arcana",
+    History = "display_History",
+    Investigation = "display_Investigation",
+    Nature = "display_Nature",
+    Religion = "display_Religion",
+    AnimalHandling = "display_Animal_Handling",
+    Insight = "display_Insight",
+    Medicine = "display_Medicine",
+    Perception = "display_Perception",
+    Survival = "display_Survival",
+    Performance = "display_Performance",
+    Deception = "display_Deception",
+    Intimidation = "display_Intimidation",
+    Persuasion = "display_Persuasion",
+}
+local CHARACTER_SHEET_PROFICIENCY_KEY = "display_Proficiency"
+local CHARACTER_SHEET_SPELL_ATTACK_BONUS_KEY = "textbox_Spell_Attack_Bonus"
+local CHARACTER_SHEET_SPELL_SAVE_DC_KEY = "textbox_Spell_Save_DC"
+local CHARACTER_SHEET_WEAPON_SLOTS = {
+    { name = "textbox_Weapon_Name_1", hit = "textbox_Hit_1", diceCount = "textbox_Damage_Dice_Count_Type_1", diceType = "textbox_Damage_Dice_Type_1", bonus = "textbox_Damage_Bonus_1", notes = "textbox_Notes_1" },
+    { name = "textbox_Weapon_Name_2", hit = "textbox_Hit_2", diceCount = "textbox_Damage_Dice_Count_Type_2", diceType = "textbox_Damage_Dice_Type_2", bonus = "textbox_Damage_Bonus_2", notes = "textbox_Notes_2" },
+    { name = "textbox_Weapon_Name_3", hit = "textbox_Hit_3", diceCount = "textbox_Damage_Dice_Count_Type_3", diceType = "textbox_Damage_Dice_Type_3", bonus = "textbox_Damage_Bonus_3", notes = "textbox_Notes_3" },
+    { name = "textbox_Weapon_Name_4", hit = "textbox_Hit_4", diceCount = "textbox_Damage_Dice_Count_Type_4", diceType = "textbox_Damage_Dice_Type_4", bonus = "textbox_Damage_Bonus_4", notes = "textbox_Notes_4" },
+    { name = "textbox_Weapon_Name_5", hit = "textbox_Hit_5", diceCount = "textbox_Damage_Dice_Count_Type_5", diceType = "textbox_Damage_Dice_Type_5", bonus = "textbox_Damage_Bonus_5", notes = "textbox_Notes_5" },
+    { name = "textbox_Weapon_Name_6", hit = "textbox_Hit_6", diceCount = "textbox_Damage_Dice_Count_Type_6", diceType = "textbox_Damage_Dice_Type_6", bonus = "textbox_Damage_Bonus_6", notes = "textbox_Notes_6" },
+    { name = "textbox_Weapon_Name_7", hit = "textbox_Hit_7", diceCount = "textbox_Damage_Dice_Count_Type_7", diceType = "textbox_Damage_Dice_Type_7", bonus = "textbox_Damage_Bonus_7", notes = "textbox_Notes_7" },
+}
+
+function parseSheetNumber(params)
+    local v = params.v
+    if type(v) == "number" then return v end
+    if type(v) == "string" and v ~= "" then return tonumber(v) end
+    return nil
+end
+
+function textboxValue(params)
+    local sheetData, key = params.sheetData, params.key
+    local entry = sheetData.textbox and sheetData.textbox[key]
+    return entry and entry.value or nil
+end
+
+function getAbilityModifier(params)
+    local sheetData, abilityCode = params.sheetData, params.abilityCode
+    local key = CHARACTER_SHEET_ABILITY_KEYS[abilityCode]
+    return key and sheetData.display[key] and parseSheetNumber({ v = sheetData.display[key].value }) or nil
+end
+
+function getSaveBonus(params)
+    local sheetData, abilityCode = params.sheetData, params.abilityCode
+    local key = CHARACTER_SHEET_SAVE_KEYS[abilityCode]
+    return key and sheetData.display[key] and parseSheetNumber({ v = sheetData.display[key].value }) or nil
+end
+
+function getSkillBonus(params)
+    local sheetData, skillCode = params.sheetData, params.skillCode
+    local key = CHARACTER_SHEET_SKILL_KEYS[skillCode]
+    return key and sheetData.display[key] and parseSheetNumber({ v = sheetData.display[key].value }) or nil
+end
+
+function getProficiencyBonus(params)
+    local sheetData = params.sheetData
+    return sheetData.display[CHARACTER_SHEET_PROFICIENCY_KEY]
+        and parseSheetNumber({ v = sheetData.display[CHARACTER_SHEET_PROFICIENCY_KEY].value }) or nil
+end
+
+function getSpellAttackBonusFromSheet(params)
+    local sheetData = params.sheetData
+    local entry = sheetData.textbox and sheetData.textbox[CHARACTER_SHEET_SPELL_ATTACK_BONUS_KEY]
+    return entry and parseSheetNumber({ v = entry.value }) or nil
+end
+
+function getSpellSaveDCFromSheet(params)
+    local sheetData = params.sheetData
+    local entry = sheetData.textbox and sheetData.textbox[CHARACTER_SHEET_SPELL_SAVE_DC_KEY]
+    return entry and parseSheetNumber({ v = entry.value }) or nil
+end
+
+function getCharacterWeapons(params)
+    local sheetData = params.sheetData
+    local list = {}
+    if not sheetData or not sheetData.textbox then return list end
+
+    for _, slot in ipairs(CHARACTER_SHEET_WEAPON_SLOTS) do
+        local name = textboxValue({ sheetData = sheetData, key = slot.name })
+        if name and name ~= "" then
+            table.insert(list, {
+                name = name,
+                hitBonus = parseSheetNumber({ v = textboxValue({ sheetData = sheetData, key = slot.hit }) }),
+                diceCount = parseSheetNumber({ v = textboxValue({ sheetData = sheetData, key = slot.diceCount }) }),
+                diceType = parseSheetNumber({ v = textboxValue({ sheetData = sheetData, key = slot.diceType }) }),
+                damageBonus = parseSheetNumber({ v = textboxValue({ sheetData = sheetData, key = slot.bonus }) }),
+                damageTypeNote = textboxValue({ sheetData = sheetData, key = slot.notes }),
+            })
+        end
+    end
+
+    return list
+end
+
+function findWeaponOnSheet(params)
+    local sheetData, nameHint = params.sheetData, params.nameHint
+    local weapons = getCharacterWeapons({ sheetData = sheetData })
+    if #weapons == 0 then return nil end
+
+    if nameHint and nameHint ~= "" then
+        local lowerHint = string.lower(nameHint)
+        for _, w in ipairs(weapons) do
+            if string.find(string.lower(w.name), lowerHint, 1, true) then
+                return w
+            end
+        end
+    end
+
+    return weapons[1]
+end
+
+function buildWeaponDamageFormula(params)
+    local weapon = params.weapon
+    if not weapon or not weapon.diceCount or not weapon.diceType then return nil end
+
+    local formula = weapon.diceCount .. "d" .. weapon.diceType
+    if weapon.damageBonus and weapon.damageBonus ~= 0 then
+        formula = formula .. (weapon.damageBonus > 0 and "+" or "") .. weapon.damageBonus
+    end
+    return formula
+end
+
+-- Диапазон уровней персонажа для скейлинга ЗАГОВОРОВ — чистая часть
+-- getDefaultCantripTierIndex из книги (сама привязка к GUID листа и чтение
+-- lvl остаются в книге, сюда передаётся уже готовое число).
+function cantripTierIndexForLevel(params)
+    local lvl = tonumber(params.lvl)
+    if not lvl then return 0 end
+
+    if lvl >= 17 then return 3
+    elseif lvl >= 11 then return 2
+    elseif lvl >= 5 then return 1
+    else return 0 end
+end
