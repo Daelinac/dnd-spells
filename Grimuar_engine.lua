@@ -295,3 +295,35 @@ function cantripTierIndexForLevel(params)
     elseif lvl >= 5 then return 1
     else return 0 end
 end
+
+-- =============================================================================
+-- ФАЗА 2 — ПРЕЗЕНТАЦИОННЫЕ ХЕЛПЕРЫ (только то, что НЕ горячий путь)
+-- =============================================================================
+-- ВАЖНО: большинство презентационных хелперов книги (getEffectLabel,
+-- getActivationText, buildAttackModifierSuffix, spellHasAnyScaling/Damage,
+-- getSpellSharedVariants, getSpellEffects) вызываются внутри
+-- computeSpellButtonTexts — а эта функция пересчитывает текст КАЖДОЙ кнопки
+-- заклинания при КАЖДОЙ перерисовке списка (открытие библиотеки, скролл,
+-- поиск). Перенос их сюда добавил бы сетевой .call() на каждую видимую
+-- кнопку при каждом скролле — это не "безопасный перенос", а реальное
+-- подвисание списка. Поэтому они ОСТАЮТСЯ в книге.
+--
+-- cleanDescription — исключение: вызывается только при ОТКРЫТИИ конкретной
+-- карточки заклинания (клик по спеллу), не при скролле списка — раз на
+-- клик, ничтожный оверхед. Единственный безопасный кандидат этой фазы.
+-- =============================================================================
+function cleanDescription(params)
+    local desc = params.desc
+    if not desc then return "Описание отсутствует." end
+    local d = tostring(desc)
+    d = string.gsub(d, "<p>", "")
+    d = string.gsub(d, "</p>", "\n")
+    d = string.gsub(d, "<br/?>", "\n")
+    d = string.gsub(d, "<li>", " • ")
+    d = string.gsub(d, "</li>", "\n")
+    d = string.gsub(d, "<ul>", "")
+    d = string.gsub(d, "</ul>", "")
+    d = string.gsub(d, "<ol>", "")
+    d = string.gsub(d, "</ol>", "")
+    return d
+end
