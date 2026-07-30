@@ -2415,6 +2415,7 @@ steps = {1, 10, 100},
     hitDiceLeft = 1,             -- оставшееся количество костей хитов
     monetWeight = 0,             -- вес монет (в фунтах)
     lockMode = 0,                -- режим блокировки: 0 - нет, 1 - частичная, 2 - полная
+    injuries = {},               -- активные травмы: [paramId/RESOURCE_COUNTER_HP_MAX_ID/TEXTBOX_SPEED_ID] = величина
 }
 
 -- Параметры кнопки "Обновить уровень" в выключенном (невидимом) состоянии
@@ -2567,7 +2568,8 @@ local lockModeLabels = {
 }
 
 -- Пересоздаёт контекстное меню: показывает пункты для двух режимов,
--- отличных от текущего (не циклический перебор, а прямой выбор)
+-- отличных от текущего (не циклический перебор, а прямой выбор), плюс
+-- статичные пункты управления травмами
 function updateLockContextMenu()
     self.clearContextMenu()
 
@@ -2579,6 +2581,9 @@ function updateLockContextMenu()
             end)
         end
     end
+
+    self.addContextMenuItem("Получить травму", onClickGetInjury)
+    self.addContextMenuItem("Снять травмы", onClickRemoveInjuries)
 end
 
 -- Устанавливает конкретный режим блокировки (вызывается из контекстного меню)
@@ -2589,6 +2594,128 @@ function setLockMode(mode)
     applyCounterLockVisuals()
     applyResourceCounterLockVisuals()
     updateLockContextMenu()
+    updateSave()
+end
+
+--============================================================
+-- ТРАВМЫ (штрафы к характеристикам, Максимуму хитов и Скорости)
+--
+-- Схема: ПКМ -> "Получить травму" открывает диалог выбора величины.
+-- После выбора она "взводится" (pendingInjuryAmount) и ждёт СЛЕДУЮЩЕГО
+-- клика по одной из 8 подходящих точек (6 характеристик, Максимум хитов,
+-- Скорость) — обычной, уже существующей. Этот клик подменяется: вместо
+-- обычного шага применяется величина травмы, поле красится полупрозрачным
+-- красным, взвод снимается. Если в момент клика поля заблокированы —
+-- травма, как и обычное действие, не применяется (единое правило блокировки,
+-- никакого отдельного обхода для травм не сделано ради простоты).
+--============================================================
+
+-- Полупрозрачный красный фон для травмированных полей
+local INJURY_TINT_COLOR = {1, 0, 0, 0.4}
+
+-- Величина травмы, ожидающая применения к следующему изменённому полю.
+-- nil = сейчас ничего не взведено.
+local pendingInjuryAmount = nil
+
+-- Варианты величины травмы для диалога выбора
+local injuryAmountOptions = {"-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10"}
+
+-- true, если fieldId — это id одной из 6 характеристик (PARAM_*_ID)
+function isAbilityParamId(fieldId)
+    return fieldId == PARAM_STR_ID or fieldId == PARAM_DEX_ID or fieldId == PARAM_CON_ID
+        or fieldId == PARAM_INT_ID or fieldId == PARAM_WIS_ID or fieldId == PARAM_CHA_ID
+end
+
+-- Красит нужную кнопку/поле в заданный цвет в зависимости от типа поля
+function setInjuryTintForField(fieldId, color)
+    if isAbilityParamId(fieldId) then
+        self.editButton({index = btnIndexByElementIdTable["counter_"..fieldId], color = color})
+    elseif fieldId == RESOURCE_COUNTER_HP_MAX_ID then
+        self.editButton({index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_MAX_ID], color = color})
+    elseif fieldId == TEXTBOX_SPEED_ID then
+        self.editInput({
+            index = inputIndexByElementIdTable[TEXTBOX_SPEED_ID],
+            value = ref_buttonData.textbox[TEXTBOX_SPEED_ID].value,
+            color = color,
+        })
+    end
+end
+
+function tintInjuredField(fieldId)
+    setInjuryTintForField(fieldId, INJURY_TINT_COLOR)
+end
+
+-- "Нормальный" (не травмированный) цвет поля — у хитов сейчас прозрачный фон,
+-- у характеристик и Скорости — обычный цвет кнопок/полей
+function clearInjuredFieldTint(fieldId)
+    local normalColor = buttonColor
+    if fieldId == RESOURCE_COUNTER_HP_MAX_ID then
+        normalColor = {0, 0, 0, 0}
+    end
+    setInjuryTintForField(fieldId, normalColor)
+end
+
+-- Прибавляет delta к одному из 8 полей, поддерживающих травмы. Переиспользует
+-- уже существующие обработчики (со всем их пересчётом зависимостей), поэтому
+-- саму травму и её снятие проводит совершенно одинаково.
+function applyStatDelta(fieldId, delta)
+    if fieldId == RESOURCE_COUNTER_HP_MAX_ID then
+        click_resource_counter(delta, RESOURCE_COUNTER_HP_MAX_ID)
+        return
+    end
+
+    if fieldId == TEXTBOX_SPEED_ID then
+        local current = tonumber(ref_buttonData.textbox[TEXTBOX_SPEED_ID].value) or 0
+        local newValue = current + delta
+        ref_buttonData.textbox[TEXTBOX_SPEED_ID].value = newValue
+        self.editInput({index = inputIndexByElementIdTable[TEXTBOX_SPEED_ID], value = newValue})
+        return
+    end
+
+    -- Иначе fieldId — это paramId характеристики (например "STR")
+    click_counter(delta, "counter_"..fieldId)
+end
+
+-- Заново красит все поля, на которых сейчас числится активная травма —
+-- нужно вызывать при загрузке листа, иначе после сохранения/перезахода
+-- сама цифра останется сниженной, а подсветка исчезнет
+function applyInjuryVisuals()
+    for fieldId, amount in pairs(ref_buttonData.injuries) do
+        tintInjuredField(fieldId)
+    end
+end
+
+-- ПКМ -> "Получить травму": открывает диалог выбора величины
+function onClickGetInjury(playerColor)
+    Player[playerColor].showOptionsDialog(
+        "На сколько снизить характеристику?",
+        injuryAmountOptions,
+        1,
+        function(selectedText, selectedIndex)
+            pendingInjuryAmount = tonumber(injuryAmountOptions[selectedIndex])
+
+            broadcastToAll(
+                Player[playerColor].steam_name..": травма готова к применению ("..pendingInjuryAmount..
+                ") — кликните характеристику, Максимум хитов или Скорость."
+            )
+        end
+    )
+end
+
+-- ПКМ -> "Снять травмы": возвращает все значения и убирает подсветку
+function onClickRemoveInjuries(playerColor)
+    -- Снимаем взвод заранее — иначе, если травма была взведена, но ещё не
+    -- применена, applyStatDelta ниже (через click_counter/click_resource_counter)
+    -- по ошибке применил бы её вместо отката
+    pendingInjuryAmount = nil
+
+    for fieldId, amount in pairs(ref_buttonData.injuries) do
+        applyStatDelta(fieldId, -amount)
+        clearInjuredFieldTint(fieldId)
+    end
+
+    ref_buttonData.injuries = {}
+
     updateSave()
 end
 
@@ -2755,6 +2882,9 @@ function onload(saved_data)
     if ref_buttonData.resourceCounter == nil then
   ref_buttonData.resourceCounter = defaultButtonData.resourceCounter
     end
+    if ref_buttonData.injuries == nil then
+  ref_buttonData.injuries = {}
+    end
 
     spawnedButtonCount = 0
 
@@ -2776,6 +2906,7 @@ function onload(saved_data)
     applyTextboxLockVisuals()
     applyCounterLockVisuals()
     applyResourceCounterLockVisuals()
+    applyInjuryVisuals()
     updateLockContextMenu()
 end
 
@@ -2933,6 +3064,15 @@ function click_counter(amount, counterId)
 
     local paramId = ref_buttonData.counter[counterId].paramId
 
+    -- Если взведена травма — этот клик применяет её вместо обычного шага
+    if pendingInjuryAmount ~= nil then
+        amount = pendingInjuryAmount
+        pendingInjuryAmount = nil
+
+        ref_buttonData.injuries[paramId] = (ref_buttonData.injuries[paramId] or 0) + amount
+        tintInjuredField(paramId)
+    end
+
     ref_buttonData.counter[counterId].value = ref_buttonData.counter[counterId].value + amount
     ref_buttonData.display["display_"..paramId].value = math.floor((ref_buttonData.counter[counterId].value - 10) / 2)
 
@@ -2962,31 +3102,19 @@ function click_counter(amount, counterId)
   local bonus = ref_buttonData.textbox["textbox_"..skillId].value
   bonus = tonumber(bonus) or 0
 
-  -- Обновление навыка с учётом мастерства и без него
-  if ref_buttonData.checkbox["checkbox_"..skillId].state == true then
-ref_buttonData.display["display_"..skillId].value = atributo + bonus + proficiency
-self.editButton({index = btnIndexByElementIdTable["display_"..skillId], label = atributo + bonus + proficiency})
-  else
-ref_buttonData.display["display_"..skillId].value = atributo + bonus
-self.editButton({index = btnIndexByElementIdTable["display_"..skillId], label = atributo + bonus})
-  end
+  -- Обновление навыка с учётом мастерства (обычного или удвоенного при Компетентности)
+  local skillCheckbox = ref_buttonData.checkbox["checkbox_"..skillId]
+  local nextValue = atributo + bonus + proficiency * getProficiencyMultiplier(skillCheckbox)
+  ref_buttonData.display["display_"..skillId].value = nextValue
+  self.editButton({index = btnIndexByElementIdTable["display_"..skillId], label = nextValue})
 
   -- Обновление пассивной внимательности
   if skillId == SKILL_PERCEPTION_ID then
--- С учётом мастерства во "Внимательности" или без него
-if ref_buttonData.checkbox["checkbox_"..SKILL_PERCEPTION_ID].state == true then
-    ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value = 10 + atributo + bonus + proficiency
-    self.editButton({
-  index = btnIndexByElementIdTable[DISPLAY_PASSIVE_PERCEPTION_ID],
-  label = ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value,
-    })
-else
-    ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value = 10 + atributo + bonus
-    self.editButton({
-  index = btnIndexByElementIdTable[DISPLAY_PASSIVE_PERCEPTION_ID],
-  label = ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value,
-    })
-end
+ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value = 10 + nextValue
+self.editButton({
+    index = btnIndexByElementIdTable[DISPLAY_PASSIVE_PERCEPTION_ID],
+    label = ref_buttonData.display[DISPLAY_PASSIVE_PERCEPTION_ID].value,
+})
   end
     end
 
@@ -3011,6 +3139,16 @@ local moneyCounterIds = {
 function click_resource_counter(amount, counterId)
     if isResourceCounterLocked(counterId) then
         return
+    end
+
+    -- Если взведена травма и это Максимум хитов — клик применяет её вместо обычного шага.
+    -- Остальные resourceCounter (текущие/временные хиты, монеты) травмы не поддерживают.
+    if pendingInjuryAmount ~= nil and counterId == RESOURCE_COUNTER_HP_MAX_ID then
+  amount = pendingInjuryAmount
+  pendingInjuryAmount = nil
+
+  ref_buttonData.injuries[counterId] = (ref_buttonData.injuries[counterId] or 0) + amount
+  tintInjuredField(counterId)
     end
 
     local data = ref_buttonData.resourceCounter[counterId]
@@ -3054,7 +3192,20 @@ self.editInput({
     end
 
     if selected == false then
-  ref_buttonData.textbox[textboxId].value = value
+  -- Если взведена травма и это Скорость — не важно, что игрок ввёл в поле,
+  -- новое значение считается как "текущее + величина травмы"
+  if pendingInjuryAmount ~= nil and textboxId == TEXTBOX_SPEED_ID then
+      local current = tonumber(ref_buttonData.textbox[textboxId].value) or 0
+      value = current + pendingInjuryAmount
+
+      ref_buttonData.injuries[textboxId] = (ref_buttonData.injuries[textboxId] or 0) + pendingInjuryAmount
+      pendingInjuryAmount = nil
+
+      ref_buttonData.textbox[textboxId].value = value
+      tintInjuredField(textboxId)
+  else
+      ref_buttonData.textbox[textboxId].value = value
+  end
 
   -- Пересчёт значений с учётом бонуса мастерства
   updateSkillsByProficiency()
@@ -3731,12 +3882,24 @@ end
 -- счётчик заблокирован — см. applyResourceCounterLockVisuals.
 function createResourceCounter()
     for counterId, data in pairs(ref_buttonData.resourceCounter) do
+  -- У кнопок хитов (текущие/временные/максимум) фон убираем полностью —
+  -- у монет фон остаётся как обычно
+  local isHpCounter = (
+      counterId == RESOURCE_COUNTER_HP_CURRENT_ID
+      or counterId == RESOURCE_COUNTER_HP_TEMPORARY_ID
+      or counterId == RESOURCE_COUNTER_HP_MAX_ID
+  )
+  local btnColor = buttonColor
+  if isHpCounter then
+      btnColor = {1, 1, 1, 1}
+  end
+
   -- Кнопка-дисплей с текущим значением (сама не кликабельна)
   createBtnAndSaveIndex(
 counterId,
 {
     click_function = "click_none",
-    color    = buttonColor,
+    color    = btnColor,
     font_color     = buttonFontColor,
     font_size= data.size,
     function_owner = self,
@@ -3758,9 +3921,12 @@ counterId,
 
   for i, step in ipairs(data.steps) do
 local rowZ = data.pos[3] + rowSpacingZ * (i - 2)
--- Группа с шагами {1,5} (хиты) — опускаем чуть ниже, монеты ({1,10,100}) не трогаем
+-- Группа с шагами {1,5} (хиты) — опускаем чуть ниже, монеты ({1,10,100}) не трогаем.
+-- Сдвиг пропорционален rowSpacingZ (а не фиксированное число), чтобы одинаково
+-- выглядело и на большой кнопке (Текущие хиты, size=750), и на маленьких
+-- (Временные/Максимум, size=450)
 if #data.steps == 2 then
-    rowZ = rowZ + 0.043
+    rowZ = rowZ + rowSpacingZ * 0.5
 end
 
 -- Кнопка "+step" (столбик справа)
@@ -3774,7 +3940,7 @@ createBtnAndSaveIndex(
     addBtnId,
     {
 click_function = addBtnId,
-color    = buttonColor,
+color    = btnColor,
 font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
@@ -3798,7 +3964,7 @@ createBtnAndSaveIndex(
     subBtnId,
     {
 click_function = subBtnId,
-color    = buttonColor,
+color    = btnColor,
 font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
