@@ -628,6 +628,20 @@ local rollLabelCollection = {
     [ROLL_SKILL_PERSUASION_ID] = "Убеждение",
 }
 
+-- Цвет каждой характеристики (как на бейджах самого листа) — используется
+-- в rollParam для подсветки названия проверки/испытания и итога броска.
+-- У навыков и спасбросков paramId — это управляющая характеристика (её и
+-- передают в rollParam как есть), поэтому дочерний навык автоматически
+-- получает цвет своей основной характеристики без отдельного сопоставления.
+local paramColorByParamId = {
+    [PARAM_STR_ID] = "973629",
+    [PARAM_DEX_ID] = "2D7738",
+    [PARAM_CON_ID] = "977B7A",
+    [PARAM_INT_ID] = "4B6C8C",
+    [PARAM_WIS_ID] = "644A2E",
+    [PARAM_CHA_ID] = "6E578C",
+}
+
 -- Текст, который выводится в чат при броске (что именно проверяется/испытывается)
 local rollTextCollection = {
     [ROLL_PARAM_STR_ID] = "проверка [b]Силы[/b]",
@@ -777,181 +791,181 @@ defaultButtonData = {
   ]]
   [CHECKBOX_SKILL_STR_SAVETHROW_ID] = {
 skillId = SKILL_STR_SAVETHROW_ID,
-pos     = {-1.123,0.1,-1.155},
+pos     = {-1.129,0.1,-1.155},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_ATHLETICS_ID] = {
 skillId = SKILL_ATHLETICS_ID,
-pos     = {-1.123,0.1,-1.10},
+pos     = {-1.129,0.1,-1.10},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_DEX_SAVETHROW_ID] = {
 skillId = SKILL_DEX_SAVETHROW_ID,
-pos     = {-1.123,0.1,-0.79},
+pos     = {-1.129,0.1,-0.79},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_ACROBATICS_ID] = {
 skillId = SKILL_ACROBATICS_ID,
-pos     = {-1.123,0.1,-0.735},
+pos     = {-1.129,0.1,-0.735},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_STEALTH_ID] = {
 skillId = SKILL_STEALTH_ID,
-pos     = {-1.123,0.1,-0.685},
+pos     = {-1.129,0.1,-0.685},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_SLEIGHT_OF_HAND_ID] = {
 skillId = SKILL_SLEIGHT_OF_HAND_ID,
-pos     = {-1.123,0.1,-0.630},
+pos     = {-1.129,0.1,-0.632},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_CON_SAVETHROW_ID] = {
 skillId = SKILL_CON_SAVETHROW_ID,
-pos     = {-1.123,0.1,-0.428},
+pos     = {-1.129,0.1,-0.428},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_INT_SAVETHROW_ID] = {
 skillId = SKILL_INT_SAVETHROW_ID,
-pos     = {-1.123,0.1,-0.070},
+pos     = {-1.129,0.1,-0.067},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_ARCANA_ID] = {
 skillId = SKILL_ARCANA_ID,
-pos     = {-1.123,0.1,-0.015},
+pos     = {-1.129,0.1,-0.01},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_HISTORY_ID] = {
 skillId = SKILL_HISTORY_ID,
-pos     = {-1.123,0.1,0.040},
+pos     = {-1.129,0.1,0.0435},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_INVESTIGATION_ID] = {
 skillId = SKILL_INVESTIGATION_ID,
-pos     = {-1.123,0.1,0.095},
+pos     = {-1.129,0.1,0.095},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_NATURE_ID] = {
 skillId = SKILL_NATURE_ID,
-pos     = {-1.123,0.1,0.150},
+pos     = {-1.129,0.1,0.148},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_RELIGION_ID] = {
 skillId = SKILL_RELIGION_ID,
-pos     = {-1.123,0.1,0.202},
+pos     = {-1.129,0.1,0.20},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_WIS_SAVETHROW_ID] = {
 skillId = SKILL_WIS_SAVETHROW_ID,
-pos     = {-1.123,0.1,0.30},
+pos     = {-1.129,0.1,0.305},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_ANIMAL_HANDLING_ID] = {
 skillId = SKILL_ANIMAL_HANDLING_ID,
-pos     = {-1.123,0.1,0.355},
+pos     = {-1.129,0.1,0.359},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_INSIGHT_ID] = {
 skillId = SKILL_INSIGHT_ID,
-pos     = {-1.123,0.1,0.410},
+pos     = {-1.129,0.1,0.410},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_MEDICINE_ID] = {
 skillId = SKILL_MEDICINE_ID,
-pos     = {-1.123,0.1,0.46},
+pos     = {-1.129,0.1,0.46},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_PERCEPTION_ID] = {
 skillId = SKILL_PERCEPTION_ID,
-pos     = {-1.123,0.1,0.51},
+pos     = {-1.129,0.1,0.513},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_SURVIVAL_ID] = {
 skillId = SKILL_SURVIVAL_ID,
-pos     = {-1.123,0.1,0.565},
+pos     = {-1.129,0.1,0.565},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_CHA_SAVETHROW_ID] = {
 skillId = SKILL_CHA_SAVETHROW_ID,
-pos     = {-1.123,0.1,0.67},
+pos     = {-1.129,0.1,0.67},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_PERFORMANCE_ID] = {
 skillId = SKILL_PERFORMANCE_ID,
-pos     = {-1.123,0.1,0.725},
+pos     = {-1.129,0.1,0.725},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_DECEPTION_ID] = {
 skillId = SKILL_DECEPTION_ID,
-pos     = {-1.123,0.1,0.775},
+pos     = {-1.129,0.1,0.775},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_INTIMIDATION_ID] = {
 skillId = SKILL_INTIMIDATION_ID,
-pos     = {-1.123,0.1,0.82},
+pos     = {-1.129,0.1,0.826},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SKILL_PERSUASION_ID] = {
 skillId = SKILL_PERSUASION_ID,
-pos     = {-1.123,0.1,0.875},
+pos     = {-1.129,0.1,0.878},
 size    = 150,
 state   = false
   },
   [CHECKBOX_LIGHT_ARMOR_ID] = {
 skillId = nil,
-pos     = {-1.430,0.1,1.26},
+pos     = {-1.435,0.1,1.2647},
 size    = 150,
 state   = false
   },
   [CHECKBOX_MEDIUM_ARMOR_ID] = {
 skillId = nil,
-pos     = {-1.430,0.1,1.30},
+pos     = {-1.435,0.1,1.3085},
 size    = 150,
 state   = false
   },
   [CHECKBOX_HEAVY_ARMOR_ID] = {
 skillId = nil,
-pos     = {-1.430,0.1,1.34},
+pos     = {-1.435,0.1,1.3512},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SHIELD_ID] = {
 skillId = nil,
-pos     = {-1.430,0.1,1.38},
+pos     = {-1.435,0.1,1.393},
 size    = 150,
 state   = false
   },
   [CHECKBOX_SIMPLE_WEAPONS_ID] = {
 skillId = nil,
-pos     = {-1.2,0.1,1.26},
+pos     = {-1.2045,0.1,1.2647},
 size    = 150,
 state   = false
   },
   [CHECKBOX_MARTIAL_WEAPONS_ID] = {
 skillId = nil,
-pos     = {-1.2,0.1,1.30},
+pos     = {-1.2045,0.1,1.3085},
 size    = 150,
 state   = false
   },
@@ -993,7 +1007,7 @@ state   = false
   },
   [CHECKBOX_WEIGHT_CAPACITY_X_2] = {
 skillId = nil,
-pos     = {0.392,0.1,1.937},
+pos     = {0.389,0.1,1.938},
 size    = 150,
 state   = false
   },
@@ -1117,222 +1131,222 @@ hideBG  = true
   },
   [DISPLAY_SKILL_STR_SAVETHROW_ID] = {
 skillId = SKILL_STR_SAVETHROW_ID,
-pos     = {-0.973,0.1,-1.16},
+pos     = {-0.979,0.1,-1.16},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_ATHLETICS_ID] = {
 skillId = SKILL_ATHLETICS_ID,
-pos     = {-0.973,0.1,-1.11},
+pos     = {-0.979,0.1,-1.11},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_DEX_SAVETHROW_ID] = {
 skillId = SKILL_DEX_SAVETHROW_ID,
-pos     = {-0.973,0.1,-0.795},
+pos     = {-0.979,0.1,-0.7948},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_ACROBATICS_ID] = {
 skillId = SKILL_ACROBATICS_ID,
-pos     = {-0.973,0.1,-0.745},
+pos     = {-0.979,0.1,-0.743},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_STEALTH_ID] = {
 skillId = SKILL_STEALTH_ID,
-pos     = {-0.973,0.1,-0.695},
+pos     = {-0.979,0.1,-0.693},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_SLEIGHT_OF_HAND_ID] = {
 skillId = SKILL_SLEIGHT_OF_HAND_ID,
-pos     = {-0.973,0.1,-0.645},
+pos     = {-0.979,0.1,-0.643},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_CON_SAVETHROW_ID] = {
 skillId = SKILL_CON_SAVETHROW_ID,
-pos     = {-0.973,0.1,-0.435},
+pos     = {-0.979,0.1,-0.43},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_INT_SAVETHROW_ID] = {
 skillId = SKILL_INT_SAVETHROW_ID,
-pos     = {-0.973,0.1,-0.07},
+pos     = {-0.979,0.1,-0.067},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_ARCANA_ID] = {
 skillId = SKILL_ARCANA_ID,
-pos     = {-0.973,0.1,-0.0215},
+pos     = {-0.979,0.1,-0.017},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_HISTORY_ID] = {
 skillId = SKILL_HISTORY_ID,
-pos     = {-0.973,0.1,0.031},
+pos     = {-0.979,0.1,0.035},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_INVESTIGATION_ID] = {
 skillId = SKILL_INVESTIGATION_ID,
-pos     = {-0.973,0.1,0.0825},
+pos     = {-0.979,0.1,0.087},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_NATURE_ID] = {
 skillId = SKILL_NATURE_ID,
-pos     = {-0.973,0.1,0.135},
+pos     = {-0.979,0.1,0.138},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_RELIGION_ID] = {
 skillId = SKILL_RELIGION_ID,
-pos     = {-0.973,0.1,0.185},
+pos     = {-0.979,0.1,0.188},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_WIS_SAVETHROW_ID] = {
 skillId = SKILL_WIS_SAVETHROW_ID,
-pos     = {-0.973,0.1,0.295},
+pos     = {-0.979,0.1,0.299},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_ANIMAL_HANDLING_ID] = {
 skillId = SKILL_ANIMAL_HANDLING_ID,
-pos     = {-0.973,0.1,0.345},
+pos     = {-0.979,0.1,0.349},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_INSIGHT_ID] = {
 skillId = SKILL_INSIGHT_ID,
-pos     = {-0.973,0.1,0.395},
+pos     = {-0.979,0.1,0.399},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_MEDICINE_ID] = {
 skillId = SKILL_MEDICINE_ID,
-pos     = {-0.973,0.1,0.445},
+pos     = {-0.979,0.1,0.449},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_PERCEPTION_ID] = {
 skillId = SKILL_PERCEPTION_ID,
-pos     = {-0.973,0.1,0.495},
+pos     = {-0.979,0.1,0.499},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_SURVIVAL_ID] = {
 skillId = SKILL_SURVIVAL_ID,
-pos     = {-0.973,0.1,0.55},
+pos     = {-0.979,0.1,0.549},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_CHA_SAVETHROW_ID] = {
 skillId = SKILL_CHA_SAVETHROW_ID,
-pos     = {-0.973,0.1,0.66},
+pos     = {-0.979,0.1,0.667},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_PERFORMANCE_ID] = {
 skillId = SKILL_PERFORMANCE_ID,
-pos     = {-0.973,0.1,0.708},
+pos     = {-0.979,0.1,0.717},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_DECEPTION_ID] = {
 skillId = SKILL_DECEPTION_ID,
-pos     = {-0.973,0.1,0.76},
+pos     = {-0.979,0.1,0.77},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_INTIMIDATION_ID] = {
 skillId = SKILL_INTIMIDATION_ID,
-pos     = {-0.973,0.1,0.813},
+pos     = {-0.979,0.1,0.82},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_SKILL_PERSUASION_ID] = {
 skillId = SKILL_PERSUASION_ID,
-pos     = {-0.973,0.1,0.863},
+pos     = {-0.979,0.1,0.87},
 size    = 250,
 value   = 0,
 hideBG  = true
   },
   [DISPLAY_PASSIVE_PERCEPTION_ID] = {
-pos    = {-1.35,0.1,1.03},
+pos    = {-1.35,0.1,1.045},
 size   = 450,
 value  = 10,
 hideBG = true,
   },
   [DISPLAY_WEIGHT_CAPACITY_ID] = {
-pos    = {-0.225,0.1,2.085},
+pos    = {-0.225,0.1,2.0945},
 size   = 450,
 value  = 150,
 hideBG = true,
   },
   [DISPLAY_RAISE_LIFT_AND_PULL_ID] = {
-pos    = {0.225,0.1,2.085},
+pos    = {0.225,0.1,2.0945},
 size   = 450,
 value  = 300,
 hideBG = true,
   },
   [DISPLAY_JUMP_HEIGHT_ID] = {
-pos    = {0.05,0.1,1.76},
+pos    = {0.05,0.1,1.77},
 size   = 350,
 value  = 3,
 hideBG = true,
   },
   [DISPLAY_JUMP_DISTANCE_ID] = {
-pos    = {0.05,0.1,1.695},
+pos    = {0.05,0.1,1.705},
 size   = 350,
 value  = 10,
 hideBG = true,
   },
   [DISPLAY_JUMP_HEIGHT_WITH_HANDS_ID] = {
-pos    = {0.05,0.1,1.825},
+pos    = {0.05,0.1,1.835},
 size   = 350,
 value  = 3,
 hideBG = true,
   },
   [DISPLAY_JUMP_HEIGHT_NO_RUNNING_ID] = {
-pos    = {0.34,0.1,1.76},
+pos    = {0.34,0.1,1.77},
 size   = 350,
 value  = 1,
 hideBG = true,
   },
   [DISPLAY_JUMP_DISTANCE_NO_RUNNING_ID] = {
-pos    = {0.34,0.1,1.695},
+pos    = {0.34,0.1,1.705},
 size   = 350,
 value  = 5,
 hideBG = true,
   },
   [DISPLAY_JUMP_HEIGHT_WITH_HANDS_NO_RUNNING_ID] = {
-pos     = {0.34,0.1,1.825},
+pos     = {0.34,0.1,1.835},
 size   = 350,
 value  = 1,
 hideBG = true,
@@ -1459,7 +1473,7 @@ alignment  = 3,
 validation = 2,
   },
   [TEXTBOX_AC_ID] = {
-pos  = {-0.265,0.1,-1.425},
+pos  = {-0.27,0.1,-1.425},
 rows = 1,
 width= 750,
 font_size  = 450,
@@ -2198,146 +2212,146 @@ width     = 1500,
 font_size = 250,
   },
   [ROLL_SKILL_STR_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, -1.16+0.004},
+pos = {-0.731, 0.1, -1.16+0.004},
 skillId   = SKILL_STR_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_ATHLETICS_ID] = {
-pos = {0.2 - 0.931, 0.1, -1.11+0.004},
+pos = {-0.731, 0.1, -1.11+0.004},
 skillId   = SKILL_ATHLETICS_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_DEX_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.795+0.004},
+pos = {-0.731, 0.1, -0.795+0.004},
 skillId   = SKILL_DEX_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_ACROBATICS_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.745+0.004},
+pos = {-0.731, 0.1, -0.745+0.004},
 skillId   = SKILL_ACROBATICS_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_STEALTH_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.695+0.004},
+pos = {-0.731, 0.1, -0.695+0.004},
 skillId   = SKILL_STEALTH_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_SLEIGHT_OF_HAND_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.645+0.004},
+pos = {-0.731, 0.1, -0.645+0.004},
 skillId   = SKILL_SLEIGHT_OF_HAND_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_CON_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.435+0.004},
+pos = {-0.731, 0.1, -0.435+0.004},
 skillId   = SKILL_CON_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_INT_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.07+0.004},
+pos = {-0.731, 0.1, -0.07+0.004},
 skillId   = SKILL_INT_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_ARCANA_ID] = {
-pos = {0.2 - 0.931, 0.1, -0.0215+0.004},
+pos = {-0.731, 0.1, -0.0215+0.004},
 skillId   = SKILL_ARCANA_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_HISTORY_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.031+0.004},
+pos = {-0.731, 0.1, 0.031+0.004},
 skillId   = SKILL_HISTORY_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_INVESTIGATION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.0825+0.004},
+pos = {-0.731, 0.1, 0.0825+0.004},
 skillId   = SKILL_INVESTIGATION_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_NATURE_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.135+0.004},
+pos = {-0.731, 0.1, 0.135+0.004},
 skillId   = SKILL_NATURE_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_RELIGION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.185+0.004},
+pos = {-0.731, 0.1, 0.185+0.004},
 skillId   = SKILL_RELIGION_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_WIS_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.295+0.004},
+pos = {-0.731, 0.1, 0.295+0.002},
 skillId   = SKILL_WIS_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_ANIMAL_HANDLING_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.345+0.004},
+pos = {-0.731, 0.1, 0.345+0.003},
 skillId   = SKILL_ANIMAL_HANDLING_ID,
 width     = 1950,
 height    = 180*1.4,
 font_size = 140,
   },
   [ROLL_SKILL_INSIGHT_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.395+0.004},
+pos = {-0.731, 0.1, 0.395+0.004},
 skillId   = SKILL_INSIGHT_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_MEDICINE_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.445+0.004},
+pos = {-0.731, 0.1, 0.445+0.005},
 skillId   = SKILL_MEDICINE_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_PERCEPTION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.495+0.004},
+pos = {-0.731, 0.1, 0.495+0.007},
 skillId   = SKILL_PERCEPTION_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_SURVIVAL_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.55+0.004},
+pos = {-0.731, 0.1, 0.55+0.003},
 skillId   = SKILL_SURVIVAL_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_CHA_SAVETHROW_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.66+0.004},
+pos = {-0.731, 0.1, 0.66+0.003},
 skillId   = SKILL_CHA_SAVETHROW_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_PERFORMANCE_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.708+0.004},
+pos = {-0.731, 0.1, 0.708+0.006},
 skillId   = SKILL_PERFORMANCE_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_DECEPTION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.76+0.004},
+pos = {-0.731, 0.1, 0.76+0.005},
 skillId   = SKILL_DECEPTION_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_INTIMIDATION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.813+0.004},
+pos = {-0.731, 0.1, 0.813+0.003},
 skillId   = SKILL_INTIMIDATION_ID,
 width     = 1950,
 font_size = 180,
   },
   [ROLL_SKILL_PERSUASION_ID] = {
-pos = {0.2 - 0.931, 0.1, 0.863+0.004},
+pos = {-0.731, 0.1, 0.863+0.003},
 skillId   = SKILL_PERSUASION_ID,
 width     = 1950,
 font_size = 180,
@@ -2416,6 +2430,8 @@ steps = {1, 10, 100},
     monetWeight = 0,             -- вес монет (в фунтах)
     lockMode = 0,                -- режим блокировки: 0 - нет, 1 - частичная, 2 - полная
     injuries = {},               -- активные травмы: [paramId/RESOURCE_COUNTER_HP_MAX_ID/TEXTBOX_SPEED_ID] = величина
+    exhaustion = {level = 0, ruleset = "2024"}, -- уровень истощения 0-6 и набор правил, см. блок "ИСТОЩЕНИЕ" ниже
+    acBonuses = {}, -- до 5 именованных бонусов к КД (слоты 1-5), см. блок "БОНУСЫ К КД" ниже
 }
 
 -- Параметры кнопки "Обновить уровень" в выключенном (невидимом) состоянии
@@ -2474,7 +2490,6 @@ end
 -- точка правды остаётся здесь, на листе.
 --============================================================
 
--- Возвращает всю таблицу состояния листа целиком (характеристики, навыки,
 -- Считает простое арифметическое выражение вида "2+1", "8+2-1", "-3", "5".
 -- Нужно для полей "Сложность спасброска" и "Бонус атаки заклинанием" —
 -- их можно вписывать формулой, а не готовым числом. Возвращает число;
@@ -2513,6 +2528,61 @@ function evaluateBonusFormula(str)
     return total
 end
 
+--============================================================
+-- ПРЕДВАРИТЕЛЬНЫЙ РАСЧЁТ СЛОЖНОСТИ СПАСБРОСКА И БОНУСА АТАКИ ЗАКЛИНАНИЕМ
+--
+-- Стандартная формула 5e: Сложность спасброска = 8 + мастерство + модификатор
+-- заклинательной характеристики; Бонус атаки = мастерство + модификатор.
+-- Поля textbox_Spell_Save_DC/textbox_Spell_Attack_Bonus остаются ОБЫЧНЫМИ
+-- текстовыми полями с поддержкой формул ("+2", "-1" и т.д., см.
+-- evaluateBonusFormula) — сюда только подставляется готовое число, ПОКА
+-- поле пустое. Как только игрок сам что-то туда впишет, поле считается
+-- "занятым" и больше никогда не перезаписывается автоматически, пока снова
+-- не станет пустым (стёр вручную -> при следующем пересчёте вернётся расчёт).
+--============================================================
+
+-- Модификатор заклинательной характеристики, выбранной в select_Spellcasting_Ability
+function getSpellcastingAbilityModifier()
+    local abilityParamId = ref_buttonData.select[SELECT_SPELLCASTING_ABILITY_ID].value
+    if abilityParamId == nil then return 0 end
+    local display = ref_buttonData.display["display_"..abilityParamId]
+    return display and (tonumber(display.value) or 0) or 0
+end
+
+-- Если поле textboxId сейчас пустое — подставляет туда defaultValue (и как
+-- обычное число, значит его по-прежнему можно дополнить формулой вручную)
+function fillTextboxDefaultIfEmpty(textboxId, defaultValue)
+    local entry = ref_buttonData.textbox[textboxId]
+    if entry == nil then return end
+
+    local current = entry.value
+    if current == nil or current == "" then
+        entry.value = defaultValue
+        local inputIndex = inputIndexByElementIdTable[textboxId]
+        if inputIndex ~= nil then
+            self.editInput({
+                index = inputIndex,
+                value = defaultValue,
+            })
+        end
+    end
+end
+
+-- Пересчитывает и (если поля пустые) подставляет Сложность спасброска и
+-- Бонус атаки заклинанием. Вызывается при загрузке листа и при любом
+-- изменении, влияющем на итог: смена характеристики/мастерства/уровня, а
+-- также при завершении редактирования ЛЮБОГО текстового поля (в том числе
+-- если игрок стёр значение из самих этих полей — см. click_textbox ->
+-- updateSkillsByProficiency)
+function refreshSpellcastingDefaults()
+    local proficiency = tonumber(ref_buttonData.display[DISPLAY_PROFICIENCY_ID].value) or 0
+    local abilityModifier = getSpellcastingAbilityModifier()
+
+    fillTextboxDefaultIfEmpty(TEXTBOX_SPELL_SAVE_DC_ID, 8 + proficiency + abilityModifier)
+    fillTextboxDefaultIfEmpty(TEXTBOX_SPELL_ATTACK_BONUS_ID, proficiency + abilityModifier)
+end
+
+-- Возвращает состояние листа целиком (характеристики, модификаторы,
 -- спасброски, инвентарь и т.д.) — вызывается книгой заклинаний через
 -- sheet.call("getButtonData"). Список конкретных ключей — в комментариях
 -- к defaultButtonData выше (display_STR, display_STR_savethrow,
@@ -2523,12 +2593,145 @@ end
 -- ref_buttonData.computed отдаётся уже готовое посчитанное число, книге
 -- заклинаний не нужно самой парсить эту строку.
 function getButtonData()
+    -- Безопасное чтение: если ключа нет (например, лист загружен из очень
+    -- старого сохранения без миграции выше) — entry будет nil, и в формулу
+    -- уйдёт nil, а не попытка индексировать несуществующее поле. Сама
+    -- evaluateBonusFormula уже умеет принимать nil (возвращает 0).
+    local function readTextboxValue(key)
+        local entry = ref_buttonData.textbox and ref_buttonData.textbox[key]
+        return entry and entry.value or nil
+    end
+
     ref_buttonData.computed = {
-        spellSaveDC = evaluateBonusFormula(ref_buttonData.textbox[TEXTBOX_SPELL_SAVE_DC_ID].value),
-        spellAttackBonus = evaluateBonusFormula(ref_buttonData.textbox[TEXTBOX_SPELL_ATTACK_BONUS_ID].value),
+        spellSaveDC = evaluateBonusFormula(readTextboxValue(TEXTBOX_SPELL_SAVE_DC_ID)),
+        spellAttackBonus = evaluateBonusFormula(readTextboxValue(TEXTBOX_SPELL_ATTACK_BONUS_ID)),
     }
 
     return ref_buttonData
+end
+
+-- =============================================================================
+-- ПЛОСКАЯ СВОДКА ДЛЯ КНИГИ ЗАКЛИНАНИЙ (без передачи ref_buttonData целиком)
+-- =============================================================================
+-- getButtonData() выше отдаёт ВСЮ внутреннюю таблицу листа — сотни вложенных
+-- таблиц с позициями кнопок, индексами, служебными полями и т.п. Передача
+-- ТАКОЙ большой и глубоко вложенной структуры между скриптами РАЗНЫХ объектов
+-- через sheet.call(...) периодически приводит к ошибке TTS "Attempt to
+-- perform operations with resources owned by different scripts" на стороне
+-- книги.
+--
+-- getSpellbookSummary() решает это радикально: отдаёт ТОЛЬКО то, что книге
+-- реально нужно, и ТОЛЬКО голыми числами/строками (никаких вложенных
+-- таблиц с позициями/индексами кнопок), плюс проверяет ТИП каждого поля
+-- перед тем, как его отдать — если там окажется что-то постороннее
+-- (не число и не строка), поле просто станет nil, а не уронит всё чтение.
+function getSpellbookSummary()
+    local function displayNum(key)
+        local entry = ref_buttonData.display[key]
+        local v = entry and entry.value
+        if type(v) == "number" then return v end
+        if type(v) == "string" and v ~= "" then return tonumber(v) end
+        return nil
+    end
+
+    local function textboxRaw(key)
+        local entry = ref_buttonData.textbox[key]
+        local v = entry and entry.value
+        if type(v) == "string" or type(v) == "number" then return v end
+        return nil
+    end
+
+    -- Значение select-поля (сейчас на листе оно одно — заклинательная
+    -- характеристика). Отдаём "сырой" код ("STR"/"DEX"/...), а не готовое
+    -- число: конкретное число зависит от заклинания (обычный урон vs.
+    -- эффект, завязанный на другую характеристику), поэтому книга сама
+    -- смотрит нужный код в abilities[...].
+    local function selectValue(key)
+        local entry = ref_buttonData.select and ref_buttonData.select[key]
+        local v = entry and entry.value
+        if type(v) == "string" and v ~= "" then return v end
+        return nil
+    end
+
+    local abilities, saves = {}, {}
+    for _, code in ipairs({ "STR", "DEX", "CON", "INT", "WIS", "CHA" }) do
+        abilities[code] = displayNum("display_"..code)
+        saves[code] = displayNum("display_"..code.."_savethrow")
+    end
+
+    local skillIds = {
+        "Athletics", "Acrobatics", "Stealth", "Sleight_of_hand", "Arcana", "History",
+        "Investigation", "Nature", "Religion", "Animal_Handling", "Insight", "Medicine",
+        "Perception", "Survival", "Performance", "Deception", "Intimidation", "Persuasion",
+    }
+    local skills = {}
+    for _, skillId in ipairs(skillIds) do
+        skills[skillId] = displayNum("display_"..skillId)
+    end
+
+    local weapons = {}
+    for i = 1, 7 do
+        local name = textboxRaw("textbox_Weapon_Name_"..i)
+        if name and name ~= "" then
+            table.insert(weapons, {
+                name = name,
+                hit = textboxRaw("textbox_Hit_"..i),
+                diceCount = textboxRaw("textbox_Damage_Dice_Count_Type_"..i),
+                diceType = textboxRaw("textbox_Damage_Dice_Type_"..i),
+                bonus = textboxRaw("textbox_Damage_Bonus_"..i),
+                notes = textboxRaw("textbox_Notes_"..i),
+            })
+        end
+    end
+
+    return {
+        abilities = abilities,
+        saves = saves,
+        proficiency = displayNum(DISPLAY_PROFICIENCY_ID),
+        spellAttackBonus = evaluateBonusFormula(textboxRaw(TEXTBOX_SPELL_ATTACK_BONUS_ID)),
+        spellSaveDC = evaluateBonusFormula(textboxRaw(TEXTBOX_SPELL_SAVE_DC_ID)),
+        skills = skills,
+        weapons = weapons,
+        lvl = tonumber(ref_buttonData.lvl) or nil,
+        spellcastingAbility = selectValue(SELECT_SPELLCASTING_ABILITY_ID),
+        -- Формат: level, ruleset, rollPenalty (2024, <=0), speedPenalty
+        -- (2024, >=0), hasAbilityDisadvantage/hasAttackSaveDisadvantage
+        -- (2014), speedMultiplier/hpMultiplier (2014), isDeath (2014, ур. 6).
+        --
+        -- КАК ПРАВИЛЬНО ПОДКЛЮЧИТЬ ЭТО К БРОСКАМ АТАКИ ЗАКЛИНАНИЕМ В КНИГЕ
+        -- (пока НЕ сделано — книга сейчас истощение не учитывает):
+        --   1) В книге, там, где формируется бросок атаки заклинанием
+        --      (rollD20WithAdvantage / rollEffectAttack, см. Grimuar_spell_book.lua
+        --      ~строки 1019-1130), достать exhaustion = sheetData.exhaustion
+        --      (sheetData — результат getCharacterSheetData(), который уже
+        --      вызывает sheet.call("getSpellbookSummary") и получает это поле).
+        --   2) Правила 2024 (exhaustion.ruleset == "2024"): просто прибавить
+        --      exhaustion.rollPenalty (число <=0) к итоговому результату броска,
+        --      как обычный модификатор — как и getExhaustionSpeedPenalty()
+        --      вычитать из скорости там, где скорость используется/выводится.
+        --   3) Правила 2014: атака заклинанием относится к категории
+        --      "атаки/спасброски" — если exhaustion.hasAttackSaveDisadvantage
+        --      == true, кидать бросок с advMode = "dis" (то же самое, что уже
+        --      умеет rollD20WithAdvantage для ручного выбора игрока), ЛИБО,
+        --      если игрок уже сам выбрал "adv" вручную — по правилам 5e
+        --      преимущество и помеха взаимно гасят друг друга, так что в этом
+        --      случае итоговый advMode должен стать nil (обычный бросок), а
+        --      не "dis" поверх "adv".
+        --   4) Спасбросок ЦЕЛИ от заклинания (Spell Save DC) истощение НЕ
+        --      затрагивает — это не бросок атакующего, а истощение у книги
+        --      всегда только своё (с этого же листа).
+        exhaustion = {
+            level = ref_buttonData.exhaustion.level,
+            ruleset = ref_buttonData.exhaustion.ruleset,
+            rollPenalty = getExhaustionPenalty(),
+            speedPenalty = getExhaustionSpeedPenalty(),
+            hasAbilityDisadvantage = hasDisadvantageOnAbilityChecks(),
+            hasAttackSaveDisadvantage = hasDisadvantageOnAttacksAndSaves(),
+            speedMultiplier = getExhaustionSpeedMultiplier(),
+            hpMultiplier = getExhaustionHpMultiplier(),
+            isDeath = isExhaustionDeath(),
+        },
+    }
 end
 
 --============================================================
@@ -2561,10 +2764,18 @@ local LOCK_FLIP_ROTATION = {0, 0, 180}
 local UNLOCK_ROTATION = {0, 0, 0}
 
 -- Подписи пунктов меню для каждого режима блокировки
+-- Метки для переключателя набора правил истощения в контекстном меню (см.
+-- updateLockContextMenu ниже и setExhaustionRuleset в блоке "ИСТОЩЕНИЕ")
+local exhaustionRulesetLabels = {
+    ["2014"] = "Истощение по: 5.5e",
+    ["2024"] = "Истощение по: 5e",
+}
+local exhaustionRulesetOrder = {"2014", "2024"}
+
 local lockModeLabels = {
-    [0] = "Разблокировать поля",
-    [1] = "Заблокировать поля (частично)",
-    [2] = "Заблокировать поля (полностью)",
+    [0] = "Разблокировать            лист",
+    [1] = "Частичная            блокировка",
+    [2] = "Заблокировать лист",
 }
 
 -- Пересоздаёт контекстное меню: показывает пункты для двух режимов,
@@ -2584,6 +2795,18 @@ function updateLockContextMenu()
 
     self.addContextMenuItem("Получить травму", onClickGetInjury)
     self.addContextMenuItem("Снять травмы", onClickRemoveInjuries)
+
+    for _, ruleset in ipairs(exhaustionRulesetOrder) do
+        if ruleset ~= ref_buttonData.exhaustion.ruleset then
+            local targetRuleset = ruleset
+            self.addContextMenuItem(exhaustionRulesetLabels[targetRuleset], function(playerColor)
+                setExhaustionRuleset(targetRuleset)
+            end)
+        end
+    end
+
+    self.addContextMenuItem("Создать бонус к КД", onClickCreateAcBonus)
+    self.addContextMenuItem("Удалить бонус к КД", onClickRemoveAcBonus)
 end
 
 -- Устанавливает конкретный режим блокировки (вызывается из контекстного меню)
@@ -2610,8 +2833,9 @@ end
 -- никакого отдельного обхода для травм не сделано ради простоты).
 --============================================================
 
--- Полупрозрачный красный фон для травмированных полей
-local INJURY_TINT_COLOR = {1, 0, 0, 0.4}
+-- Травма меняет только цвет шрифта (красный) — фон не трогаем нигде,
+-- поэтому и никаких хитрых значений альфы тут больше не нужно
+local INJURY_TINT_FONT_COLOR = {1, 0, 0}
 
 -- Величина травмы, ожидающая применения к следующему изменённому полю.
 -- nil = сейчас ничего не взведено.
@@ -2626,49 +2850,66 @@ function isAbilityParamId(fieldId)
         or fieldId == PARAM_INT_ID or fieldId == PARAM_WIS_ID or fieldId == PARAM_CHA_ID
 end
 
--- Красит нужную кнопку/поле в заданный цвет в зависимости от типа поля
-function setInjuryTintForField(fieldId, color)
+-- Красит шрифт нужной кнопки/поля в заданный цвет в зависимости от типа поля
+function setInjuryTintForField(fieldId, fontColor)
     if isAbilityParamId(fieldId) then
-        self.editButton({index = btnIndexByElementIdTable["counter_"..fieldId], color = color})
+        self.editButton({index = btnIndexByElementIdTable["counter_"..fieldId], font_color = fontColor})
     elseif fieldId == RESOURCE_COUNTER_HP_MAX_ID then
-        self.editButton({index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_MAX_ID], color = color})
+        self.editButton({
+            index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_MAX_ID],
+            label = ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_MAX_ID].value,
+            font_color = fontColor,
+        })
     elseif fieldId == TEXTBOX_SPEED_ID then
         self.editInput({
             index = inputIndexByElementIdTable[TEXTBOX_SPEED_ID],
             value = ref_buttonData.textbox[TEXTBOX_SPEED_ID].value,
-            color = color,
+            font_color = fontColor,
         })
     end
 end
 
 function tintInjuredField(fieldId)
-    setInjuryTintForField(fieldId, INJURY_TINT_COLOR)
+    setInjuryTintForField(fieldId, INJURY_TINT_FONT_COLOR)
 end
 
--- "Нормальный" (не травмированный) цвет поля — у хитов сейчас прозрачный фон,
--- у характеристик и Скорости — обычный цвет кнопок/полей
+-- Возвращает обычный (чёрный) цвет шрифта
 function clearInjuredFieldTint(fieldId)
-    local normalColor = buttonColor
-    if fieldId == RESOURCE_COUNTER_HP_MAX_ID then
-        normalColor = {0, 0, 0, 0}
-    end
-    setInjuryTintForField(fieldId, normalColor)
+    setInjuryTintForField(fieldId, buttonFontColor)
 end
 
 -- Прибавляет delta к одному из 8 полей, поддерживающих травмы. Переиспользует
 -- уже существующие обработчики (со всем их пересчётом зависимостей), поэтому
 -- саму травму и её снятие проводит совершенно одинаково.
+-- Если поле СЕЙЧАС снижено истощением (Максимум хитов/Скорость, см. блок
+-- ИСТОЩЕНИЕ выше) — delta идёт не в уже сниженное отображаемое значение, а
+-- в "чистую" базу истощения; иначе травма исказила бы саму базу, а после
+-- снятия истощения появилось бы неверное число.
 function applyStatDelta(fieldId, delta)
     if fieldId == RESOURCE_COUNTER_HP_MAX_ID then
-        click_resource_counter(delta, RESOURCE_COUNTER_HP_MAX_ID)
+        if ref_buttonData.exhaustion.baseHp ~= nil then
+            ref_buttonData.exhaustion.baseHp = ref_buttonData.exhaustion.baseHp + delta
+            if ref_buttonData.exhaustion.baseHp < 0 then ref_buttonData.exhaustion.baseHp = 0 end
+            refreshExhaustionStatOverrides()
+        else
+            click_resource_counter(delta, RESOURCE_COUNTER_HP_MAX_ID)
+        end
         return
     end
 
     if fieldId == TEXTBOX_SPEED_ID then
-        local current = tonumber(ref_buttonData.textbox[TEXTBOX_SPEED_ID].value) or 0
-        local newValue = current + delta
-        ref_buttonData.textbox[TEXTBOX_SPEED_ID].value = newValue
-        self.editInput({index = inputIndexByElementIdTable[TEXTBOX_SPEED_ID], value = newValue})
+        if ref_buttonData.exhaustion.baseSpeed ~= nil then
+            ref_buttonData.exhaustion.baseSpeed = ref_buttonData.exhaustion.baseSpeed + delta
+            if ref_buttonData.exhaustion.baseSpeed < 0 then ref_buttonData.exhaustion.baseSpeed = 0 end
+            refreshExhaustionStatOverrides()
+        else
+            -- Отдельный editInput здесь не шлём: единственный вызывающий
+            -- (onClickRemoveInjuries) в любом случае вызовет refreshFieldTint
+            -- для этого поля сразу после — значение и цвет уйдут одним
+            -- вызовом оттуда (см. историю бага у Максимума хитов выше)
+            local current = tonumber(ref_buttonData.textbox[TEXTBOX_SPEED_ID].value) or 0
+            ref_buttonData.textbox[TEXTBOX_SPEED_ID].value = current + delta
+        end
         return
     end
 
@@ -2702,7 +2943,10 @@ function onClickGetInjury(playerColor)
     )
 end
 
--- ПКМ -> "Снять травмы": возвращает все значения и убирает подсветку
+-- ПКМ -> "Снять травмы": возвращает все значения и убирает подсветку.
+-- refreshFieldTint (а не clearInjuredFieldTint напрямую) — чтобы если на
+-- этом же поле ЕЩЁ активно истощение, подсветка осталась (гасим её только
+-- когда не осталось вообще ничего, что должно поле красить)
 function onClickRemoveInjuries(playerColor)
     -- Снимаем взвод заранее — иначе, если травма была взведена, но ещё не
     -- применена, applyStatDelta ниже (через click_counter/click_resource_counter)
@@ -2711,12 +2955,557 @@ function onClickRemoveInjuries(playerColor)
 
     for fieldId, amount in pairs(ref_buttonData.injuries) do
         applyStatDelta(fieldId, -amount)
-        clearInjuredFieldTint(fieldId)
     end
 
     ref_buttonData.injuries = {}
 
+    for _, fieldId in ipairs({PARAM_STR_ID, PARAM_DEX_ID, PARAM_CON_ID, PARAM_INT_ID, PARAM_WIS_ID, PARAM_CHA_ID, RESOURCE_COUNTER_HP_MAX_ID, TEXTBOX_SPEED_ID}) do
+        refreshFieldTint(fieldId)
+    end
+
     updateSave()
+end
+
+--============================================================
+-- ИСТОЩЕНИЕ (D&D 5e) — ещё одно поле состояния листа, как характеристики
+--
+-- Хранится прямо в ref_buttonData.exhaustion = {level = 0-6, ruleset = "2014"/"2024"}.
+-- Никакого отдельного объекта — уровень меняется кнопками -1/+1 у дисплея
+-- по центру листа, набор правил переключается через ПКМ по листу.
+--
+-- Правила 2024 (линейный эффект, единое число):
+--   getExhaustionPenalty()      -> штраф к ЛЮБОМУ броску d20 (<=0), 0 для 2014
+--   getExhaustionSpeedPenalty() -> штраф к скорости в футах (>=0), 0 для 2014
+--
+-- Правила 2014 (эффекты неоднородны и СКЛАДЫВАЮТСЯ с ростом уровня — на
+-- уровне 3 действует и помеха на характеристики с 1-го уровня, и halved-
+-- скорость со 2-го, и новая помеха на атаки/спасброски):
+--   hasDisadvantageOnAbilityChecks()   -> true/false (с 1 ур.)
+--   hasDisadvantageOnAttacksAndSaves() -> true/false (с 3 ур.)
+--   getExhaustionSpeedMultiplier()     -> 1 / 0.5 / 0 (2, 5 ур.)
+--   getExhaustionHpMultiplier()        -> 1 / 0.5 (с 4 ур.)
+--   isExhaustionDeath()                -> true/false (с 6 ур.)
+--
+-- ФИЗИЧЕСКОЕ СНИЖЕНИЕ (см. refreshExhaustionStatOverrides ниже): затрагивает
+-- ТОЛЬКО Скорость и Максимум хитов — это единственные 2 поля, у которых
+-- эффект истощения выражается КОНКРЕТНЫМ ЧИСЛОМ, применимым к самому полю.
+-- Характеристики/спасброски/атаки НЕ трогаем: их штраф (2024) или помеха
+-- (2014) уже применяется на самом броске (см. rollParam/rollWeapon) — если
+-- ещё и снизить сами цифры на листе, штраф применился бы дважды.
+--============================================================
+
+local EXHAUSTION_MIN = 0
+local EXHAUSTION_MAX = 6
+
+-- Пороги эффектов 2014 — см. пояснение выше про накопление с уровнем
+local EXHAUSTION_2014_ABILITY_DISADVANTAGE_LEVEL = 1
+local EXHAUSTION_2014_SPEED_HALVED_LEVEL = 2
+local EXHAUSTION_2014_ATTACK_SAVE_DISADVANTAGE_LEVEL = 3
+local EXHAUSTION_2014_HP_HALVED_LEVEL = 4
+local EXHAUSTION_2014_SPEED_ZERO_LEVEL = 5
+local EXHAUSTION_2014_DEATH_LEVEL = 6
+
+-- Штраф к d20-броскам (отрицательное число или 0). Только правила 2024
+function getExhaustionPenalty()
+    if ref_buttonData.exhaustion.ruleset ~= "2024" then return 0 end
+    return -2 * ref_buttonData.exhaustion.level
+end
+
+-- Штраф к скорости в футах (положительное число, вычитать из скорости). Только 2024
+function getExhaustionSpeedPenalty()
+    if ref_buttonData.exhaustion.ruleset ~= "2024" then return 0 end
+    return 5 * ref_buttonData.exhaustion.level
+end
+
+-- true, если сейчас должна применяться помеха на проверки характеристик (с 1 уровня, 2014)
+function hasDisadvantageOnAbilityChecks()
+    return ref_buttonData.exhaustion.ruleset == "2014"
+        and ref_buttonData.exhaustion.level >= EXHAUSTION_2014_ABILITY_DISADVANTAGE_LEVEL
+end
+
+-- true, если сейчас должна применяться помеха на атаки и спасброски (с 3 уровня, 2014)
+function hasDisadvantageOnAttacksAndSaves()
+    return ref_buttonData.exhaustion.ruleset == "2014"
+        and ref_buttonData.exhaustion.level >= EXHAUSTION_2014_ATTACK_SAVE_DISADVANTAGE_LEVEL
+end
+
+-- Множитель скорости: 1 / 0.5 (с 2 ур.) / 0 (с 5 ур.). Только 2014 — для
+-- 2024 всегда 1, там штраф фиксированным числом (см. getExhaustionSpeedPenalty)
+function getExhaustionSpeedMultiplier()
+    if ref_buttonData.exhaustion.ruleset ~= "2014" then return 1 end
+    if ref_buttonData.exhaustion.level >= EXHAUSTION_2014_SPEED_ZERO_LEVEL then return 0 end
+    if ref_buttonData.exhaustion.level >= EXHAUSTION_2014_SPEED_HALVED_LEVEL then return 0.5 end
+    return 1
+end
+
+-- Множитель Максимума хитов: 1 или 0.5 (с 4 ур.). Только 2014
+function getExhaustionHpMultiplier()
+    if ref_buttonData.exhaustion.ruleset ~= "2014" then return 1 end
+    if ref_buttonData.exhaustion.level >= EXHAUSTION_2014_HP_HALVED_LEVEL then return 0.5 end
+    return 1
+end
+
+-- true, если персонаж должен умереть от истощения (6 уровень, 2014)
+function isExhaustionDeath()
+    return ref_buttonData.exhaustion.ruleset == "2014"
+        and ref_buttonData.exhaustion.level >= EXHAUSTION_2014_DEATH_LEVEL
+end
+
+-- Собирает читаемое описание действующих сейчас эффектов истощения —
+-- используется и в тултипах (дисплей истощения, Скорость, Максимум хитов)
+function buildExhaustionEffectsSummary()
+    local level = ref_buttonData.exhaustion.level
+
+    if level == 0 then
+        return "Нет истощения"
+    end
+
+    if ref_buttonData.exhaustion.ruleset == "2024" then
+        return "Истощение (5.5e), ур. "..level..": "
+            ..getExhaustionPenalty().." к броскам d20, −"..getExhaustionSpeedPenalty().." футов скорости"
+    end
+
+    -- 2014: эффекты складываются с ростом уровня
+    local effects = {}
+    if hasDisadvantageOnAbilityChecks() then
+        table.insert(effects, "помеха на проверки характеристик")
+    end
+    local speedMultiplier = getExhaustionSpeedMultiplier()
+    if speedMultiplier == 0 then
+        table.insert(effects, "скорость = 0")
+    elseif speedMultiplier == 0.5 then
+        table.insert(effects, "скорость ÷2")
+    end
+    if hasDisadvantageOnAttacksAndSaves() then
+        table.insert(effects, "помеха на атаки и спасброски")
+    end
+    if getExhaustionHpMultiplier() == 0.5 then
+        table.insert(effects, "максимум хитов ÷2")
+    end
+    if isExhaustionDeath() then
+        table.insert(effects, "смерть")
+    end
+
+    return "Истощение (5e), ур. "..level..": "..table.concat(effects, "; ")
+end
+
+-- Обновляет дисплей уровня истощения. Подсказка с расшифровкой эффекта —
+-- только на самом дисплее истощения (в т.ч. "Истощение: нет", это его
+-- прямое назначение); на "Скорость"/"Максимум хитов" подсказку больше не
+-- пишет вообще. Сами значения полей НЕ трогает (истощение 2014 не имеет
+-- фиксированного числа — множитель применяется на лету при каждом
+-- использовании, а не вычитается из базового значения один раз)
+function refreshExhaustionUI()
+    self.editButton({
+        index   = btnIndexByElementIdTable["exhaustion_display"],
+        label   = tostring(ref_buttonData.exhaustion.level),
+        tooltip = buildExhaustionEffectsSummary(),
+    })
+end
+
+--============================================================
+-- ФИЗИЧЕСКОЕ СНИЖЕНИЕ СКОРОСТИ/МАКСИМУМА ХИТОВ ОТ ИСТОЩЕНИЯ
+--
+-- ref_buttonData.exhaustion.baseSpeed/baseHp — "чистое" (без истощения)
+-- значение поля, пока истощение его снижает; nil = истощение сейчас НЕ
+-- снижает это поле (обычный режим, поле хранит просто своё значение как
+-- всегда). Специально НЕ работаем через накопление дельты, как травмы
+-- (applyStatDelta): у Максимума хитов клик по счётчику (click_resource_counter)
+-- жёстко клампит значение к 0 — если снижать инкрементально и упереться в
+-- 0, часть снижения потеряется НЕОБРАТИМО, и при снятии истощения точное
+-- исходное число будет не восстановить. Здесь снятое число всегда лежит
+-- в baseSpeed/baseHp целиком, а видимое поле — производная от него,
+-- пересчитываемая заново при каждом изменении уровня/правил.
+--============================================================
+
+-- Целевое значение Скорости с учётом истощения, посчитанное от ЧИСТОГО
+-- (без истощения) значения baseSpeed
+function computeExhaustionSpeedValue(baseSpeed)
+    if ref_buttonData.exhaustion.ruleset == "2024" then
+        return baseSpeed - getExhaustionSpeedPenalty()
+    end
+    return math.floor(baseSpeed * getExhaustionSpeedMultiplier())
+end
+
+-- Целевое значение Максимума хитов с учётом истощения (только 2014, ур. 4+)
+function computeExhaustionHpValue(baseHp)
+    return math.floor(baseHp * getExhaustionHpMultiplier())
+end
+
+-- Красный шрифт, если поле сейчас "задето" ЛИБО травмой (ref_buttonData.injuries),
+-- ЛИБО истощением (baseSpeed/baseHp ~= nil) — или обоими сразу. Общая точка
+-- для обеих систем, чтобы снятие одного эффекта не гасило подсветку от
+-- другого, если тот всё ещё активен на этом же поле
+function refreshFieldTint(fieldId)
+    local hasInjury = ref_buttonData.injuries[fieldId] ~= nil
+    local hasExhaustion = (fieldId == TEXTBOX_SPEED_ID and ref_buttonData.exhaustion.baseSpeed ~= nil)
+        or (fieldId == RESOURCE_COUNTER_HP_MAX_ID and ref_buttonData.exhaustion.baseHp ~= nil)
+
+    if hasInjury or hasExhaustion then
+        tintInjuredField(fieldId)
+    else
+        clearInjuredFieldTint(fieldId)
+    end
+end
+
+-- Пересчитывает физическое снижение Скорости/Максимума хитов под текущий
+-- уровень/набор правил истощения. Вызывать при ЛЮБОМ изменении уровня или
+-- правил (см. setExhaustionLevel/setExhaustionRuleset), а также при onload
+-- (чтобы после перезахода подсветка и сниженное число не разъехались).
+function refreshExhaustionStatOverrides()
+    -- Скорость
+    local speedIsAffected = ref_buttonData.exhaustion.level > 0 and (
+        (ref_buttonData.exhaustion.ruleset == "2024" and getExhaustionSpeedPenalty() > 0)
+        or (ref_buttonData.exhaustion.ruleset == "2014" and getExhaustionSpeedMultiplier() < 1)
+    )
+
+    if speedIsAffected then
+        if ref_buttonData.exhaustion.baseSpeed == nil then
+            ref_buttonData.exhaustion.baseSpeed = tonumber(ref_buttonData.textbox[TEXTBOX_SPEED_ID].value) or 0
+        end
+        local newValue = computeExhaustionSpeedValue(ref_buttonData.exhaustion.baseSpeed)
+        if newValue < 0 then newValue = 0 end
+        ref_buttonData.textbox[TEXTBOX_SPEED_ID].value = newValue
+    elseif ref_buttonData.exhaustion.baseSpeed ~= nil then
+        ref_buttonData.textbox[TEXTBOX_SPEED_ID].value = ref_buttonData.exhaustion.baseSpeed
+        ref_buttonData.exhaustion.baseSpeed = nil
+    end
+    -- Единственная правка UI для этого поля за весь пересчёт — значение и
+    -- цвет шрифта уходят ОДНИМ вызовом (см. setInjuryTintForField), а не
+    -- двумя подряд: TTS не всегда корректно применяет вторую правку того
+    -- же индекса в рамках одного клика, из-за чего цвет отставал на клик
+    refreshFieldTint(TEXTBOX_SPEED_ID)
+
+    -- Максимум хитов
+    local hpIsAffected = ref_buttonData.exhaustion.ruleset == "2014" and getExhaustionHpMultiplier() < 1
+
+    if hpIsAffected then
+        if ref_buttonData.exhaustion.baseHp == nil then
+            ref_buttonData.exhaustion.baseHp = tonumber(ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_MAX_ID].value) or 0
+        end
+        local newValue = computeExhaustionHpValue(ref_buttonData.exhaustion.baseHp)
+        if newValue < 0 then newValue = 0 end
+        ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_MAX_ID].value = newValue
+    elseif ref_buttonData.exhaustion.baseHp ~= nil then
+        ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_MAX_ID].value = ref_buttonData.exhaustion.baseHp
+        ref_buttonData.exhaustion.baseHp = nil
+    end
+    -- Та же логика: одна правка на поле (значение+цвет вместе)
+    refreshFieldTint(RESOURCE_COUNTER_HP_MAX_ID)
+end
+
+-- Если персонаж только что пересёк порог смерти от истощения (6 уровень,
+-- правила 2014) — оповещает в общий чат один раз. wasDead — статус ДО
+-- изменения (уровня или набора правил), с которым сравнивается новый
+function announceExhaustionDeathIfNewlyDead(wasDead)
+    if isExhaustionDeath() and not wasDead then
+        local charSheetName = self.getName()
+        if charSheetName == nil or charSheetName == "" then charSheetName = "Персонаж" end
+        broadcastToAll("💀 Истощение «"..charSheetName.."» достигло 6 уровня (5e) — персонаж умирает от истощения.", {1, 0, 0})
+    end
+end
+
+-- Устанавливает уровень истощения (обрезая в границы 0-6) и обновляет UI
+function setExhaustionLevel(newLevel)
+    if newLevel < EXHAUSTION_MIN then newLevel = EXHAUSTION_MIN end
+    if newLevel > EXHAUSTION_MAX then newLevel = EXHAUSTION_MAX end
+
+    local wasDead = isExhaustionDeath()
+    ref_buttonData.exhaustion.level = newLevel
+    announceExhaustionDeathIfNewlyDead(wasDead)
+
+    refreshExhaustionUI()
+    refreshExhaustionStatOverrides()
+    updateSave()
+end
+
+-- Доступно ли изменение уровня истощения сейчас. При частичной блокировке
+-- (lockMode == 1) истощение ДОСТУПНО (как и Кости хитов), при полной
+-- (lockMode == 2) — заблокировано (тот же принцип, что и isHitDiceLocked)
+function isExhaustionLocked()
+    if ref_buttonData.lockMode == 1 then return false end
+    return ref_buttonData.lockMode == 2
+end
+
+function onClickExhaustionMinus(obj, playerColor)
+    if isExhaustionLocked() then return end
+    setExhaustionLevel(ref_buttonData.exhaustion.level - 1)
+end
+
+function onClickExhaustionPlus(obj, playerColor)
+    if isExhaustionLocked() then return end
+    setExhaustionLevel(ref_buttonData.exhaustion.level + 1)
+end
+
+-- Переключатель набора правил (метки/порядок — см. exhaustionRulesetLabels
+-- и exhaustionRulesetOrder перед updateLockContextMenu; там же они и используются).
+-- Смена правил тоже может пересечь порог смерти (например, персонаж стоял
+-- на 6 уровне под 2024, где смерти нет, а игрок переключил на 2014) —
+-- поэтому тоже проверяем через announceExhaustionDeathIfNewlyDead
+function setExhaustionRuleset(ruleset)
+    local wasDead = isExhaustionDeath()
+    ref_buttonData.exhaustion.ruleset = ruleset
+    announceExhaustionDeathIfNewlyDead(wasDead)
+
+    refreshExhaustionUI()
+    refreshExhaustionStatOverrides()
+    updateLockContextMenu()
+    updateSave()
+end
+
+-- Дисплей уровня истощения + кнопки -/+
+local EXHAUSTION_DISPLAY_POS = {0.6735, 0.1, -1.606}
+local EXHAUSTION_MINUS_POS   = {0.6335, 0.11, -1.606}
+local EXHAUSTION_PLUS_POS    = {0.7135, 0.11, -1.606}
+
+function createExhaustionControls()
+    createBtnAndSaveIndex("exhaustion_display", {
+        click_function = "click_none",
+        color          = buttonColor,
+        font_color     = buttonFontColor,
+        font_size      = 250,
+        function_owner = self,
+        height         = 250,
+        label          = tostring(ref_buttonData.exhaustion.level),
+        position       = EXHAUSTION_DISPLAY_POS,
+        scale          = buttonScale,
+        tooltip        = buildExhaustionEffectsSummary(),
+        width          = 250,
+    })
+
+    createBtnAndSaveIndex("exhaustion_minus", {
+        click_function = "onClickExhaustionMinus",
+        color          = buttonColor,
+        font_color     = buttonFontColor,
+        font_size      = 180,
+        function_owner = self,
+        height         = 150,
+        label          = "−",
+        position       = EXHAUSTION_MINUS_POS,
+        scale          = buttonScale,
+        tooltip        = "Истощение −1",
+        width          = 150,
+    })
+
+    createBtnAndSaveIndex("exhaustion_plus", {
+        click_function = "onClickExhaustionPlus",
+        color          = buttonColor,
+        font_color     = buttonFontColor,
+        font_size      = 180,
+        function_owner = self,
+        height         = 150,
+        label          = "+",
+        position       = EXHAUSTION_PLUS_POS,
+        scale          = buttonScale,
+        tooltip        = "Истощение +1",
+        width          = 150,
+    })
+end
+
+--============================================================
+-- БОНУСЫ К КД
+--
+-- До 5 именованных слагаемых (например "Щит +2", "Проклятие −2"), которые
+-- игрок сам заводит через ПКМ по листу и включает/выключает чекбоксом.
+-- Никакой автоматики и формул — просто прибавляем/вычитаем указанное число
+-- к текущему значению поля КД. Пустой квадрат = не активен, крестик = активен
+-- (та же логика, что у отметки владения навыком).
+--
+-- ref_buttonData.acBonuses[slot] = {name = "Щит", amount = 2, active = false}
+-- слот пустой (nil) — соответствующий чекбокс скрыт (scale = {0,0,0}) и не
+-- кликабелен, слот занят — чекбокс виден.
+--============================================================
+
+local AC_BONUS_SLOT_COUNT = 5
+local AC_BONUS_CHECKBOX_ID_PREFIX = "ac_bonus_checkbox_"
+
+-- Позиции чуть выше КД, в ряд
+local AC_BONUS_CHECKBOX_POS = {
+    {-0.33, 0.1, -1.5},
+    {-0.3, 0.1, -1.5},
+    {-0.27, 0.1, -1.5},
+    {-0.24, 0.1, -1.5},
+    {-0.21, 0.1, -1.5},
+}
+
+-- Прибавляет (или, при отрицательном delta, вычитает) delta из ТЕКУЩЕГО
+-- значения поля КД. У КД, в отличие от Скорости/Максимума хитов, нет единой
+-- "чистой базы" — это осознанно: слагаемые считает и вводит сам игрок,
+-- лист лишь складывает то, что попросили, порядок и смысл значения не
+-- пересчитывает
+function applyAcBonusDelta(delta)
+    local current = tonumber(ref_buttonData.textbox[TEXTBOX_AC_ID].value) or 0
+    local newValue = current + delta
+    ref_buttonData.textbox[TEXTBOX_AC_ID].value = newValue
+    self.editInput({index = inputIndexByElementIdTable[TEXTBOX_AC_ID], value = newValue})
+end
+
+function acBonusCheckboxLabel(slot)
+    local bonus = ref_buttonData.acBonuses[slot]
+    if bonus ~= nil and bonus.active then
+        return CHECKBOX_CHAR_FULL
+    end
+    return CHECKBOX_CHAR_EMPTY
+end
+
+function acBonusTooltip(slot)
+    local bonus = ref_buttonData.acBonuses[slot]
+    if bonus == nil then return "" end
+    local sign = bonus.amount >= 0 and "+" or "−"
+    return bonus.name.." "..sign..math.abs(bonus.amount)
+end
+
+-- Обновляет видимость/крестик/тултип одного чекбокса-слота под текущее
+-- состояние ref_buttonData.acBonuses[slot]
+function refreshAcBonusCheckbox(slot)
+    local id = AC_BONUS_CHECKBOX_ID_PREFIX..slot
+    local bonus = ref_buttonData.acBonuses[slot]
+
+    self.editButton({
+        index   = btnIndexByElementIdTable[id],
+        label   = acBonusCheckboxLabel(slot),
+        tooltip = acBonusTooltip(slot),
+        scale   = bonus ~= nil and buttonScale or {0, 0, 0},
+    })
+end
+
+-- ЛКМ по чекбоксу-слоту: включает/выключает бонус, сразу же прибавляя или
+-- вычитая его величину из поля КД
+function onClickAcBonusCheckbox(slot)
+    if isTextboxLocked(TEXTBOX_AC_ID) then return end
+
+    local bonus = ref_buttonData.acBonuses[slot]
+    if bonus == nil then return end -- пустой слот — на всякий случай, помимо scale=0
+
+    if bonus.active then
+        applyAcBonusDelta(-bonus.amount)
+        bonus.active = false
+    else
+        applyAcBonusDelta(bonus.amount)
+        bonus.active = true
+    end
+
+    refreshAcBonusCheckbox(slot)
+    updateSave()
+end
+
+-- ПКМ -> "Создать бонус к КД": имя -> величина -> занимает первый свободный слот
+function onClickCreateAcBonus(playerColor)
+    local freeSlot = nil
+    for slot = 1, AC_BONUS_SLOT_COUNT do
+        if ref_buttonData.acBonuses[slot] == nil then
+            freeSlot = slot
+            break
+        end
+    end
+
+    if freeSlot == nil then
+        printToColor("❌ Уже создано максимум ("..AC_BONUS_SLOT_COUNT..") бонусов к КД — удалите один из существующих через «Удалить бонус к КД», чтобы освободить место.", playerColor, {1, 0.6, 0})
+        return
+    end
+
+    Player[playerColor].showInputDialog(
+        "Введите название бонуса (например, «Щит»)",
+        "",
+        function(name)
+            if name == nil or name == "" then
+                return
+            end
+
+            Player[playerColor].showInputDialog(
+                "Введите величину бонуса (можно отрицательную, например -2)",
+                "+2",
+                function(amountText)
+                    local cleanText = (amountText or ""):gsub("−", "-")
+                    local amount = tonumber(cleanText)
+
+                    if amount == nil then
+                        printToColor("❌ Не удалось распознать число «"..tostring(amountText).."» — бонус не создан.", playerColor, {1, 0.4, 0.4})
+                        return
+                    end
+
+                    -- Слот мог занять кто-то другой, пока шли эти два диалога
+                    if ref_buttonData.acBonuses[freeSlot] ~= nil then
+                        printToColor("❌ Свободный слот уже занят — попробуйте ещё раз.", playerColor, {1, 0.6, 0})
+                        return
+                    end
+
+                    ref_buttonData.acBonuses[freeSlot] = {name = name, amount = amount, active = false}
+                    refreshAcBonusCheckbox(freeSlot)
+                    updateSave()
+
+                    local sign = amount >= 0 and "+" or ""
+                    printToColor("✅ Бонус «"..name.."» ("..sign..amount..") добавлен. Отметьте чекбокс рядом с КД, когда бонус нужно включить.", playerColor, {0, 1, 0})
+                end
+            )
+        end
+    )
+end
+
+-- ПКМ -> "Удалить бонус к КД": список текущих бонусов -> выбор -> удаление.
+-- Если удаляемый бонус сейчас активен, сначала откатывает его влияние на КД
+function onClickRemoveAcBonus(playerColor)
+    local options = {}
+    local slotByOptionIndex = {}
+
+    for slot = 1, AC_BONUS_SLOT_COUNT do
+        local bonus = ref_buttonData.acBonuses[slot]
+        if bonus ~= nil then
+            local sign = bonus.amount >= 0 and "+" or ""
+            table.insert(options, bonus.name.." ("..sign..bonus.amount..")")
+            slotByOptionIndex[#options] = slot
+        end
+    end
+
+    if #options == 0 then
+        printToColor("❌ Бонусов к КД пока нет — нечего удалять.", playerColor, {1, 0.6, 0})
+        return
+    end
+
+    Player[playerColor].showOptionsDialog(
+        "Какой бонус к КД удалить?",
+        options,
+        1,
+        function(selectedText, selectedIndex)
+            local slot = slotByOptionIndex[selectedIndex]
+            local bonus = ref_buttonData.acBonuses[slot]
+            if bonus == nil then return end
+
+            if bonus.active then
+                applyAcBonusDelta(-bonus.amount)
+            end
+
+            ref_buttonData.acBonuses[slot] = nil
+            refreshAcBonusCheckbox(slot)
+            updateSave()
+            printToColor("🗑️ Бонус «"..bonus.name.."» удалён.", playerColor, {0.9, 0.8, 0.2})
+        end
+    )
+end
+
+-- Создаёт 5 чекбоксов-слотов бонусов к КД (пустые слоты сразу скрыты)
+function createAcBonusCheckboxes()
+    for slot = 1, AC_BONUS_SLOT_COUNT do
+        local id = AC_BONUS_CHECKBOX_ID_PREFIX..slot
+        local funcName = "onClickAcBonusCheckboxSlot"..slot
+        self.setVar(funcName, function(obj, playerColor) onClickAcBonusCheckbox(slot) end)
+
+        local bonus = ref_buttonData.acBonuses[slot]
+
+        createBtnAndSaveIndex(id, {
+            click_function = funcName,
+            color          = buttonColor,
+            font_color     = buttonFontColor,
+            font_size      = 150,
+            function_owner = self,
+            height         = 150,
+            label          = acBonusCheckboxLabel(slot),
+            position       = AC_BONUS_CHECKBOX_POS[slot],
+            scale          = bonus ~= nil and buttonScale or {0, 0, 0},
+            tooltip        = acBonusTooltip(slot),
+            width          = 150,
+        })
+    end
 end
 
 -- Проверяет, должно ли текстовое поле быть заблокировано в текущем режиме
@@ -2885,6 +3674,43 @@ function onload(saved_data)
     if ref_buttonData.injuries == nil then
   ref_buttonData.injuries = {}
     end
+    -- Поддержка старых сохранений: как без поля истощения вовсе, так и с
+    -- прежним GUID-полем от версии с внешним объектом-трекером — истощение
+    -- теперь полностью встроено в лист, старое поле больше не используется
+    ref_buttonData.exhaustionGuid = nil
+    if type(ref_buttonData.exhaustion) ~= "table" then
+        ref_buttonData.exhaustion = {level = 0, ruleset = "2024"}
+    end
+    if type(ref_buttonData.exhaustion.level) ~= "number" then
+        ref_buttonData.exhaustion.level = 0
+    end
+    if ref_buttonData.exhaustion.ruleset ~= "2014" and ref_buttonData.exhaustion.ruleset ~= "2024" then
+        ref_buttonData.exhaustion.ruleset = "2024"
+    end
+    -- Поддержка старых сохранений без поля бонусов к КД
+    if type(ref_buttonData.acBonuses) ~= "table" then
+        ref_buttonData.acBonuses = {}
+    end
+    -- Поддержка старых сохранений, созданных до появления полей "Сложность
+    -- спасброска"/"Бонус атаки заклинанием" (используются книгой заклинаний)
+    -- — без этой миграции на старом сохранении ref_buttonData.textbox[...]
+    -- был бы nil, и .value ниже падал бы с ошибкой.
+    -- Копируем ПОЭЛЕМЕНТНО (а не присваиваем таблицу целиком по ссылке) —
+    -- иначе ref_buttonData.textbox[...] и defaultButtonData.textbox[...]
+    -- стали бы одной и той же таблицей, и правки игрока в это поле тихо
+    -- просачивались бы в defaultButtonData.
+    local function copyDefaultTextbox(key)
+        local src = defaultButtonData.textbox[key]
+        local copy = {}
+        for k, v in pairs(src) do copy[k] = v end
+        return copy
+    end
+    if ref_buttonData.textbox[TEXTBOX_SPELL_SAVE_DC_ID] == nil then
+        ref_buttonData.textbox[TEXTBOX_SPELL_SAVE_DC_ID] = copyDefaultTextbox(TEXTBOX_SPELL_SAVE_DC_ID)
+    end
+    if ref_buttonData.textbox[TEXTBOX_SPELL_ATTACK_BONUS_ID] == nil then
+        ref_buttonData.textbox[TEXTBOX_SPELL_ATTACK_BONUS_ID] = copyDefaultTextbox(TEXTBOX_SPELL_ATTACK_BONUS_ID)
+    end
 
     spawnedButtonCount = 0
 
@@ -2898,6 +3724,8 @@ function onload(saved_data)
     createSelect()
     createLvlUpdateBtn()
     createHitDiceCounters()
+    createExhaustionControls()
+    createAcBonusCheckboxes()
 
     updateJumpAndWeight()
     updateMonetWeight()
@@ -2908,6 +3736,9 @@ function onload(saved_data)
     applyResourceCounterLockVisuals()
     applyInjuryVisuals()
     updateLockContextMenu()
+    refreshExhaustionUI()
+    refreshExhaustionStatOverrides()
+    refreshSpellcastingDefaults()
 end
 
 --Функции-обработчики кликов по кнопкам
@@ -2951,6 +3782,7 @@ function onSelectSpellAbility(selectId, selectedIndex)
   label = spellAbilityLabels[paramId],
     })
 
+    refreshSpellcastingDefaults()
     updateSave()
 end
 
@@ -3119,6 +3951,7 @@ self.editButton({
     end
 
     updateJumpAndWeight()
+    refreshSpellcastingDefaults()
 
     -- Сохраняем обновлённое состояние
     updateSave()
@@ -3148,19 +3981,40 @@ function click_resource_counter(amount, counterId)
   pendingInjuryAmount = nil
 
   ref_buttonData.injuries[counterId] = (ref_buttonData.injuries[counterId] or 0) + amount
-  tintInjuredField(counterId)
     end
 
-    local data = ref_buttonData.resourceCounter[counterId]
-    data.value = data.value + amount
-    if data.value < 0 then
-  data.value = 0
-    end
+    -- Максимум хитов, пока его снижает истощение (см. блок ИСТОЩЕНИЕ выше):
+    -- и обычный шаг, и применение травмы идут не в уже сниженное отображаемое
+    -- значение, а в "чистую" базу истощения — иначе после снятия истощения
+    -- это изменение потерялось бы (перезаписалось бы старой базой)
+    if counterId == RESOURCE_COUNTER_HP_MAX_ID and ref_buttonData.exhaustion.baseHp ~= nil then
+  ref_buttonData.exhaustion.baseHp = ref_buttonData.exhaustion.baseHp + amount
+  if ref_buttonData.exhaustion.baseHp < 0 then ref_buttonData.exhaustion.baseHp = 0 end
+  refreshExhaustionStatOverrides()
+    else
+  local data = ref_buttonData.resourceCounter[counterId]
+  data.value = data.value + amount
+  if data.value < 0 then
+      data.value = 0
+  end
 
-    self.editButton({
-  index = btnIndexByElementIdTable[counterId],
-  label = data.value,
-    })
+  if counterId == RESOURCE_COUNTER_HP_MAX_ID then
+      -- Значение и цвет шрифта уходят ОДНИМ вызовом внутри refreshFieldTint
+      -- (см. setInjuryTintForField) — отдельный editButton здесь не шлём:
+      -- TTS не всегда корректно применяет вторую правку того же индекса
+      -- в рамках одного клика, из-за чего цвет отставал на клик.
+      refreshFieldTint(counterId)
+  else
+      -- Остальные resourceCounter (монеты, текущие/временные хиты) подсветку
+      -- не поддерживают — refreshFieldTint для них не отправляет ничего,
+      -- поэтому значение по-прежнему шлём напрямую
+      self.editButton({
+    index = btnIndexByElementIdTable[counterId],
+    label = data.value,
+      })
+      refreshFieldTint(counterId)
+  end
+    end
 
     -- Изменилось количество монет — пересчитываем их вес
     if moneyCounterIds[counterId] == true then
@@ -3169,6 +4023,19 @@ function click_resource_counter(amount, counterId)
 
     updateSave()
 end
+
+-- Точное множество текстовых полей, от которых реально зависит результат
+-- updateSkillsByProficiency(): 24 поля бонуса навыков/спасбросков (их же и
+-- читает сама функция построчно) плюс 2 поля заклинателя — у них к этому
+-- же вызову привязана автоподстановка при очистке (см. refreshSpellcastingDefaults
+-- внутри updateSkillsByProficiency). Любое другое текстовое поле (имя,
+-- предыстория, оружие, заметки и т.д.) на результат не влияет никак.
+local skillProficiencyRelevantTextboxIds = {}
+for skillId in pairs(paramIdBySkillId) do
+    skillProficiencyRelevantTextboxIds["textbox_"..skillId] = true
+end
+skillProficiencyRelevantTextboxIds[TEXTBOX_SPELL_SAVE_DC_ID] = true
+skillProficiencyRelevantTextboxIds[TEXTBOX_SPELL_ATTACK_BONUS_ID] = true
 
 -- Применяет введённое значение к текстовому полю
 -- selected == false означает, что игрок закончил ввод (поле потеряло фокус)
@@ -3193,22 +4060,42 @@ self.editInput({
 
     if selected == false then
   -- Если взведена травма и это Скорость — не важно, что игрок ввёл в поле,
-  -- новое значение считается как "текущее + величина травмы"
+  -- новое значение считается как "текущее + величина травмы". Если Скорость
+  -- сейчас снижена истощением (ref_buttonData.exhaustion.baseSpeed ~= nil,
+  -- см. блок ИСТОЩЕНИЕ выше) — величина травмы идёт в ЧИСТУЮ базу, а не в
+  -- уже сниженное отображаемое число, иначе травма исказила бы саму базу
   if pendingInjuryAmount ~= nil and textboxId == TEXTBOX_SPEED_ID then
-      local current = tonumber(ref_buttonData.textbox[textboxId].value) or 0
-      value = current + pendingInjuryAmount
-
-      ref_buttonData.injuries[textboxId] = (ref_buttonData.injuries[textboxId] or 0) + pendingInjuryAmount
+      local injuryAmount = pendingInjuryAmount
       pendingInjuryAmount = nil
+      ref_buttonData.injuries[textboxId] = (ref_buttonData.injuries[textboxId] or 0) + injuryAmount
 
-      ref_buttonData.textbox[textboxId].value = value
-      tintInjuredField(textboxId)
+      if ref_buttonData.exhaustion.baseSpeed ~= nil then
+    ref_buttonData.exhaustion.baseSpeed = ref_buttonData.exhaustion.baseSpeed + injuryAmount
+    if ref_buttonData.exhaustion.baseSpeed < 0 then ref_buttonData.exhaustion.baseSpeed = 0 end
+    refreshExhaustionStatOverrides()
+      else
+    local current = tonumber(ref_buttonData.textbox[textboxId].value) or 0
+    ref_buttonData.textbox[textboxId].value = current + injuryAmount
+    -- Значение и цвет уходят ОДНИМ вызовом внутри refreshFieldTint (см.
+    -- setInjuryTintForField) — отдельного editInput здесь не шлём (тот же
+    -- баг с двойной правкой одного индекса за один клик, что и у истощения)
+    refreshFieldTint(textboxId)
+      end
+  -- Обычный (не травма) ввод в Скорость, пока её снижает истощение: то,
+  -- что игрок ввёл, считается НОВОЙ чистой базой (его "настоящая" скорость
+  -- без истощения) — поле тут же переотрисуется уже со сниженным числом
+  elseif textboxId == TEXTBOX_SPEED_ID and ref_buttonData.exhaustion.baseSpeed ~= nil then
+      ref_buttonData.exhaustion.baseSpeed = tonumber(value) or 0
+      refreshExhaustionStatOverrides()
   else
       ref_buttonData.textbox[textboxId].value = value
   end
 
-  -- Пересчёт значений с учётом бонуса мастерства
-  updateSkillsByProficiency()
+  -- Пересчёт значений с учётом бонуса мастерства — только если это поле
+  -- реально на него влияет (см. skillProficiencyRelevantTextboxIds выше)
+  if skillProficiencyRelevantTextboxIds[textboxId] then
+      updateSkillsByProficiency()
+  end
 
   -- Изменился рост — обновляем высоту прыжка с руками
   if textboxId == TEXTBOX_HEIGHT_ID then
@@ -3354,6 +4241,8 @@ self.editButton({
 })
   end
     end
+
+    refreshSpellcastingDefaults()
 end
 
 --============================================================
@@ -3880,26 +4769,25 @@ end
 -- столбик кнопок "+шаг" справа и столбик кнопок "-шаг" слева (шаги — из
 -- data.steps, например {1,5,10}). Кнопки скрываются (масштаб 0), когда
 -- счётчик заблокирован — см. applyResourceCounterLockVisuals.
+-- Приглушённый цвет фона дисплея под тип монеты (неяркие, пастельные тона —
+-- см. createResourceCounter). Шрифт всегда buttonFontColor (чёрный), задаём
+-- его явно вместе с цветом, иначе он подстраивался бы под новый фон.
+local coinCounterBackgroundColor = {
+    [RESOURCE_COUNTER_COPPER_COINS_ID] = {0.72, 0.52, 0.42},
+    [RESOURCE_COUNTER_SILVER_COINS_ID] = {0.75, 0.77, 0.80},
+    [RESOURCE_COUNTER_ELECTRUM_COINS_ID] = {0.80, 0.75, 0.55},
+    [RESOURCE_COUNTER_GOLD_COINS_ID] = {0.82, 0.70, 0.38},
+    [RESOURCE_COUNTER_PLATINUM_COINS_ID] = {0.83, 0.85, 0.87},
+}
+
 function createResourceCounter()
     for counterId, data in pairs(ref_buttonData.resourceCounter) do
-  -- У кнопок хитов (текущие/временные/максимум) фон убираем полностью —
-  -- у монет фон остаётся как обычно
-  local isHpCounter = (
-      counterId == RESOURCE_COUNTER_HP_CURRENT_ID
-      or counterId == RESOURCE_COUNTER_HP_TEMPORARY_ID
-      or counterId == RESOURCE_COUNTER_HP_MAX_ID
-  )
-  local btnColor = buttonColor
-  if isHpCounter then
-      btnColor = {1, 1, 1, 1}
-  end
-
   -- Кнопка-дисплей с текущим значением (сама не кликабельна)
   createBtnAndSaveIndex(
 counterId,
 {
     click_function = "click_none",
-    color    = btnColor,
+    color    = coinCounterBackgroundColor[counterId] or buttonColor,
     font_color     = buttonFontColor,
     font_size= data.size,
     function_owner = self,
@@ -3940,7 +4828,7 @@ createBtnAndSaveIndex(
     addBtnId,
     {
 click_function = addBtnId,
-color    = btnColor,
+color    = buttonColor,
 font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
@@ -3964,7 +4852,7 @@ createBtnAndSaveIndex(
     subBtnId,
     {
 click_function = subBtnId,
-color    = btnColor,
+color    = buttonColor,
 font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
@@ -4341,16 +5229,29 @@ function rollWeapon(index, obj, playerColor)
     local hasDamage = (diceType > 0) or (damageBonus ~= 0)
     if diceType > 0 and diceCount <= 0 then diceCount = 1 end
 
-    -- Атака и урон бросаются одним броском: d20 на атаку и кубики урона
-    -- (если есть) летят на стол вместе
-    local groups = {{name = "attack", diceType = 20, diceCount = 1}}
+    -- Истощение: бросок атаки всегда относится к категории "атаки/спасброски"
+    -- (правила 2014 — помеха с 3 уровня; правила 2024 — фиксированный штраф).
+    -- На урон истощение не влияет.
+    local exhaustionPenalty = getExhaustionPenalty()
+    local hasExhaustionDisadvantage = hasDisadvantageOnAttacksAndSaves()
+
+    -- Атака и урон бросаются одним броском: d20 на атаку (или 2d20 при
+    -- помехе от истощения) и кубики урона (если есть) летят на стол вместе
+    local groups = {{name = "attack", diceType = 20, diceCount = hasExhaustionDisadvantage and 2 or 1}}
     if diceType > 0 then
         table.insert(groups, {name = "damage", diceType = diceType, diceCount = diceCount})
     end
 
     rollPhysicalDiceGroups(groups, function(results)
-        local roll20 = results.attack.total
-        local totalAttack = roll20 + hitBonus
+        local roll20
+        local disadvantageText = ""
+        if hasExhaustionDisadvantage then
+            roll20 = math.min(results.attack.values[1], results.attack.values[2])
+            disadvantageText = " [i](помеха от истощения: " .. results.attack.values[1] .. ", " .. results.attack.values[2] .. ")[/i]"
+        else
+            roll20 = results.attack.total
+        end
+        local totalAttack = roll20 + hitBonus + exhaustionPenalty
 
         local attackBonusSign = ""
         local attackBonusVal = ""
@@ -4361,7 +5262,13 @@ function rollWeapon(index, obj, playerColor)
             attackBonusSign = " − "
             attackBonusVal = tostring(math.abs(hitBonus))
         end
-        local attackText = "d20(" .. roll20 .. ")" .. attackBonusSign .. attackBonusVal .. " = [b]" .. totalAttack .. "[/b]"
+
+        local exhaustionPenaltyText = ""
+        if exhaustionPenalty ~= 0 then
+            exhaustionPenaltyText = " − " .. math.abs(exhaustionPenalty) .. " (истощение)"
+        end
+
+        local attackText = "d20(" .. roll20 .. ")" .. attackBonusSign .. attackBonusVal .. exhaustionPenaltyText .. " = [b]" .. totalAttack .. "[/b]" .. disadvantageText
 
         local damageText = ""
         if hasDamage then
@@ -4463,11 +5370,59 @@ skillBonusSign = '−'
     local charSheetColor = colorToHex(obj.getColorTint())
     local rollName = rollTextCollection[rollId]
 
+    -- Красим название проверки/испытания в цвет управляющей характеристики.
+    -- paramId (аргумент функции) задан только для 6 чистых проверок
+    -- характеристик — у навыков/спасбросков в ref_buttonData.roll задан
+    -- только skillId, поэтому для них управляющую характеристику достаём
+    -- через paramIdBySkillId (та же таблица, что уже считает их бонус).
+    -- [b]...[/b] в rollTextCollection уже обрамляет ровно то слово, которое
+    -- нужно покрасить — оборачиваем его содержимое цветом, не трогая сам
+    -- тег полужирного.
+    local governingParamId = paramId
+    if skillId ~= nil then
+  governingParamId = paramIdBySkillId[skillId]
+    end
+    local paramColorHex = paramColorByParamId[governingParamId]
+    if paramColorHex then
+  rollName = rollName:gsub("%[b%](.-)%[/b%]", "[b][" .. paramColorHex .. "]%1[-][/b]")
+    end
+
+    -- Истощение: спасбросок (skillId с "_savethrow") vs проверка характеристики/
+    -- навыка (skillId == nil или обычный навык) — у правил 2014 разные пороги
+    -- помехи для этих двух категорий
+    local isSave = skillId ~= nil and isSkillSavethrow(skillId)
+    local exhaustionPenalty = getExhaustionPenalty()
+    local hasExhaustionDisadvantage
+    if isSave then
+        hasExhaustionDisadvantage = hasDisadvantageOnAttacksAndSaves()
+    else
+        hasExhaustionDisadvantage = hasDisadvantageOnAbilityChecks()
+    end
+
+    local exhaustionPenaltyText = ''
+    if exhaustionPenalty ~= 0 then
+  exhaustionPenaltyText = ' − '..math.abs(exhaustionPenalty)..' (истощение)'
+    end
+
+    local d20Count = hasExhaustionDisadvantage and 2 or 1
+
     rollPhysicalDiceGroups(
-  {{name = "d20", diceType = 20, diceCount = 1}},
+  {{name = "d20", diceType = 20, diceCount = d20Count}},
   function(results)
-      local roll20 = results.d20.total
-      local result = roll20 + paramBonus + skillBonus
+      local roll20
+      local disadvantageText = ''
+      if hasExhaustionDisadvantage then
+    roll20 = math.min(results.d20.values[1], results.d20.values[2])
+    disadvantageText = ' [i](помеха от истощения: '..results.d20.values[1]..', '..results.d20.values[2]..')[/i]'
+      else
+    roll20 = results.d20.total
+      end
+
+      local result = roll20 + paramBonus + skillBonus + exhaustionPenalty
+      local resultText = tostring(result)
+      if paramColorHex then
+    resultText = '[' .. paramColorHex .. ']' .. result .. '[-]'
+      end
 
       broadcastToAll(
     '['..playerColorRBB..']'..
@@ -4476,7 +5431,9 @@ skillBonusSign = '−'
     ..roll20
     ..paramBonusText
     ..skillBonusText
-    ..' = [b]'..result..'[/b]'
+    ..exhaustionPenaltyText
+    ..' = [b]'..resultText..'[/b]'
+    ..disadvantageText
       )
   end
     )
