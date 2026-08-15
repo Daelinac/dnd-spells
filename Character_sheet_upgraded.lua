@@ -198,7 +198,7 @@ TEXTBOX_SKILL_fontSize = 220
 -- Коэффициент перевода фунтов в килограммы (для веса монет)
 POUND_PER_KG = 0.454
 
-NET_MONET_TEXT = 'Нет монет    ' -- текст с отступом для выравнивания
+NET_MONET_TEXT = 'Нет монет и провизии    ' -- текст с отступом для выравнивания
 
 --================== Идентификаторы навыков ==================
 SKILL_ACROBATICS_ID = "Acrobatics"
@@ -435,6 +435,8 @@ RESOURCE_COUNTER_SILVER_COINS_ID = "resourceCounter_Silver_coins"
 RESOURCE_COUNTER_ELECTRUM_COINS_ID = "resourceCounter_Electrum_coins"
 RESOURCE_COUNTER_GOLD_COINS_ID = "resourceCounter_Gold_coins"
 RESOURCE_COUNTER_PLATINUM_COINS_ID = "resourceCounter_Platinum_coins"
+RESOURCE_COUNTER_FOOD_ID = "resourceCounter_Food"   -- Пища, канонически хранится в фунтах
+RESOURCE_COUNTER_WATER_ID = "resourceCounter_Water" -- Питьё, канонически хранится в галлонах
 TEXTBOX_EQUIPMENT_ID = "textbox_Equipment"                     -- Снаряжение (текст)
 TEXTBOX_SPELL_CLASS_ID = "textbox_Spell_Class"                 -- 1. Класс заклинателя (текст)
 SELECT_SPELLCASTING_ABILITY_ID = "select_Spellcasting_Ability" -- 2. Заклинательная характеристика (выбор диалогом)
@@ -655,7 +657,7 @@ local rollTextCollection = {
     [ROLL_SKILL_DEX_SAVETHROW_ID] = "испытание [b]Ловкости[/b]",
     [ROLL_SKILL_ACROBATICS_ID] = "проверка [b]Акробатики[/b]",
     [ROLL_SKILL_STEALTH_ID] = "проверка [b]Скрытности[/b]",
-    [ROLL_SKILL_SLEIGHT_OF_HAND_ID] = "проверка [b]Ловкости[/b] рук",
+    [ROLL_SKILL_SLEIGHT_OF_HAND_ID] = "проверка [b]Ловкости рук[/b]",
     [ROLL_SKILL_CON_SAVETHROW_ID] = "испытание [b]Телосложения[/b]",
     [ROLL_SKILL_INT_SAVETHROW_ID] = "испытание [b]Интеллекта[/b]",
     [ROLL_SKILL_ARCANA_ID] = "проверка [b]Магии[/b]",
@@ -664,7 +666,7 @@ local rollTextCollection = {
     [ROLL_SKILL_NATURE_ID] = "проверка [b]Природы[/b]",
     [ROLL_SKILL_RELIGION_ID] = "проверка [b]Религии[/b]",
     [ROLL_SKILL_WIS_SAVETHROW_ID] = "испытание [b]Мудрости[/b]",
-    [ROLL_SKILL_ANIMAL_HANDLING_ID] = "проверка [b]Обращения[/b] с животными",
+    [ROLL_SKILL_ANIMAL_HANDLING_ID] = "проверка [b]Обращения с животными[/b]",
     [ROLL_SKILL_INSIGHT_ID] = "проверка [b]Проницательности[/b]",
     [ROLL_SKILL_MEDICINE_ID] = "проверка [b]Медицины[/b]",
     [ROLL_SKILL_PERCEPTION_ID] = "проверка [b]Внимательности[/b]",
@@ -1376,7 +1378,7 @@ value  = ' 1/ 1к',
 hideBG = true,
   },
   [DISPLAY_MONET_WEIGHT_ID] = {
-pos    = {-0.22,0.11,0.713},
+pos    = {-0.0,0.11,0.713},
 size   = 150,
 value  = NET_MONET_TEXT,
 hideBG = true,
@@ -2420,6 +2422,22 @@ size  = 280,
 value = 0,
 steps = {1, 10, 100},
   },
+  -- Пища/питьё — под окном снаряжения (TEXTBOX_EQUIPMENT_ID), позиции
+  -- примерные, подгоните вручную под физический лист.
+  -- value хранится КАНОНИЧЕСКИ (фунты/галлоны) независимо от выбранных
+  -- единиц отображения — см. блок "ЕДИНИЦЫ ИЗМЕРЕНИЯ" ниже.
+  [RESOURCE_COUNTER_FOOD_ID] = {
+pos   = {0.28,0.1,1.56},
+size  = 350,
+value = 0,
+steps = {1, 5},
+  },
+  [RESOURCE_COUNTER_WATER_ID] = {
+pos   = {-0.28,0.1,1.56},
+size  = 350,
+value = 0,
+steps = {1, 5},
+  },
     },
 
     -- Служебные поля общего состояния листа
@@ -2432,6 +2450,24 @@ steps = {1, 10, 100},
     injuries = {},               -- активные травмы: [paramId/RESOURCE_COUNTER_HP_MAX_ID/TEXTBOX_SPEED_ID] = величина
     exhaustion = {level = 0, ruleset = "2024"}, -- уровень истощения 0-6 и набор правил, см. блок "ИСТОЩЕНИЕ" ниже
     acBonuses = {}, -- до 5 именованных бонусов к КД (слоты 1-5), см. блок "БОНУСЫ К КД" ниже
+    useTempHp = true, -- временные хиты поглощают урон при уменьшении текущих (вкл/выкл через ПКМ)
+    -- diceSpawnPoint: nil (по умолчанию — точка спавна кубиков считается
+    -- от листа, см. DICE_SPAWN_LOCAL_POS) либо {x, y, z} в МИРОВЫХ координатах,
+    -- если игрок задал точку вручную через ПКМ, см. блок "ТОЧКА СПАВНА КУБИКОВ"
+
+    --============================================================
+    -- ЕДИНИЦЫ ИЗМЕРЕНИЯ (переключаются через ПКМ)
+    --
+    -- Пища/питьё/рост ВСЕГДА хранятся канонически в фунтах/галлонах/футах
+    -- (resourceCounter[...].value и heightFeetCanonical ниже) — эти три
+    -- флага влияют ТОЛЬКО на то, в каких единицах число показывается
+    -- игроку. Расчёт досягаемости с руками (updateJumpAndWeight) всегда
+    -- берёт heightFeetCanonical и остаётся в футах независимо от флага.
+    --============================================================
+    foodUnitMetric = false,   -- false = фунты, true = килограммы
+    waterUnitMetric = false,  -- false = галлоны, true = литры
+    heightUnitMetric = false, -- false = футы, true = сантиметры
+    heightFeetCanonical = 0,  -- рост персонажа в футах (канонически, см. выше)
 }
 
 -- Параметры кнопки "Обновить уровень" в выключенном (невидимом) состоянии
@@ -2778,6 +2814,33 @@ local lockModeLabels = {
     [2] = "Заблокировать лист",
 }
 
+-- Метки переключателя "временные хиты поглощают урон" в контекстном меню —
+-- как и для lockMode/exhaustionRuleset, показываем метку ЦЕЛЕВОГО состояния
+-- (того, в которое переключит клик), а не текущего
+local tempHpAbsorptionLabels = {
+    [true] = "Врем. хиты поглощают урон: Вкл",
+    [false] = "Врем. хиты поглощают урон: Выкл",
+}
+
+-- Метки переключателей единиц измерения (Пища/Питьё/Рост) в контекстном
+-- меню — как и остальные переключатели, показываем метку ЦЕЛЕВОГО состояния
+-- (в которое переключит клик). Объявлены здесь (а не рядом с остальным
+-- блоком "ЕДИНИЦЫ ИЗМЕРЕНИЯ" ниже), потому что updateLockContextMenu их
+-- использует, а Lua-локали видны только коду, объявленному НИЖЕ по файлу —
+-- объявление после функции превратило бы обращение в nil (глобальную).
+local foodUnitLabels = {
+    [true] = "Пища: килограммы",
+    [false] = "Пища: фунты",
+}
+local waterUnitLabels = {
+    [true] = "Питьё: литры",
+    [false] = "Питьё: галлоны",
+}
+local heightUnitLabels = {
+    [true] = "Рост: сантиметры",
+    [false] = "Рост: футы",
+}
+
 -- Пересоздаёт контекстное меню: показывает пункты для двух режимов,
 -- отличных от текущего (не циклический перебор, а прямой выбор), плюс
 -- статичные пункты управления травмами
@@ -2807,6 +2870,289 @@ function updateLockContextMenu()
 
     self.addContextMenuItem("Создать бонус к КД", onClickCreateAcBonus)
     self.addContextMenuItem("Удалить бонус к КД", onClickRemoveAcBonus)
+
+    local targetUseTempHp = not ref_buttonData.useTempHp
+    self.addContextMenuItem(tempHpAbsorptionLabels[targetUseTempHp], function(playerColor)
+        setUseTempHp(targetUseTempHp)
+    end)
+
+    if ref_buttonData.diceSpawnPoint ~= nil then
+        self.addContextMenuItem("Сбросить точку появления кубиков", onClickResetDiceSpawnPoint)
+    else
+        self.addContextMenuItem("Новое место появления кубиков", onClickSetDiceSpawnPoint)
+    end
+
+    local targetFoodUnitMetric = not ref_buttonData.foodUnitMetric
+    self.addContextMenuItem(foodUnitLabels[targetFoodUnitMetric], function(playerColor)
+        setFoodUnitMetric(targetFoodUnitMetric)
+    end)
+
+    local targetWaterUnitMetric = not ref_buttonData.waterUnitMetric
+    self.addContextMenuItem(waterUnitLabels[targetWaterUnitMetric], function(playerColor)
+        setWaterUnitMetric(targetWaterUnitMetric)
+    end)
+
+    local targetHeightUnitMetric = not ref_buttonData.heightUnitMetric
+    self.addContextMenuItem(heightUnitLabels[targetHeightUnitMetric], function(playerColor)
+        setHeightUnitMetric(targetHeightUnitMetric)
+    end)
+end
+
+-- Переключает режим "временные хиты поглощают урон" (вызывается из контекстного меню)
+function setUseTempHp(value)
+    ref_buttonData.useTempHp = value
+    updateLockContextMenu()
+    updateSave()
+end
+
+--============================================================
+-- ЕДИНИЦЫ ИЗМЕРЕНИЯ (Пища/Питьё/Рост)
+--
+-- В отличие от роста (который хранится канонически в футах, см. ниже),
+-- значения пищи и питья хранятся ПРЯМО В ТЕКУЩЕЙ ВЫБРАННОЙ ЕДИНИЦЕ
+-- (resourceCounter[...].value). Это значит:
+--   - кнопки +/- всегда прибавляют шаг именно в той единице, что сейчас
+--     выбрана (например, если выбраны литры — жмём +1, получаем +1 литр,
+--     а не +1 галлон с последующей конвертацией);
+--   - при переключении единицы (setFoodUnitMetric/setWaterUnitMetric)
+--     число РЕАЛЬНО конвертируется и округляется кратно 0.5, а не просто
+--     переформатируется — иначе шаги "плыли" бы дробными хвостами.
+-- Рост — текстовое поле, а не счётчик с шагами, поэтому для него канонiческое
+-- хранение в футах (heightFeetCanonical) осталось прежним — там нет проблемы
+-- "дробного шага", т.к. пользователь просто печатает число заново.
+--============================================================
+
+local LB_TO_KG = 0.453592
+local GALLON_TO_LITER = 3.78541
+local FOOT_TO_CM = 30.48
+
+-- Округление до 1 знака после запятой (используется только для роста)
+local function roundTo1Decimal(x)
+    return math.floor(x * 10 + 0.5) / 10
+end
+
+-- Округление кратно 0.5 (используется для пищи/питья при смене единицы —
+-- например 3.785 л после смены округлится до 4.0, а не останется дробным)
+local function roundToHalf(x)
+    return math.floor(x * 2 + 0.5) / 2
+end
+
+-- Шаги кнопок +/- для счётчика ПИТЬЯ — зависят от текущей единицы
+-- (галлоны/литры). В отличие от остальных resourceCounter (где кнопка
+-- просто прибавляет число из data.steps), здесь сумма/подпись/подсказка
+-- меняются при переключении единицы (см. setWaterUnitMetric), поэтому
+-- вынесены в отдельную таблицу, а не в defaultButtonData.
+--   Имперская: 1/8 галлона = 1 пинта ровно (галлон = 8 пинт);
+--              1 галлон ≈ 4 литра.
+--   Метрическая: 0.5 л ≈ 1 пинта (0.473 л) и ≈ 1/8 галлона (0.125 гал);
+--                4 л ≈ 1 галлон (3.785 л).
+local waterStepConfigByUnit = {
+    [false] = { -- имперская система (галлоны)
+        {amount = 1/8, addLabel = "+1/8", subLabel = "−1/8", tooltip = "~0.5 литра, ~1 пинта"},
+        {amount = 1,   addLabel = "+1",   subLabel = "−1",   tooltip = "~4 литра"},
+    },
+    [true] = { -- метрическая система (литры)
+        {amount = 0.5, addLabel = "+0.5", subLabel = "−0.5", tooltip = "~1 пинта, ~1/8 галлона"},
+        {amount = 4,   addLabel = "+4",   subLabel = "−4",   tooltip = "~1 галлон"},
+    },
+}
+
+-- Аналогичная таблица шагов для ПИЩИ — сумма/подпись/подсказка тоже зависят
+-- от текущей единицы измерения (фунты/кг), см. setFoodUnitMetric
+local foodStepConfigByUnit = {
+    [false] = { -- имперская система (фунты)
+        {amount = 0.5, addLabel = "+0.5", subLabel = "−0.5", tooltip = "~0.25 кг"},
+        {amount = 1,   addLabel = "+1",   subLabel = "−1",   tooltip = "~0.5 кг"},
+    },
+    [true] = { -- метрическая система (килограммы)
+        {amount = 0.25, addLabel = "+0.25", subLabel = "−0.25", tooltip = "~0.5 фунта"},
+        {amount = 0.5,  addLabel = "+0.5",  subLabel = "−0.5",  tooltip = "~1 фунт"},
+    },
+}
+
+-- Подсказка на самом дисплее значения (что показывает текущая цифра) —
+-- обновляется вместе с переключением единицы, см. setFoodUnitMetric/setWaterUnitMetric
+local foodUnitTooltip = {
+    [false] = "Фунты",
+    [true] = "Килограммы",
+}
+local waterUnitTooltip = {
+    [false] = "Галлоны",
+    [true] = "Литры",
+}
+
+-- Переключает единицу пищи (фунты <-> кг), КОНВЕРТИРУЯ уже накопленное
+-- значение (а не просто меняя подпись), и округляет результат кратно 0.5
+function setFoodUnitMetric(value)
+    local oldValue = tonumber(ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID].value) or 0
+    local newValue
+    if value then
+        newValue = roundToHalf(oldValue * LB_TO_KG) -- фунты -> кг
+    else
+        newValue = roundToHalf(oldValue / LB_TO_KG) -- кг -> фунты
+    end
+
+    ref_buttonData.foodUnitMetric = value
+    ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID].value = newValue
+
+    self.editButton({
+        index = btnIndexByElementIdTable[RESOURCE_COUNTER_FOOD_ID],
+        label = newValue,
+        tooltip = foodUnitTooltip[value],
+    })
+
+    -- Кнопки шага +/- у пищи зависят от единицы измерения (см.
+    -- foodStepConfigByUnit) — та же логика, что и у питья
+    local cfgList = foodStepConfigByUnit[value]
+    for i, cfg in ipairs(cfgList) do
+        local addBtnId = RESOURCE_COUNTER_FOOD_ID.."_btn_add_"..i
+        local subBtnId = RESOURCE_COUNTER_FOOD_ID.."_btn_sub_"..i
+
+        self.setVar(addBtnId, function()
+            click_resource_counter(cfg.amount, RESOURCE_COUNTER_FOOD_ID)
+        end)
+        self.setVar(subBtnId, function()
+            click_resource_counter(-cfg.amount, RESOURCE_COUNTER_FOOD_ID)
+        end)
+
+        self.editButton({
+            index = btnIndexByElementIdTable[addBtnId],
+            label = cfg.addLabel,
+            tooltip = cfg.tooltip,
+        })
+        self.editButton({
+            index = btnIndexByElementIdTable[subBtnId],
+            label = cfg.subLabel,
+            tooltip = cfg.tooltip,
+        })
+    end
+
+    updateMonetWeight()
+    updateLockContextMenu()
+    updateSave()
+end
+
+-- Переключает единицу питья (галлоны <-> литры) — та же логика, что и для пищи
+function setWaterUnitMetric(value)
+    local oldValue = tonumber(ref_buttonData.resourceCounter[RESOURCE_COUNTER_WATER_ID].value) or 0
+    local newValue
+    if value then
+        newValue = roundToHalf(oldValue * GALLON_TO_LITER) -- галлоны -> литры
+    else
+        newValue = roundToHalf(oldValue / GALLON_TO_LITER) -- литры -> галлоны
+    end
+
+    ref_buttonData.waterUnitMetric = value
+    ref_buttonData.resourceCounter[RESOURCE_COUNTER_WATER_ID].value = newValue
+
+    self.editButton({
+        index = btnIndexByElementIdTable[RESOURCE_COUNTER_WATER_ID],
+        label = newValue,
+        tooltip = waterUnitTooltip[value],
+    })
+
+    -- Кнопки шага +/- у питья зависят от единицы измерения (см.
+    -- waterStepConfigByUnit) — сумма, подпись и подсказка должны обновиться
+    -- вместе с самим значением. Id кнопок построены по ПОРЯДКОВОМУ номеру
+    -- (см. createResourceCounter), а не по величине шага, поэтому не "уезжают"
+    -- при переключении единицы.
+    local cfgList = waterStepConfigByUnit[value]
+    for i, cfg in ipairs(cfgList) do
+        local addBtnId = RESOURCE_COUNTER_WATER_ID.."_btn_add_"..i
+        local subBtnId = RESOURCE_COUNTER_WATER_ID.."_btn_sub_"..i
+
+        self.setVar(addBtnId, function()
+            click_resource_counter(cfg.amount, RESOURCE_COUNTER_WATER_ID)
+        end)
+        self.setVar(subBtnId, function()
+            click_resource_counter(-cfg.amount, RESOURCE_COUNTER_WATER_ID)
+        end)
+
+        self.editButton({
+            index = btnIndexByElementIdTable[addBtnId],
+            label = cfg.addLabel,
+            tooltip = cfg.tooltip,
+        })
+        self.editButton({
+            index = btnIndexByElementIdTable[subBtnId],
+            label = cfg.subLabel,
+            tooltip = cfg.tooltip,
+        })
+    end
+
+    updateMonetWeight()
+    updateLockContextMenu()
+    updateSave()
+end
+
+-- Рост — текстовое поле (не resourceCounter), поэтому переключение единицы
+-- пересчитывает и переписывает то, что видно в самом textbox (editInput),
+-- а не только метку кнопки
+function setHeightUnitMetric(value)
+    ref_buttonData.heightUnitMetric = value
+
+    local displayValue
+    if value then
+        displayValue = roundTo1Decimal(ref_buttonData.heightFeetCanonical * FOOT_TO_CM)
+    else
+        displayValue = roundTo1Decimal(ref_buttonData.heightFeetCanonical)
+    end
+    ref_buttonData.textbox[TEXTBOX_HEIGHT_ID].value = displayValue
+
+    self.editInput({
+        index = inputIndexByElementIdTable[TEXTBOX_HEIGHT_ID],
+        value = displayValue,
+    })
+
+    updateLockContextMenu()
+    updateSave()
+end
+
+--============================================================
+-- ТОЧКА СПАВНА КУБИКОВ
+--
+-- По умолчанию кубики спавнятся в фиксированной точке относительно листа
+-- (DICE_SPAWN_LOCAL_POS в блоке бросков ниже). Через ПКМ игрок может задать
+-- свою точку: выбрать пункт меню и просто нажать Tab, наведя курсор на
+-- нужное место на столе — стандартный встроенный пинг TTS, которым игроки
+-- обычно показывают место другим за столом.
+--============================================================
+
+-- Цвет playerColor, ожидающий подтверждения точки (nil — никто не ожидает).
+-- Не сохраняется между сессиями — это чисто временное состояние UI.
+local pendingDiceSpawnPointColor = nil
+
+function onClickSetDiceSpawnPoint(playerColor)
+    pendingDiceSpawnPointColor = playerColor
+    printToColor(
+        "Наведите курсор на нужное место на столе и нажмите Tab, чтобы установить точку появления кубиков.",
+        playerColor,
+        {1, 1, 1}
+    )
+end
+
+function onClickResetDiceSpawnPoint(playerColor)
+    ref_buttonData.diceSpawnPoint = nil
+    pendingDiceSpawnPointColor = nil
+    updateLockContextMenu()
+    updateSave()
+    printToColor("Точка появления кубиков сброшена — используется положение по умолчанию.", playerColor, {0.9, 0.8, 0.2})
+end
+
+-- Глобальный хук TTS: вызывается, когда игрок пингует стол (Tab) — стандартный
+-- встроенный способ показать место другим игрокам, его же используем, чтобы
+-- задать точку появления кубиков. TTS передаёт объект Player (не просто цвет)
+-- и позицию с полями .x/.y/.z (не числовые индексы).
+function onPlayerPing(player, position)
+    if pendingDiceSpawnPointColor ~= player.color then
+        return
+    end
+
+    ref_buttonData.diceSpawnPoint = {position.x, position.y, position.z}
+    pendingDiceSpawnPointColor = nil
+    updateLockContextMenu()
+    updateSave()
+    printToColor("✅ Точка появления кубиков установлена.", player.color, {0, 1, 0})
 end
 
 -- Устанавливает конкретный режим блокировки (вызывается из контекстного меню)
@@ -3604,8 +3950,15 @@ function applyResourceCounterLockVisuals()
         end
 
         for i, step in ipairs(data.steps) do
-            local addBtnId = counterId.."_btn_add_"..step
-            local subBtnId = counterId.."_btn_sub_"..step
+            -- Для еды/питья id кнопок строится по порядковому номеру (см.
+            -- createResourceCounter/setFoodUnitMetric/setWaterUnitMetric),
+            -- а не по величине шага — иначе тут получили бы несуществующий id
+            local idSuffix = step
+            if counterId == RESOURCE_COUNTER_WATER_ID or counterId == RESOURCE_COUNTER_FOOD_ID then
+                idSuffix = i
+            end
+            local addBtnId = counterId.."_btn_add_"..idSuffix
+            local subBtnId = counterId.."_btn_sub_"..idSuffix
 
             self.editButton({
                 index = btnIndexByElementIdTable[addBtnId],
@@ -3690,6 +4043,44 @@ function onload(saved_data)
     -- Поддержка старых сохранений без поля бонусов к КД
     if type(ref_buttonData.acBonuses) ~= "table" then
         ref_buttonData.acBonuses = {}
+    end
+    -- Поддержка старых сохранений без переключателя поглощения урона временными хитами
+    if type(ref_buttonData.useTempHp) ~= "boolean" then
+        ref_buttonData.useTempHp = true
+    end
+    -- diceSpawnPoint необязателен (nil = точка по умолчанию от листа) — если
+    -- в сохранении пришло что-то повреждённое/не-таблица, лучше сбросить к nil,
+    -- чем упасть при следующем броске
+    if ref_buttonData.diceSpawnPoint ~= nil and type(ref_buttonData.diceSpawnPoint) ~= "table" then
+        ref_buttonData.diceSpawnPoint = nil
+    end
+    -- Поддержка старых сохранений без счётчиков пищи/питья и переключателей единиц
+    if ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID] == nil then
+        local src = defaultButtonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID]
+        local copy = {}
+        for k, v in pairs(src) do copy[k] = v end
+        ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID] = copy
+    end
+    if ref_buttonData.resourceCounter[RESOURCE_COUNTER_WATER_ID] == nil then
+        local src = defaultButtonData.resourceCounter[RESOURCE_COUNTER_WATER_ID]
+        local copy = {}
+        for k, v in pairs(src) do copy[k] = v end
+        ref_buttonData.resourceCounter[RESOURCE_COUNTER_WATER_ID] = copy
+    end
+    if type(ref_buttonData.foodUnitMetric) ~= "boolean" then
+        ref_buttonData.foodUnitMetric = false
+    end
+    if type(ref_buttonData.waterUnitMetric) ~= "boolean" then
+        ref_buttonData.waterUnitMetric = false
+    end
+    if type(ref_buttonData.heightUnitMetric) ~= "boolean" then
+        ref_buttonData.heightUnitMetric = false
+    end
+    -- Канонический рост в футах — если отсутствует (старое сохранение),
+    -- считаем, что значение в поле "Рост" уже было в футах (единственный
+    -- вариант, который вообще существовал до этой фичи)
+    if type(ref_buttonData.heightFeetCanonical) ~= "number" then
+        ref_buttonData.heightFeetCanonical = tonumber(ref_buttonData.textbox[TEXTBOX_HEIGHT_ID].value) or 0
     end
     -- Поддержка старых сохранений, созданных до появления полей "Сложность
     -- спасброска"/"Бонус атаки заклинанием" (используются книгой заклинаний)
@@ -3958,12 +4349,16 @@ self.editButton({
 end
 
 -- Список счётчиков-монет (для проверки в click_resource_counter)
-local moneyCounterIds = {
+-- Счётчики, при изменении которых нужно пересчитать общий вес (монеты,
+-- пища, питьё) — см. вызов updateMonetWeight() ниже в click_resource_counter
+local weightAffectingCounterIds = {
     [RESOURCE_COUNTER_COPPER_COINS_ID] = true,
     [RESOURCE_COUNTER_SILVER_COINS_ID] = true,
     [RESOURCE_COUNTER_ELECTRUM_COINS_ID] = true,
     [RESOURCE_COUNTER_GOLD_COINS_ID] = true,
     [RESOURCE_COUNTER_PLATINUM_COINS_ID] = true,
+    [RESOURCE_COUNTER_FOOD_ID] = true,
+    [RESOURCE_COUNTER_WATER_ID] = true,
 }
 
 -- Обрабатывает клик по кнопке шага резервного счётчика (хиты, монеты).
@@ -3991,6 +4386,33 @@ function click_resource_counter(amount, counterId)
   ref_buttonData.exhaustion.baseHp = ref_buttonData.exhaustion.baseHp + amount
   if ref_buttonData.exhaustion.baseHp < 0 then ref_buttonData.exhaustion.baseHp = 0 end
   refreshExhaustionStatOverrides()
+    elseif counterId == RESOURCE_COUNTER_HP_CURRENT_ID and amount < 0 and ref_buttonData.useTempHp == true then
+  -- Урон сначала "поглощается" временными хитами, и только остаток (если
+  -- урон больше, чем есть временных хитов) снимается с текущих хитов
+  local damage = -amount
+  local tempData = ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_TEMPORARY_ID]
+  local currentData = ref_buttonData.resourceCounter[RESOURCE_COUNTER_HP_CURRENT_ID]
+
+  local absorbedByTemp = math.min(damage, tempData.value)
+  tempData.value = tempData.value - absorbedByTemp
+
+  local remainingDamage = damage - absorbedByTemp
+  currentData.value = currentData.value - remainingDamage
+  if currentData.value < 0 then
+      currentData.value = 0
+  end
+
+  self.editButton({
+      index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_TEMPORARY_ID],
+      label = tempData.value,
+  })
+  refreshFieldTint(RESOURCE_COUNTER_HP_TEMPORARY_ID)
+
+  self.editButton({
+      index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_CURRENT_ID],
+      label = currentData.value,
+  })
+  refreshFieldTint(RESOURCE_COUNTER_HP_CURRENT_ID)
     else
   local data = ref_buttonData.resourceCounter[counterId]
   data.value = data.value + amount
@@ -4017,7 +4439,7 @@ function click_resource_counter(amount, counterId)
     end
 
     -- Изменилось количество монет — пересчитываем их вес
-    if moneyCounterIds[counterId] == true then
+    if weightAffectingCounterIds[counterId] == true then
   updateMonetWeight()
     end
 
@@ -4087,6 +4509,18 @@ self.editInput({
   elseif textboxId == TEXTBOX_SPEED_ID and ref_buttonData.exhaustion.baseSpeed ~= nil then
       ref_buttonData.exhaustion.baseSpeed = tonumber(value) or 0
       refreshExhaustionStatOverrides()
+  elseif textboxId == TEXTBOX_HEIGHT_ID then
+      -- Введённое число считаем в ТЕКУЩЕЙ выбранной единице (футы или см)
+      -- и сразу пересчитываем канонический рост в футах — им пользуется
+      -- расчёт досягаемости с руками (updateJumpAndWeight), независимо
+      -- от того, какая единица сейчас выбрана для отображения
+      ref_buttonData.textbox[textboxId].value = value
+      local enteredNumber = tonumber(value) or 0
+      if ref_buttonData.heightUnitMetric then
+    ref_buttonData.heightFeetCanonical = enteredNumber / FOOT_TO_CM
+      else
+    ref_buttonData.heightFeetCanonical = enteredNumber
+      end
   else
       ref_buttonData.textbox[textboxId].value = value
   end
@@ -4131,16 +4565,29 @@ function updateMonetWeight()
 coinTotalCount = coinTotalCount + tonumber(coinCount)
   end
     end
+    local coinWeight = singleCoinWeight * coinTotalCount
 
-    local coinTotalWeight = math.ceil(singleCoinWeight * coinTotalCount)
-    local kgTotalWeight = math.ceil(coinTotalWeight * POUND_PER_KG)
-    local poundText = declensionRus(coinTotalWeight, 'фунт', 'фунта', 'фунтов')
-    local text = "Вес монет: "..coinTotalWeight.." "..poundText.." ("..kgTotalWeight.." кг)"
-    if coinTotalWeight == 0 then
+    -- Пища/питьё теперь хранятся ПРЯМО В ТЕКУЩЕЙ ВЫБРАННОЙ ЕДИНИЦЕ
+    -- (см. блок "ЕДИНИЦЫ ИЗМЕРЕНИЯ"), поэтому для расчёта веса в фунтах
+    -- их сначала нужно перевести обратно, если сейчас выбрана метрическая
+    local WATER_LB_PER_GALLON = 8.34
+
+    local foodAmount = tonumber(ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID].value) or 0
+    local foodWeight = ref_buttonData.foodUnitMetric and (foodAmount / LB_TO_KG) or foodAmount
+
+    local waterAmount = tonumber(ref_buttonData.resourceCounter[RESOURCE_COUNTER_WATER_ID].value) or 0
+    local waterGallons = ref_buttonData.waterUnitMetric and (waterAmount / GALLON_TO_LITER) or waterAmount
+    local waterWeight = waterGallons * WATER_LB_PER_GALLON
+
+    local totalWeight = math.ceil(coinWeight + foodWeight + waterWeight)
+    local kgTotalWeight = math.ceil(totalWeight * POUND_PER_KG)
+    local poundText = declensionRus(totalWeight, 'фунт', 'фунта', 'фунтов')
+    local text = "Вес монет и провизии: "..totalWeight.." "..poundText.." ("..kgTotalWeight.." кг)"
+    if totalWeight == 0 then
   text = NET_MONET_TEXT
     end
 
-    ref_buttonData.monetWeight = coinTotalWeight
+    ref_buttonData.monetWeight = totalWeight
     checkOvercumbrance()
 
     ref_buttonData.display[DISPLAY_MONET_WEIGHT_ID].value = text
@@ -4288,9 +4735,11 @@ function updateJumpAndWeight()
   label = jumpDistance,
     })
 
-    -- Обновляем высоту прыжка с касанием руками (зависит от роста)
-    local characterHeight = ref_buttonData.textbox[TEXTBOX_HEIGHT_ID].value
-    characterHeight = tonumber(characterHeight) or 0
+    -- Обновляем высоту прыжка с касанием руками (зависит от роста).
+    -- Берём канонический рост в футах (heightFeetCanonical) — результат
+    -- всегда в футах, независимо от того, в чём сейчас отображается рост
+    -- (футы или см, см. блок "ЕДИНИЦЫ ИЗМЕРЕНИЯ")
+    local characterHeight = ref_buttonData.heightFeetCanonical or 0
 
     local characterOneAndHalfHeight = math.floor(characterHeight * 1.5)
     local jumpHeightWithHands = jumpHeight + characterOneAndHalfHeight
@@ -4581,8 +5030,8 @@ function onClickRollHitDice(obj, playerColor)
 
       broadcastToAll(
     '['..playerColorRBB..']'..steam_name..'[-]: '
-    ..'Кость хитов (к'..diceSize..') для ['..charSheetColor..'][i]'..charSheetName..'[/i][-]: '
-    ..roll..modifierText..' = [b]'..healed..'[/b] ('..newHp..' хитов)'
+    ..'Кость хитов (к'..diceSize..') для ['..charSheetColor..'][b][i]'..charSheetName..'[/i][/b][-]: '
+    ..'[b]'..roll..modifierText..' = '..healed..'[/b] ('..newHp..' хитов)'
       )
   end
     )
@@ -4769,19 +5218,31 @@ end
 -- столбик кнопок "+шаг" справа и столбик кнопок "-шаг" слева (шаги — из
 -- data.steps, например {1,5,10}). Кнопки скрываются (масштаб 0), когда
 -- счётчик заблокирован — см. applyResourceCounterLockVisuals.
--- Приглушённый цвет фона дисплея под тип монеты (неяркие, пастельные тона —
--- см. createResourceCounter). Шрифт всегда buttonFontColor (чёрный), задаём
--- его явно вместе с цветом, иначе он подстраивался бы под новый фон.
+-- Приглушённый цвет фона дисплея под тип монеты/хитов (неяркие, пастельные
+-- тона — см. createResourceCounter). Шрифт всегда buttonFontColor (чёрный),
+-- задаём его явно вместе с цветом, иначе он подстраивался бы под новый фон.
 local coinCounterBackgroundColor = {
     [RESOURCE_COUNTER_COPPER_COINS_ID] = {0.72, 0.52, 0.42},
     [RESOURCE_COUNTER_SILVER_COINS_ID] = {0.75, 0.77, 0.80},
     [RESOURCE_COUNTER_ELECTRUM_COINS_ID] = {0.80, 0.75, 0.55},
     [RESOURCE_COUNTER_GOLD_COINS_ID] = {0.82, 0.70, 0.38},
     [RESOURCE_COUNTER_PLATINUM_COINS_ID] = {0.83, 0.85, 0.87},
+    [RESOURCE_COUNTER_HP_CURRENT_ID] = {0.55, 0.25, 0.25},
+    [RESOURCE_COUNTER_HP_TEMPORARY_ID] = {0.55, 0.65, 0.85},
 }
 
 function createResourceCounter()
     for counterId, data in pairs(ref_buttonData.resourceCounter) do
+  -- Подсказка на дисплее значения — для еды/питья показывает текущую
+  -- единицу измерения (см. foodUnitTooltip/waterUnitTooltip), для
+  -- остальных resourceCounter (монеты, хиты) подсказка не нужна
+  local mainTooltip = nil
+  if counterId == RESOURCE_COUNTER_FOOD_ID then
+      mainTooltip = foodUnitTooltip[ref_buttonData.foodUnitMetric]
+  elseif counterId == RESOURCE_COUNTER_WATER_ID then
+      mainTooltip = waterUnitTooltip[ref_buttonData.waterUnitMetric]
+  end
+
   -- Кнопка-дисплей с текущим значением (сама не кликабельна)
   createBtnAndSaveIndex(
 counterId,
@@ -4795,6 +5256,7 @@ counterId,
     label    = data.value,
     position = data.pos,
     scale    = buttonScale,
+    tooltip  = mainTooltip,
     width    = data.size * 2,
 }
   )
@@ -4817,10 +5279,36 @@ if #data.steps == 2 then
     rowZ = rowZ + rowSpacingZ * 0.5
 end
 
+-- Для еды/питья сумма/подпись/подсказка зависят от текущей единицы
+-- измерения (см. foodStepConfigByUnit/waterStepConfigByUnit и
+-- setFoodUnitMetric/setWaterUnitMetric) — id кнопки строим по
+-- ПОРЯДКОВОМУ номеру (i), а не по величине шага, чтобы не "уезжать" при
+-- переключении единицы. Для всех остальных resourceCounter — как раньше.
+local stepAmount = step
+local addLabel = "+"..step
+local subLabel = "−"..step
+local stepTooltip = nil
+local idSuffix = step
+if counterId == RESOURCE_COUNTER_WATER_ID then
+    local cfg = waterStepConfigByUnit[ref_buttonData.waterUnitMetric][i]
+    stepAmount = cfg.amount
+    addLabel = cfg.addLabel
+    subLabel = cfg.subLabel
+    stepTooltip = cfg.tooltip
+    idSuffix = i
+elseif counterId == RESOURCE_COUNTER_FOOD_ID then
+    local cfg = foodStepConfigByUnit[ref_buttonData.foodUnitMetric][i]
+    stepAmount = cfg.amount
+    addLabel = cfg.addLabel
+    subLabel = cfg.subLabel
+    stepTooltip = cfg.tooltip
+    idSuffix = i
+end
+
 -- Кнопка "+step" (столбик справа)
-local addBtnId = counterId.."_btn_add_"..step
+local addBtnId = counterId.."_btn_add_"..idSuffix
 local addFunc = function()
-    click_resource_counter(step, counterId)
+    click_resource_counter(stepAmount, counterId)
 end
 self.setVar(addBtnId, addFunc)
 
@@ -4833,18 +5321,19 @@ font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
 height   = btnSize,
-label    = "+"..step,
+label    = addLabel,
 position = { data.pos[1] + columnOffsetX, data.pos[2], rowZ },
 scale    = buttonScale,
+tooltip  = stepTooltip,
 width    = btnSize,
     }
 )
 spawnedButtonCount = spawnedButtonCount + 1
 
 -- Кнопка "-step" (столбик слева)
-local subBtnId = counterId.."_btn_sub_"..step
+local subBtnId = counterId.."_btn_sub_"..idSuffix
 local subFunc = function()
-    click_resource_counter(-step, counterId)
+    click_resource_counter(-stepAmount, counterId)
 end
 self.setVar(subBtnId, subFunc)
 
@@ -4857,9 +5346,10 @@ font_color     = buttonFontColor,
 font_size= btnSize * 0.7,
 function_owner = self,
 height   = btnSize,
-label    = "−"..step,
+label    = subLabel,
 position = { data.pos[1] - columnOffsetX, data.pos[2], rowZ },
 scale    = buttonScale,
+tooltip  = stepTooltip,
 width    = btnSize,
     }
 )
@@ -5010,6 +5500,21 @@ local DICE_TOSS_FORCE = 8
 -- Сколько кадров ждать после spawnObject перед roll()/addForce() — свежесозданный
 -- объект какое-то время физически "заморожен", одного кадра не хватало
 local DICE_SPAWN_FREEZE_FRAMES = 5
+-- Через сколько кадров после ПЕРВОГО подброса кубик подкидывается ещё раз —
+-- без этого кубики падают и останавливаются слишком быстро/предсказуемо
+local DICE_SECOND_TOSS_DELAY_FRAMES = 15
+-- Сила случайного вращения кубика (градусы/сек по каждой оси) — добавляется
+-- при каждом подбросе, чтобы кубик заметно кувыркался, а не просто падал
+local DICE_SPIN_STRENGTH = 600
+
+-- Возвращает случайный вектор угловой скорости для подброса кубика
+local function randomDiceSpin()
+    return {
+        (math.random() - 0.5) * 2 * DICE_SPIN_STRENGTH,
+        (math.random() - 0.5) * 2 * DICE_SPIN_STRENGTH,
+        (math.random() - 0.5) * 2 * DICE_SPIN_STRENGTH,
+    }
+end
 -- На сколько смещать вперёд (дальше от листа, по той же локальной оси) каждый
 -- следующий одновременный бросок, пока кубики предыдущего ещё не удалены
 local DICE_THROW_FORWARD_STEP = -0.2
@@ -5076,12 +5581,28 @@ function rollPhysicalDiceGroups(groups, onComplete)
     -- единицах: positionToWorld() учитывает масштаб объекта листа, а лист
     -- обычно намного крупнее 1x1x1 — если пропустить высоту через него же,
     -- кубики "улетают" в разы выше стола, вместо того чтобы падать на него.
-    local referencePos = self.positionToWorld({
-        DICE_SPAWN_LOCAL_POS[1],
-        0,
-        DICE_SPAWN_LOCAL_POS[2] - DICE_THROW_FORWARD_STEP * (slotIndex or 0),
-    })
-    local tableY = self.getPosition()[2]
+    --
+    -- Если игрок задал свою точку спавна через ПКМ (ref_buttonData.diceSpawnPoint,
+    -- см. блок "ТОЧКА СПАВНА КУБИКОВ" выше) — координаты уже мировые
+    -- (сохранены как есть из Player.getPointerPosition()), пересчёт через
+    -- positionToWorld() в этом случае не нужен.
+    local referencePos
+    local tableY
+    if ref_buttonData.diceSpawnPoint ~= nil then
+        referencePos = {
+            ref_buttonData.diceSpawnPoint[1],
+            0,
+            ref_buttonData.diceSpawnPoint[3] - DICE_THROW_FORWARD_STEP * (slotIndex or 0),
+        }
+        tableY = ref_buttonData.diceSpawnPoint[2]
+    else
+        referencePos = self.positionToWorld({
+            DICE_SPAWN_LOCAL_POS[1],
+            0,
+            DICE_SPAWN_LOCAL_POS[2] - DICE_THROW_FORWARD_STEP * (slotIndex or 0),
+        })
+        tableY = self.getPosition()[2]
+    end
 
     local spawnCount = 0
 
@@ -5107,9 +5628,19 @@ function rollPhysicalDiceGroups(groups, onComplete)
                     referencePos[3] + (math.random() - 0.5) * 1.2,
                 }
 
+                -- Случайный начальный поворот кубика — вместе со случайной
+                -- угловой скоростью при подбросах (см. ниже) даёт заметно
+                -- более хаотичное вращение вместо одинакового кувырка каждый раз
+                local rotation = {
+                    math.random(0, 360),
+                    math.random(0, 360),
+                    math.random(0, 360),
+                }
+
                 local die = spawnObject({
                     type     = objectName,
                     position = position,
+                    rotation = rotation,
                     scale    = {1, 1, 1},
                 })
 
@@ -5123,8 +5654,20 @@ function rollPhysicalDiceGroups(groups, onComplete)
                         die.roll()
                         -- Небольшой подброс вверх (Impulse — мгновенный "толчок", не зависит от кадра)
                         die.addForce({0, DICE_TOSS_FORCE, 0}, 3)
+                        -- Случайное вращение, чтобы кубик заметно кувыркался в полёте
+                        die.setAngularVelocity(randomDiceSpin())
                     end
                 end, DICE_SPAWN_FREEZE_FRAMES)
+
+                -- Кубик подкидывается ещё раз спустя несколько кадров после первого
+                -- подброса — иначе кубики падают и останавливаются слишком быстро
+                Wait.frames(function()
+                    if not die.isDestroyed() then
+                        die.roll()
+                        die.addForce({0, DICE_TOSS_FORCE, 0}, 3)
+                        die.setAngularVelocity(randomDiceSpin())
+                    end
+                end, DICE_SPAWN_FREEZE_FRAMES + DICE_SECOND_TOSS_DELAY_FRAMES)
 
                 table.insert(dice, {obj = die, group = group.name})
             end
@@ -5140,7 +5683,9 @@ function rollPhysicalDiceGroups(groups, onComplete)
 
     -- Сразу после roll() кубик ещё "resting" в течение пары кадров,
     -- поэтому проверку начинаем не мгновенно, а спустя несколько кадров
-    -- после того, как выше уже подождали DICE_SPAWN_FREEZE_FRAMES
+    -- после того, как выше уже подождали DICE_SPAWN_FREEZE_FRAMES и
+    -- DICE_SECOND_TOSS_DELAY_FRAMES (второй подброс должен успеть случиться
+    -- ДО того, как мы начнём проверять, улёгся ли кубик)
     Wait.frames(function()
         local function collectResults()
             for _, entry in ipairs(dice) do
@@ -5197,7 +5742,7 @@ function rollPhysicalDiceGroups(groups, onComplete)
                 cleanupDice()
             end
         )
-    end, DICE_SPAWN_FREEZE_FRAMES + 10)
+    end, DICE_SPAWN_FREEZE_FRAMES + DICE_SECOND_TOSS_DELAY_FRAMES + 10)
 end
 
 -- Выполняет бросок атаки и урона для выбранного оружия (физическими кубиками)
@@ -5242,6 +5787,9 @@ function rollWeapon(index, obj, playerColor)
         table.insert(groups, {name = "damage", diceType = diceType, diceCount = diceCount})
     end
 
+    -- Цвет тинта листа — им красим итоговые числа атаки/урона (см. ниже)
+    local charSheetColor = colorToHex(self.getColorTint())
+
     rollPhysicalDiceGroups(groups, function(results)
         local roll20
         local disadvantageText = ""
@@ -5252,6 +5800,7 @@ function rollWeapon(index, obj, playerColor)
             roll20 = results.attack.total
         end
         local totalAttack = roll20 + hitBonus + exhaustionPenalty
+        local totalAttackText = "[" .. charSheetColor .. "]" .. totalAttack .. "[-]"
 
         local attackBonusSign = ""
         local attackBonusVal = ""
@@ -5268,7 +5817,7 @@ function rollWeapon(index, obj, playerColor)
             exhaustionPenaltyText = " − " .. math.abs(exhaustionPenalty) .. " (истощение)"
         end
 
-        local attackText = "d20(" .. roll20 .. ")" .. attackBonusSign .. attackBonusVal .. exhaustionPenaltyText .. " = [b]" .. totalAttack .. "[/b]" .. disadvantageText
+        local attackText = "[b]d20(" .. roll20 .. ")" .. attackBonusSign .. attackBonusVal .. exhaustionPenaltyText .. " = " .. totalAttackText .. "[/b]" .. disadvantageText
 
         local damageText = ""
         if hasDamage then
@@ -5276,6 +5825,7 @@ function rollWeapon(index, obj, playerColor)
                 local rolls = results.damage.values
                 local diceSum = results.damage.total
                 local totalDamage = diceSum + damageBonus
+                local totalDamageText = "[" .. charSheetColor .. "]" .. totalDamage .. "[-]"
                 local rollsStr = table.concat(rolls, "+")
                 local bonusSign = ""
                 local bonusVal = ""
@@ -5286,9 +5836,9 @@ function rollWeapon(index, obj, playerColor)
                     bonusSign = " − "
                     bonusVal = tostring(math.abs(damageBonus))
                 end
-                damageText = diceCount .. "к" .. diceType .. "(" .. rollsStr .. ")" .. bonusSign .. bonusVal .. " = [b]" .. totalDamage .. "[/b]"
+                damageText = "[b]" .. diceCount .. "к" .. diceType .. "(" .. rollsStr .. ")" .. bonusSign .. bonusVal .. " = " .. totalDamageText .. "[/b]"
             else
-                damageText = "[b]" .. damageBonus .. "[/b]"
+                damageText = "[b][" .. charSheetColor .. "]" .. damageBonus .. "[-][/b]"
             end
         end
 
@@ -5299,9 +5849,8 @@ function rollWeapon(index, obj, playerColor)
             charSheetName = "Лист персонажа"
         end
         local playerColorRBB = convertColorNameIntoRgbString(playerColor)
-        local charSheetColor = colorToHex(self.getColorTint())
 
-        local msg = "["..playerColorRBB.."]"..steam_name.."[-]: [b]"..weaponName.."[/b] для ["..charSheetColor.."][i]"..charSheetName.."[/i][-]\n"
+        local msg = "["..playerColorRBB.."]"..steam_name.."[-]: [b]"..weaponName.."[/b] для ["..charSheetColor.."][b][i]"..charSheetName.."[/i][/b][-]\n"
         msg = msg .. "• Атака: " .. attackText
         if hasDamage then
             msg = msg .. "  |  Урон: " .. damageText
@@ -5427,12 +5976,12 @@ skillBonusSign = '−'
       broadcastToAll(
     '['..playerColorRBB..']'..
     steam_name..'[-]: '
-    ..rollName..' для ['..charSheetColor..'][i]'..charSheetName..'[/i][-]: '
-    ..roll20
+    ..rollName..' для ['..charSheetColor..'][b][i]'..charSheetName..'[/i][/b][-]: '
+    ..'[b]'..roll20
     ..paramBonusText
     ..skillBonusText
     ..exhaustionPenaltyText
-    ..' = [b]'..resultText..'[/b]'
+    ..' = '..resultText..'[/b]'
     ..disadvantageText
       )
   end
